@@ -1,0 +1,98 @@
+<div class="container d-flex flex-column">
+  <div class="form">
+    <div class="row gap-3">
+      <input
+        type="text"
+        class="col-7 form-control"
+        placeholder="Enter key word..."
+        required
+      />
+      <select class="col-2 form-select">
+        <option value="name">Tên sách</option>
+        <option value="author">Tác Giả</option>
+        <option value="genre">Thể loại</option>
+      </select>
+      <button type="submit" class="col btn btn-primary">Tra cứu</button>
+    </div>
+  </div>
+
+  <div class="query-result mt-5">
+    <h5 class="text-center mb-3">KẾT QUẢ TRA CỨU</h5>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#ID</th>
+          <th scope="col">Tên</th>
+          <th scope="col">Tồn kho</th>
+          <th scope="col">Tác giả</th>
+          <th scope="col">Thể loại</th>
+          <th scope="col">Xóa</th>
+          <th scope="col">Chỉnh sửa</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">1</th>
+          <td>The Great Gatsby</td>
+          <!-- BookName -->
+          <td>25</td>
+          <!-- Inventory -->
+          <td>F. Scott Fitzgerald</td>
+          <!-- Author -->
+          <td>Fiction</td>
+          <!-- Genre -->
+          <td><i class="fas fa-trash"></i></td>
+          <td><i class="fas fa-edit"></i></td>
+      
+        </tr>
+
+        <tr>
+          <th scope="row">2</th>
+          <td>To Kill a Mockingbird</td>
+          <td>20</td>
+          <td>Harper Lee</td>
+          <td>Classics</td>
+          <td><i class="fas fa-trash"></i></td>
+          <td><i class="fas fa-edit"></i></td>        
+        </tr>
+
+        <tr>
+          <th scope="row">3</th>
+          <td>1984</td>
+          <td>15</td>
+          <td>George Orwell</td>
+          <td>Dystopian</td>
+          <td><i class="fas fa-trash"></i></td>
+          <td><i class="fas fa-edit"></i></td>        
+
+        </tr>
+
+        <tr>
+          <th scope="row">4</th>
+          <td>The Catcher in the Rye</td>
+          <td>30</td>
+          <td>J.D. Salinger</td>
+          <td>Coming-of-Age</td>
+          <td><i class="fas fa-trash"></i></td>
+          <td><i class="fas fa-edit"></i></td>      
+        </tr>
+
+        <tr>
+          <th scope="row">5</th>
+          <td>Harry Potter and the Sorcerer's Stone</td>
+          <td>40</td>
+          <td>J.K. Rowling</td>
+          <td>Fantasy</td>
+          <td><i class="fas fa-trash"></i></td> 
+          <td><i class="fas fa-edit"></i></td>     
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  <select class="col-2 align-self-center form-select">
+    <option value="page-1">Page 1</option>
+    <option value="page-2">Page 2</option>
+    <option value="page-3">Page 3</option>
+  </select>
+</div>
