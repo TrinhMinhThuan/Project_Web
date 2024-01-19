@@ -2,8 +2,8 @@ const express = require("express");
 const { create } = require("express-handlebars");
 const app = express();
 
-viewRoute = require('./routes/view_route');
-
+const viewRoute = require('./routes/view_route');
+const UserRoute = require('./routes/User_route');
 const hbs = create({
   extname: '.hbs'
 });
@@ -39,8 +39,11 @@ app.get("/addBook", (req,res,next) =>{
   });
 });
 
-
+app.use(express.urlencoded({ extended: true }));
 app.use("/", viewRoute);
+app.use("/", UserRoute);
+
+
 app.listen(3000, () => {
   console.log("server is listening on port 3000");
 });

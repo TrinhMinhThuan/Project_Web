@@ -4,14 +4,14 @@ const databaseConnection = require('../utils/database');
 
 module.exports = class Users 
 {
-    constructor(UserID, Username, Password, Email, Role, AccountID)
+    constructor(UserID, Username, Password, Email, Role, Balance)
     {
         this.UserID =UserID;
         this.Username = Username; 
         this.Password = Password;
         this.Email = Email;
         this.Role = Role;
-        this.AccountID  = AccountID;
+        this.Balance = Balance;
     }
     static async getAll()
     {
