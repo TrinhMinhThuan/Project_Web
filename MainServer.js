@@ -2,6 +2,7 @@ const express = require("express");
 const { create } = require("express-handlebars");
 const app = express();
 
+viewRoute = require('./routes/view_route');
 
 const hbs = create({
   extname: '.hbs'
@@ -39,7 +40,7 @@ app.get("/addBook", (req,res,next) =>{
 });
 
 
-
+app.use("/", viewRoute);
 app.listen(3000, () => {
   console.log("server is listening on port 3000");
 });
