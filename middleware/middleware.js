@@ -10,7 +10,7 @@ exports.authenticate = (req, res, next) => {
         }
         else
         {
-            console.log(decoded);
+            req.user = decoded;
             next();
         }
       });
