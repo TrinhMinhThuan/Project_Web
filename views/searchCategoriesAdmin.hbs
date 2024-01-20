@@ -1,15 +1,17 @@
 <div class="container d-flex flex-column">
-  <div class="form">
+  <form action="/admin" method="GET">
     <div class="row gap-3">
       <input
         type="text"
         class="col-7 form-control"
-        placeholder="Enter key word..."
+        placeholder="Tìm kiếm bằng tên thể loại"
+        name="keyCategoryName"
+        value= "{{ValueName}}"
         required
       />
       <button type="submit" class="col btn btn-success">Tra cứu</button>
     </div>
-  </div>
+  </from>
 
   <div class="query-result mt-5">
     <h5 class="text-center mb-3">KẾT QUẢ TRA CỨU</h5>
@@ -24,47 +26,26 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <th scope="row">1</th>
-          <td>1</td>
-          <td>temp</td>
-          <td>temp</td>
-          <td><i class="fas fa-trash"></i></td>
-          <td><i class="fas fa-edit"></i></td>
-      
-        </tr>
-
-        <tr>
-          <th scope="row">2</th>
-             <td>2</td>
-          <td>temp</td>
-          <td>temp</td>
-          <td><i class="fas fa-trash"></i></td>
-          <td><i class="fas fa-edit"></i></td>     
-        </tr>
-
-        <tr>
-          <th scope="row">3</th>
-               <td>3</td>
-          <td>temp</td>
-          <td>temp</td>
-          <td><i class="fas fa-trash"></i></td>
-          <td><i class="fas fa-edit"></i></td>      
-        </tr>
-        <tr>
-          <th scope="row">4</th>
-          <td>3</td>
-          <td>temp</td>
-          <td>temp</td>
-          <td><i class="fas fa-trash"></i></td>
-          <td><i class="fas fa-edit"></i></td>     
-        </tr>
+         {{#each _Categories}}
+          <tr>
+            <th scope="row">{{this.CategoryID}}</th>
+            <td>{{this.CategoryName}}</td>
+            <td>{{this.CategoryQuantity}}</td>
+            <td><i class="fas fa-trash"></td>
+            <td><i class="fas fa-edit"></td>
+        {{else}}
+          <td colspan="6" class="text-center">Không Tìm Thấy Sách Theo Yêu Cầu🥲</td>
+        {{/each}}
       </tbody>
     </table>
   </div>
-  <select class="col-2 align-self-center form-select">
-    <option value="page-1">Page 1</option>
-    <option value="page-2">Page 2</option>
-    <option value="page-3">Page 3</option>
-  </select>
+  <div class="d-flex justify-content-center">
+    {{#if pages}}
+    <select class="col-2 align-self-center paging form-select">
+      {{#each pages}}
+      <option value="{{this}}">Page {{this}}</option>
+      {{/each}}
+    </select>
+    {{/if}}
+  </div>
 </div>

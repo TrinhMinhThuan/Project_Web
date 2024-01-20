@@ -27,32 +27,9 @@ app.set("view engine", "hbs");
 app.set("views", "./views");
 app.use(express.static("public"));
 
-app.get("/", (req,res,next) =>{
-  res.render("searchCategories", {
-    title: "Quản lý danh mục",
-    
-  });
-});
-
-app.get("/searchCategories", (req,res,next) =>{
-  res.render("searchCategories", {
-    title: "Quản lý danh mục",
-  });
-});
-
-
-
-app.get("/addBook", (req,res,next) =>{
-  res.render("addBook", {
-    title: "Thêm danh mục",
-  });
-});
-
 app.use(express.urlencoded({ extended: true }));
 app.use("/", UserRoute);
 app.use("/", viewRoute);
-
-
 
 const server = https.createServer({
   key: process.env.KEY,

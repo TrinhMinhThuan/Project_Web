@@ -4,10 +4,12 @@ const viewController = require('../controllers/view_controller');
 const middle = require('../middleware/middleware');
 
 viewRoute.get('/login', viewController.Login);
-viewRoute.get("/addCategories", middle.authenticate, (req,res,next) =>{
-    res.render("addCategories", {
-      title: "Quản lý danh mục",
-    });
-  });
+
+//Không hiểu sao lại bị lỗi cái này
+viewRoute.get("/admin/searchCategories-Admin", viewController.getSearchCategories);
+
+viewRoute.get("/admin",  viewController.getSearchCategories);
+ 
+
 
 module.exports = viewRoute;

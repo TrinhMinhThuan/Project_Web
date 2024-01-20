@@ -1,5 +1,6 @@
 
 const Product = require('../models/Users_model');
+const Categories = require('../models/Categories_model');
 
 
 exports.Login = async (req, res, next) =>
@@ -10,6 +11,24 @@ exports.Login = async (req, res, next) =>
       });
 }
 
+exports.getSearchCategories = async (req,res,next) =>{
+    const { keyCategoryName = "", page = 1, limit = 5 } = req.query;
+    const _Categories = await Categories.search({
+      Keyword: keyCategoryName,
+      Page: page,
+      Limit: limit,
+    });
+    const pages = Array.from(
+      { length: Math.ceil(_Categories[0]?.Total / limit || 0) },
+      (_, i) => i + 1
+    );
+    res.render("searchCategoriesAdmin", {
+      title: "Quản lý danh mục", 
+      _Categories,
+      pages,
+      ValueName: keyCategoryName,
+    });
+}
 
 
 

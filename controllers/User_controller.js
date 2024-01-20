@@ -7,7 +7,6 @@ exports.CheckLogin = async (req, res, next) => {
 
         const user = await UserModel.getUserByUserName(body.Username);
 
-
         if (user.Password === body.Password && user.Role === 'Client') {
             const token = jwt.sign(user, 'hhh', { expiresIn: '1h' });
            // res.json(token);

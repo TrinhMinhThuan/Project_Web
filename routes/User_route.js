@@ -21,7 +21,6 @@ function ensureAuthenticated(req, res, next) {
       if (err) {
         return res.status(401).json({ error: 'Invalid token' });
       }
-  
       req.user = decoded;
       next();
     });
