@@ -3,10 +3,14 @@ const jwt = require('jsonwebtoken');
 exports.authenticate = (req, res, next) => {
     const token = req.session.token;
     //console.log(token);
-    jwt.verify(token, 'hhh', function(err, decoded) {
+    const key = process.env.KEY;
+
+    jwt.verify(token, key, function(err, decoded) {
         if (err) {
           //console.log(err);
-          res.render('errorPage', {error: 'Bạn phải đăng nhập để thực hiện chức năng này'})
+          res.render('errorPage', {
+             layout: 'account-form',
+            error: 'Bạn phải đăng nhập để thực hiện chức năng này'})
         }
         else
         {
@@ -15,3 +19,21 @@ exports.authenticate = (req, res, next) => {
         }
       });
 };
+
+
+exports.isLogin = (req, res, next) => {
+    const token = req.session.token;
+  
+    jwt.verify(token, key, function (err, decoded) {
+      if (err) {
+        req.Username = 'Bạn chưa đăng nhập'
+        next();
+      }
+      else {
+        req.Username = decoded.Username;
+        
+        next();
+      }
+    });
+  }
+  

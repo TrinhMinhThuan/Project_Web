@@ -28,11 +28,20 @@
 <body id="page-top">
 
   <nav class="navbar navbar-expand navbar-light bg-success topbar mb-4 static-top shadow justify-content-end">
-    <div class="text-light fs-3" style="width: 40%;">
+    <div class="text-light " style="width: 20%;">
       {{#if Username}}
-          {{Username}}
+          <span  class="fw-bold fs-5" >{{Username}}</span>
       {{/if}}
       </div>
+
+    <a class="nav-link" href="/">
+      <button class="btn btn-outline-light  btn-lg" style="display: flex; align-items:center; height: 100%;"
+        type="button">
+        <i class="fa-solid fa-eye"></i>
+        <div class="ml-1"> Xem ở chế độ khách hàng</div>
+
+      </button>
+    </a>
 
     <a class="nav-link" href="/signup">
       <button class="btn btn-outline-light  btn-lg" style="display: flex; align-items:center; height: 100%;"
@@ -79,6 +88,7 @@
         <!-- LOGO -->
         <div class="sidebar-brand-text mx-3">
           <span style="font-size: 1.2rem">Book Store</span>
+          <span style="font-size: 0.8rem">(admin)</span>
         </div>
       </a>
 

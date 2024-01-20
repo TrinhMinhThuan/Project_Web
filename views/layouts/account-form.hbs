@@ -15,22 +15,34 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <link href="css/sb-admin-2.min.css" rel="stylesheet" />
+  
+  <!-- Đường dẫn tuyệt đối -->
+  
 <style>
 
-  {{> sb-admin-2.min}}
-</style>
+ {{> sb-admin-2.min}}
 
+</style>
 </head>
 
 <body id="page-top">
 
   <nav class="navbar navbar-expand navbar-light bg-success topbar mb-4 static-top shadow justify-content-end">
-    <div class="text-light " style="width: 40%;">
+    <div class="text-light " style="width: 30%;">
       {{#if Username}}
           <span  class="fw-bold fs-5" >{{Username}}</span>
       {{/if}}
       </div>
+
+
+    <a class="nav-link" {{#if admin}} href="/admin" {{else}} href="/" {{/if}}>
+      <button class="btn btn-outline-light  btn-lg" style="display: flex; align-items:center; height: 100%;"
+        type="button">
+        <i class="fa-solid fa-house"></i>
+        <div class="ml-1"> Home</div>
+
+      </button>
+    </a>
 
 
     <a class="nav-link" href="/signup">
@@ -72,109 +84,15 @@
   <!-- Page Wrapper -->
   <div id="wrapper">
     <!-- Sidebar -->
-    <ul class="navbar-nav bg-gradient-success sidebar sidebar-dark accordion" id="accordionSidebar">
-      <!-- Sidebar - Brand -->
-      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
-        <!-- LOGO -->
-        <div class="sidebar-brand-text mx-3">
-          <span style="font-size: 1.2rem">Book Store</span>
-          <span style="font-size: 0.8rem">(client)</span>
-        </div>
-      </a>
-
-      <!-- Divider -->
-      <hr class="sidebar-divider my-0" />
-
-      <!-- Heading -->
-      <div class="sidebar-heading mt-3" style="font-size: 1rem">Cửa hàng</div>
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="/searchBook">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <span>Sản phẩm</span>
-        </a>
-      </li>
-
-       <!-- Divider -->
-      <hr class="sidebar-divider" />
-
-      <!-- Heading -->
-      <div class="sidebar-heading mt-3" style="font-size: 1rem">
-        Thống kê
-      </div>
-
-      <!-- Nav Item - Pages Collapse Menu -->
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="/hotBook">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <span>Sản phẩm bán chạy</span>
-        </a>
-      </li> 
-      <!-- Divider -->
-      <hr class="sidebar-divider" />
-
-      <!-- Heading -->
-      <div class="sidebar-heading mt-3" style="font-size: 1rem">
-        Giỏ hàng
-      </div>
-
-      <!-- Nav Item - Pages Collapse Menu -->
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="/cartBook">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <span>Giỏ hàng</span>
-        </a>
-      </li>
-
-      <hr class="sidebar-divider" />
-      <div class="sidebar-heading mt-3" style="font-size: 1rem">
-        Thanh Toán
-      </div>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="/topUp">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <span>Nạp tiền</span>
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="/payment">
-          <i class="fa-regular fa-file"></i>
-          <span>Chuyển tiền thanh toán</span>
-        </a>
-      </li>
-      <!-- Divider -->
-      <hr class="sidebar-divider d-none d-md-block" />
-      <hr class="sidebar-divider" />
-      <div class="sidebar-heading mt-3" style="font-size: 1rem">
-        Tài khoản
-      </div>
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="/profile">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <span>Hồ sơ</span>
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="/logOut">
-          <i class="fa-regular fa-file"></i>
-          <span>Đăng xuất</span>
-        </a>
-      </li>
-    </ul>
-    <!-- End of Sidebar -->
-
+ 
     <!-- Content Wrapper -->
-    <div id="content-wrapper" class="d-flex flex-column">
+    <div id="content-wrapper" class="">
       <!-- Main Content -->
       <div id="content">
         <!-- Topbar -->
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
           <!-- Sidebar Toggle (Topbar) -->
-          <button id="sidebarToggleTop" class="btn btn-link text-success rounded-circle mr-3">
-            <i class="fa fa-bars"></i>
-          </button>
+          
           <h1 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center">{{title}}</h1>
           <!-- Topbar Navbar -->
         </nav>

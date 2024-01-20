@@ -1,26 +1,28 @@
 const Categories = require('../models/Categories_model');
 
-exports.getSearchCategories = async (req,res,next) =>{
-    const { keyCategoryName = "", page = 1, limit = 3 } = req.query;
-    const _Categories = await Categories.search({
-      Keyword: keyCategoryName,
-      Page: page,
-      Limit: limit,
-    });
-    const pages = Array.from(
-      { length: Math.ceil(_Categories[0]?.Total / limit || 0) },
-      (_, i) => i + 1
-    );
-    res.render("searchCategoriesAdmin", {
-      layout: 'admin',
-      title: "Quản lý danh mục", 
-      _Categories,
-      pages,
-      ValueName: keyCategoryName,
-    });
+exports.getSearchCategories = async (req, res, next) => {
+  const { keyCategoryName = "", page = 1, limit = 3 } = req.query;
+  const _Categories = await Categories.search({
+    Keyword: keyCategoryName,
+    Page: page,
+    Limit: limit,
+  });
+  const pages = Array.from(
+    { length: Math.ceil(_Categories[0]?.Total / limit || 0) },
+    (_, i) => i + 1
+  );
+  res.render("searchCategoriesAdmin", {
+    layout: 'admin',
+    title: "Quản lý danh mục",
+    Username: req.Username,
+    admin: true,
+    _Categories,
+    pages,
+    ValueName: keyCategoryName,
+  });
 }
 
-exports.deleteCategories = async (req,res,next) =>{
+exports.deleteCategories = async (req, res, next) => {
   const { categoryId } = req.params;
   try {
     await Categories.delete(categoryId)
@@ -31,15 +33,17 @@ exports.deleteCategories = async (req,res,next) =>{
   }
 }
 
-exports.addCategories = async (req,res,next) =>{
-  const {categoryID, importDate, categoryName} =  req.query;
+exports.addCategories = async (req, res, next) => {
+  const { categoryID, importDate, categoryName } = req.query;
   // Check CategoryID
-  if(categoryID !== undefined){
+  if (categoryID !== undefined) {
     const checkID = await Categories.checkID(categoryID);
-    if(checkID == true){
+    if (checkID == true) {
       res.render("errorPage", {
         layout: 'admin',
-        error: "Đã tồn tại ID", 
+        Username: req.Username,
+        admin: true,
+        error: "Đã tồn tại ID",
       });
     }
   }
@@ -49,30 +53,36 @@ exports.addCategories = async (req,res,next) =>{
       Date: importDate,
       Name: categoryName
     });
-    if(temp){
+    if (temp) {
       res.render("truePage", {
         layout: 'admin',
-        notification: "Thêm danh mục thành công", 
+        Username: req.Username,
+        admin: true,
+        notification: "Thêm danh mục thành công",
       });
     }
-    else{
+    else {
       res.render("errorPage", {
         layout: 'admin',
-        error: "Thêm danh mục thất bại", 
+        Username: req.Username,
+        admin: true,
+        error: "Thêm danh mục thất bại",
       });
     }
   } else {
-  res.render("addCategoriesAdmin", {
-    layout: 'admin',
-    title: "Thêm danh mục", 
-  });
+    res.render("addCategoriesAdmin", {
+      layout: 'admin',
+      Username: req.Username,
+      admin: true,
+      title: "Thêm danh mục",
+    });
   }
 }
 
 
-exports.editCategories = async (req,res,next) =>{
+exports.editCategories = async (req, res, next) => {
   // Category cần edit
-  const { categoryId} = req.params;
+  const { categoryId } = req.params;
   const _Categories = await Categories.searchID(categoryId)
   const categoryid = _Categories.CategoryID;
   const categoryname = _Categories.CategoryName;
@@ -80,62 +90,62 @@ exports.editCategories = async (req,res,next) =>{
 
 
   // Category edit
-  const {categoryID, categoryName, categoryQuantity} =  req.query;
+  const { categoryID, categoryName, categoryQuantity } = req.query;
 
   // Check CategoryID
-  if(categoryID !== undefined && categoryID != categoryId){
+  if (categoryID !== undefined && categoryID != categoryId) {
     const checkID = await Categories.checkID(categoryID);
-    if(checkID == true){
+    if (checkID == true) {
       res.render("errorPage", {
         layout: 'admin',
-        error: "Đã tồn tại ID", 
+        error: "Đã tồn tại ID",
       });
     }
   }
   if (categoryID !== undefined && categoryQuantity !== undefined && categoryName !== undefined) {
     let query = `UPDATE Categories SET `;
     let checkdot = false;
-    if(categoryID != categoryid){
-        query =  query + `CategoryID = @categoryId `;
-        checkdot = true;
-    }
-    if(categoryName != categoryname){
-      if(checkdot == true) query = query + `,`;
-      query =  query + `CategoryName = @categoryName `;
+    if (categoryID != categoryid) {
+      query = query + `CategoryID = @categoryId `;
       checkdot = true;
     }
-    if(categoryQuantity != categoryquantity){
-      if(checkdot == true) query = query + `,`;
-      query =  query + `CategoryQuantity = @categoryQuantity `;
+    if (categoryName != categoryname) {
+      if (checkdot == true) query = query + `,`;
+      query = query + `CategoryName = @categoryName `;
       checkdot = true;
     }
-    query =  query + `Where CategoryID = ${categoryid}`;
+    if (categoryQuantity != categoryquantity) {
+      if (checkdot == true) query = query + `,`;
+      query = query + `CategoryQuantity = @categoryQuantity `;
+      checkdot = true;
+    }
+    query = query + `Where CategoryID = ${categoryid}`;
     const temp = await Categories.edit({
       ID: categoryID,
       Name: categoryName,
       Quantity: categoryQuantity,
       Query: query
     });
-    if(temp){
+    if (temp) {
       res.render("truePage", {
         layout: 'admin',
-        notification: "Chỉnh sửa thành công", 
+        notification: "Chỉnh sửa thành công",
       });
     }
-    else{
+    else {
       res.render("errorPage", {
         layout: 'admin',
-        error: "Không có sự thay đổi", 
+        error: "Không có sự thay đổi",
       });
     }
   } else {
 
     res.render("editCategoriesAdmin", {
       layout: 'admin',
-      title: "Chỉnh sửa danh mục", 
-      CategoryID : categoryid,
-      CategoryName : categoryname,
-      CategoryQuantity : categoryquantity
+      title: "Chỉnh sửa danh mục",
+      CategoryID: categoryid,
+      CategoryName: categoryname,
+      CategoryQuantity: categoryquantity
     });
   }
 }

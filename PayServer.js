@@ -3,6 +3,7 @@ const express = require("express");
 const { create } = require("express-handlebars");
 const app = express();
 const https = require('https');
+const bodyParser = require('body-parser');
 
 const hbs = create({
   extname: '.hbs'
@@ -16,8 +17,12 @@ app.set("views", "./views");
 app.use(express.static("public"));
 
 
-
+app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
+
+const Route = require('./routes/PayServer_route');
+
+app.use('/', Route);
 
 
 const server = https.createServer({

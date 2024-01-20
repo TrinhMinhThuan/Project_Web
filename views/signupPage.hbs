@@ -1,0 +1,126 @@
+<section class="vh-100">
+    <div class="container-fluid h-custom">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-md-9 col-lg-6 col-xl-5">
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+                    class="img-fluid" alt="Sample image">
+            </div>
+            <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+                <form method="post" action="/signup">
+
+
+                    <div class="divider d-flex align-items-center my-4">
+                        <p class="text-center fw-bold mx-3 mb-0">Sign up</p>
+                    </div>
+
+
+                    <!-- Username input -->
+                    <div class="form-outline mb-4">
+                        <input name="Username" type="text" id="Username" class="form-control form-control-lg" oninvalid="handleInvalidInput(this)"
+                            placeholder="Enter username" required />
+                        <label class="form-label" for="form3Example3">Username</label>
+
+                    </div>
+
+                    <!-- Password input -->
+                    <div class="form-outline mb-3">
+                        <input name="Password" type="password" id="Password" class="form-control form-control-lg"
+                            placeholder="Enter password" required />
+                        <label class="form-label" for="form3Example4">Password</label>
+                    </div>
+
+                    <div class="form-outline mb-3">
+                        <input name="Email" type="Email" id="Email" class="form-control form-control-lg"
+                            placeholder="Enter email" required />
+                        <label class="form-label" for="form3Example4">Email</label>
+                    </div>
+
+
+                    <div class="text-center text-lg-start mt-4 pt-2">
+                        <button type="submit" class="btn btn-success btn-lg"
+                            style="padding-left: 2.5rem; padding-right: 2.5rem;" onclick="validateForm()">Sign
+                            up</button>
+
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<script>
+    function handleInvalidInput(input, errorMessage) {
+        
+        input.setCustomValidity(errorMessage);
+    }
+
+    async function validateForm() {
+        let username = document.getElementById('Username');
+        let password = document.getElementById('Password');
+        let email = document.getElementById('Email');
+        var usernameRegex = /^\S+$/;
+        const checkExsist = await fetch(`https://localhost:3000/checkUsernameExists?username=${username.value}`);
+        const check = await checkExsist.json();
+        const res = check.result;
+        console.log(res);
+        if (res == 1)
+        {
+            handleInvalidInput(username, 'Username đã tồn tại, vui lòng nhập username khác.');
+            return false;
+        }
+        else if (username.value === '') {
+            handleInvalidInput(username, 'Vui lòng nhập username.');
+            return false;
+        }
+        else if (!usernameRegex.test(username.value)) {
+            handleInvalidInput(username, 'Username không chứa dấu cách.');
+            return false;
+        }
+        
+        else
+        {
+            handleInvalidInput(username, '');
+        }
+
+        if (password.value === '')
+        {
+            handleInvalidInput(password, 'Vui lòng nhập password.');
+            return false;
+        }
+        else if (!usernameRegex.test(password.value)) {
+            handleInvalidInput(password, 'Password không chứa dấu cách.');
+            return false;
+        }
+        else
+        {
+            handleInvalidInput(password, '');
+        }
+
+        const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,10}$/;
+
+        if (email.value === '')
+        {
+            handleInvalidInput(email, 'Vui lòng nhập email.');
+            return false;
+        }
+        else if (emailRegex.test(email.value))
+        {
+            handleInvalidInput(email, 'Email không hợp lệ.');
+            return false;
+        }
+        else
+        {
+            handleInvalidInput(email, '');
+
+        }
+
+
+        return true;
+    }
+
+
+
+
+</script>

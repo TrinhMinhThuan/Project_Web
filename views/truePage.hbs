@@ -8,6 +8,6 @@
       alt=""
     />
     <h5 class="text-center p-3">{{notification}}</h5>
-    <a href="/" class="btn btn-success">Quay Lại Trang Chủ</a>
+    <a {{#if admin}} href="/admin" {{else}} href="/" {{/if}} class="btn btn-success">Quay Lại Trang Chủ</a>
   </div>
 </div>
