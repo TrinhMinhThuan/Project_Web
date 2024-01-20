@@ -5,6 +5,7 @@ const app = express();
 const https = require('https');
 const viewRoute = require('./routes/view_route');
 const UserRoute = require('./routes/User_route');
+const CategoriesRoute = require('./routes/Categories_route');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 
@@ -28,8 +29,10 @@ app.set("views", "./views");
 app.use(express.static("public"));
 
 app.use(express.urlencoded({ extended: true }));
+
 app.use("/", UserRoute);
 app.use("/", viewRoute);
+app.use("/", CategoriesRoute);
 
 const server = https.createServer({
   key: process.env.KEY,
