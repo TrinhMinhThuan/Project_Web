@@ -23,7 +23,7 @@ exports.authenticate = (req, res, next) => {
 
 exports.isLogin = (req, res, next) => {
     const token = req.session.token;
-  
+    const key = process.env.KEY;
     jwt.verify(token, key, function (err, decoded) {
       if (err) {
         req.Username = 'Bạn chưa đăng nhập'
