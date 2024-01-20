@@ -43,4 +43,10 @@ module.exports = class Users
            return Categories.recordsets[0];
         }
     }
+    static async delete(categoryId){
+        let pool = await sql.connect(databaseConnection);
+        let deletee = await pool.request()
+        .input('categoryId', sql.Int, categoryId)
+        .query('DELETE FROM Categories WHERE CategoryID = @categoryId');
+    }
 }

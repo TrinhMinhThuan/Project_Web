@@ -1,5 +1,5 @@
 <div class="container d-flex flex-column">
-  <form action="/admin" method="GET">
+  <form id="searchForm"  action="/admin" method="GET">
     <div class="row gap-3">
       <input
         type="text"
@@ -7,7 +7,6 @@
         placeholder="Tìm kiếm bằng tên thể loại"
         name="keyCategoryName"
         value= "{{ValueName}}"
-        required
       />
       <button type="submit" class="col btn btn-success">Tra cứu</button>
     </div>
@@ -27,12 +26,20 @@
       </thead>
       <tbody>
          {{#each _Categories}}
-          <tr>
-            <th scope="row">{{this.CategoryID}}</th>
+          <tr id = {{this.CategoryID}}>
+            <th scope="row" >{{this.CategoryID}}</th>
             <td>{{this.CategoryName}}</td>
             <td>{{this.CategoryQuantity}}</td>
-            <td><i class="fas fa-trash"></td>
-            <td><i class="fas fa-edit"></td>
+            <td>
+              <button class="btn-delete" data-category-id="{{this.CategoryID}}">
+                <i class="fas fa-trash"></i> 
+              </button></td>
+             <td>
+              <button class="btn-edit" data-category-id="{{this.CategoryID}}">
+                <i class="fas fa-edit"></i> 
+              </button>
+            </td>
+          </tr>
         {{else}}
           <td colspan="6" class="text-center">Không Tìm Thấy Sách Theo Yêu Cầu🥲</td>
         {{/each}}
@@ -49,3 +56,41 @@
     {{/if}}
   </div>
 </div>
+<script>
+document.querySelectorAll('.btn-delete').forEach(button => {
+  button.addEventListener('click', function() {
+    event.preventDefault();
+    const categoryId = this.getAttribute('data-category-id');
+    const deleteUrl = `/admin/categories/delete/${categoryId}`;
+    // Sử dụng AJAX để gửi yêu cầu DELETE
+    const xhr = new XMLHttpRequest();
+    xhr.open('DELETE', deleteUrl, true);
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        console.log(xhr.status);
+        if (xhr.status === 200) {
+          // Xử lý thành công
+          updateUI(categoryId);
+          console.log('Dữ liệu đã được xóa thành công!');
+        } else {
+          // Xử lý lỗi
+          console.error('Lỗi xóa dữ liệu:', xhr.statusText);
+        }
+      }
+    };
+    xhr.send();
+  });
+});
+function updateUI(categoryId) {
+    // Lấy tham chiếu đến phần tử trực tiếp bằng id
+    const rowToRemove = document.getElementById(categoryId);
+    // Kiểm tra xem có phần tử để loại bỏ không
+    if (rowToRemove) {
+      // Loại bỏ hàng từ DOM
+      rowToRemove.remove();
+    } else {
+      console.error('Không tìm thấy hàng để loại bỏ.');
+    }
+}
+</script>

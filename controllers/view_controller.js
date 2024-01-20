@@ -30,7 +30,16 @@ exports.getSearchCategories = async (req,res,next) =>{
     });
 }
 
-
+exports.deleteCategories = async (req,res,next) =>{
+  const { categoryId } = req.params;
+  try {
+    await Categories.delete(categoryId)
+    res.status(200).json({ message: 'Dữ liệu đã được xóa thành công!' });
+  } catch (error) {
+    res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });
+  } finally {
+  }
+}
 
 
 

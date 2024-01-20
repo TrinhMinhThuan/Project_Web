@@ -10,6 +10,5 @@ viewRoute.get("/admin/searchCategories-Admin", viewController.getSearchCategorie
 
 viewRoute.get("/admin",  viewController.getSearchCategories);
  
-
-
+viewRoute.delete("/admin/categories/delete/:categoryId", viewController.deleteCategories);
 module.exports = viewRoute;
