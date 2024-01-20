@@ -8,4 +8,12 @@ categoriesRouter.get("/admin/searchCategories-Admin", Categories_controller.getS
 categoriesRouter.get("/admin",  Categories_controller.getSearchCategories);
  
 categoriesRouter.delete("/admin/categories/delete/:categoryId", Categories_controller.deleteCategories);
+
+// Thêm
+categoriesRouter.get("/admin/addCategories-Admin", Categories_controller.addCategories)
+
+// Sửa
+categoriesRouter.get("/admin/categories/edit/:categoryId", Categories_controller.editCategories)
+
+
 module.exports = categoriesRouter;

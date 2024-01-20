@@ -8,13 +8,9 @@
         class="form-control col-6"
         placeholder="Nhập id thể loại"
         name = "categoryID"
+        value= "{{CategoryID}}"
         required
       />
-    </div>
-
-    <div class="mb-3 row align-items-center">
-      <label class="form-label col-2 m-0">Ngày Nhập: </label>
-      <input name="importDate" id="datepicker" type="date" class="form-control col-5" />
     </div>
 
     <div class="mb-3 row align-items-center">
@@ -24,14 +20,21 @@
         class="form-control col-6"
         placeholder="Nhập thể loại"
         name = "categoryName"
+        value = "{{CategoryName}}"
         required
       />
     </div>
-
-    <button type="submit" class="align-self-end d-block btn btn-success">Nhập
-      thể loại</button>
+    <div class="mb-3 row align-items-center">
+      <label class="form-label col-2 m-0">Số sản phẩm: </label>
+      <input
+        type="text"
+        class="form-control col-6"
+        placeholder="Nhập số sản phẩm"
+        name = "categoryQuantity"
+        value = "{{CategoryQuantity}}"
+        required
+      />
+    </div>
+    <button type="submit" class="align-self-end d-block btn btn-success">Nhập thể loại</button>
   </form>
-     <script>
-        document.getElementById('datepicker').valueAsDate = new Date();
-    </script>
 </div>

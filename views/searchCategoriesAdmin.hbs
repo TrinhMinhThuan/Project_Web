@@ -108,4 +108,14 @@ function updateUI(categoryId) {
       console.error('Không tìm thấy hàng để loại bỏ.');
     }
 }
+
+
+// Edit
+document.querySelectorAll('.btn-edit').forEach(button => {
+  button.addEventListener('click', function() {
+    event.preventDefault();
+    const categoryId = this.getAttribute('data-category-id');
+    window.location.href = `/admin/categories/edit/${categoryId}`;
+  });
+});
 </script>
