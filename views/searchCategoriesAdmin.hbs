@@ -57,6 +57,20 @@
   </div>
 </div>
 <script>
+
+// Update Page
+const selection = document.querySelector(".paging");
+selection?.addEventListener("change", (e) => {
+  const url = new URL(window.location.href);
+  const query = new URLSearchParams(window.location.search);
+  query.set("page", e.target.value);
+  url.search = query;
+  location.assign(url.href);
+});
+const query = new URLSearchParams(window.location.search);
+if (selection) selection.value = query.get("page") || 1;
+
+// Delete vs ajax
 document.querySelectorAll('.btn-delete').forEach(button => {
   button.addEventListener('click', function() {
     event.preventDefault();
@@ -82,6 +96,7 @@ document.querySelectorAll('.btn-delete').forEach(button => {
     xhr.send();
   });
 });
+//Update giao diện
 function updateUI(categoryId) {
     // Lấy tham chiếu đến phần tử trực tiếp bằng id
     const rowToRemove = document.getElementById(categoryId);

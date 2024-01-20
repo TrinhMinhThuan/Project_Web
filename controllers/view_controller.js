@@ -12,7 +12,7 @@ exports.Login = async (req, res, next) =>
 }
 
 exports.getSearchCategories = async (req,res,next) =>{
-    const { keyCategoryName = "", page = 1, limit = 5 } = req.query;
+    const { keyCategoryName = "", page = 1, limit = 3 } = req.query;
     const _Categories = await Categories.search({
       Keyword: keyCategoryName,
       Page: page,
