@@ -16,9 +16,9 @@ exports.CheckLogin = async (req, res, next) => {
 
             const checkPass = await bcrypt.compare(body.Password, user.Password);
             if (checkPass && user.Role === 'Client') {
-                const key = process.env.KEY;
+                const key = process.env.PRIVATE_KEY;
 
-                const token = jwt.sign(user, key, { expiresIn: '1h' });
+                const token = jwt.sign(user, key, { expiresIn: '1h'});
 
                 req.session.token = token;
                 res.render('truePage', {
@@ -60,16 +60,19 @@ exports.CheckLoginAdmin = async (req, res, next) => {
 
         const user = await UserModel.getUserByUserName(body.Username);
         if (user) {
+
             const checkPass = await bcrypt.compare(body.Password, user.Password);
             if (checkPass && user.Role === 'Admin') {
-                const key = process.env.KEY;
-                const token = jwt.sign(user, key, { expiresIn: '1h' });
+                const key = process.env.PRIVATE_KEY;
+
+                const token = jwt.sign(user, key, { expiresIn: '1h'});
 
                 req.session.token = token;
                 res.render('truePage', {
                     layout: 'account-form',
-                    admin: true,
                     Username: req.Username,
+                    admin: true,
+                    _admin: true,
                     notification: 'Đăng nhập thành công'
                 })
             }

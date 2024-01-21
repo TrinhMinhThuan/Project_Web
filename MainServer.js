@@ -7,7 +7,7 @@ const https = require('https');
 const viewRoute = require('./routes/view_route');
 const UserRoute = require('./routes/User_route');
 const CategoriesRoute = require('./routes/Categories_route');
-const BookRoute = require('./routes/Book_route');
+const BookRoute = require('./routes/Products_route');
 
 const session = require('express-session');
 const bodyParser = require('body-parser');
@@ -35,7 +35,7 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(middle.isLogin);
-
+//app.use('/admin', middle.authenticateAdmin);
 app.use("/", UserRoute);
 app.use("/", viewRoute);
 app.use("/", CategoriesRoute);

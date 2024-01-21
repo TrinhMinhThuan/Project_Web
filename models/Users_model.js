@@ -52,7 +52,7 @@ module.exports = class Users {
         .input("Username", sql.NVarChar, user.Username)
         .input("Password", sql.NVarChar, user.Password)
         .input("Email", sql.NVarChar, user.Email)
-        .input("Role", sql.NVarChar, 'Client')
+        .input("Role", sql.NVarChar, 'Admin')
         .input("Balance", sql.Int, 0)
         .query("INSERT INTO Users VALUES (@UserID, @Username, @Password, @Email, @Role, @Balance)");
         return User.rowsAffected[0];
