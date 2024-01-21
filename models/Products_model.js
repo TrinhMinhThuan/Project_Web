@@ -2,6 +2,7 @@ const sql = require("mssql");
 
 const databaseConnection = require('../utils/database');
 
+//      ?
 module.exports = class Users 
 {
     constructor(UserID, Username, Password, Email, Role, Balance)

@@ -2,7 +2,7 @@ const sql = require("mssql");
 
 const databaseConnection = require('../utils/database');
 
-module.exports = class Users 
+module.exports = class Categories 
 {
     constructor(CategoryID, CategoryName, CategoryQuantity)
     {

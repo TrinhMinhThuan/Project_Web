@@ -1,98 +1,74 @@
 <div class="container d-flex flex-column">
-  <div class="form">
+  <form id="searchForm" action="/admin/searchBook-Admin" method="GET">
     <div class="row gap-3">
-      <input
-        type="text"
-        class="col-7 form-control"
-        placeholder="Enter key word..."
-        required
-      />
-      <select class="col-2 form-select">
-        <option value="name">Tên sách</option>
-        <option value="author">Tác Giả</option>
-        <option value="genre">Thể loại</option>
+      <input type="text" class="col-7 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" required/>
+      <select name="type" class="col-2 form-select option">
+        <option value="ProductName">Tên sách</option>
+        <option value="Author">Tác Giả</option>
+        <option value="CategoryName">Thể loại</option>
       </select>
       <button type="submit" class="col btn btn-success">Tra cứu</button>
     </div>
-  </div>
-
+  </form>
   <div class="query-result mt-5">
     <h5 class="text-center mb-3">KẾT QUẢ TRA CỨU</h5>
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">#ID</th>
-          <th scope="col">Tên</th>
-          <th scope="col">Tồn kho</th>
-          <th scope="col">Tác giả</th>
-          <th scope="col">Thể loại</th>
-          <th scope="col">Xóa</th>
-          <th scope="col">Chỉnh sửa</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th scope="row">1</th>
-          <td>The Great Gatsby</td>
-          <!-- BookName -->
-          <td>25</td>
-          <!-- Inventory -->
-          <td>F. Scott Fitzgerald</td>
-          <!-- Author -->
-          <td>Fiction</td>
-          <!-- Genre -->
-          <td><i class="fas fa-trash"></i></td>
-          <td><i class="fas fa-edit"></i></td>
-      
-        </tr>
-
-        <tr>
-          <th scope="row">2</th>
-          <td>To Kill a Mockingbird</td>
-          <td>20</td>
-          <td>Harper Lee</td>
-          <td>Classics</td>
-          <td><i class="fas fa-trash"></i></td>
-          <td><i class="fas fa-edit"></i></td>        
-        </tr>
-
-        <tr>
-          <th scope="row">3</th>
-          <td>1984</td>
-          <td>15</td>
-          <td>George Orwell</td>
-          <td>Dystopian</td>
-          <td><i class="fas fa-trash"></i></td>
-          <td><i class="fas fa-edit"></i></td>        
-
-        </tr>
-
-        <tr>
-          <th scope="row">4</th>
-          <td>The Catcher in the Rye</td>
-          <td>30</td>
-          <td>J.D. Salinger</td>
-          <td>Coming-of-Age</td>
-          <td><i class="fas fa-trash"></i></td>
-          <td><i class="fas fa-edit"></i></td>      
-        </tr>
-
-        <tr>
-          <th scope="row">5</th>
-          <td>Harry Potter and the Sorcerer's Stone</td>
-          <td>40</td>
-          <td>J.K. Rowling</td>
-          <td>Fantasy</td>
-          <td><i class="fas fa-trash"></i></td> 
-          <td><i class="fas fa-edit"></i></td>     
-        </tr>
-        
-      </tbody>
-    </table>
+    <div class="container mt-4">
+      <div class="row justify-content-center">
+        {{#if _books.length}}
+        {{#each _books}}
+        <div class="col-md-4 col-lg-3 col-sm-6 mt-4">
+          <div class="card text-center">
+            <img src="/Images/{{this.Image}}" height="250px" class="card-img-top" alt="Ảnh bị hư">
+            <div class="card-body" style="Height: 250px">
+              <p class="card-title font-weight-bold" style="Height: 50px;">{{this.ProductName}}</p>
+              <p class="card-text text-sm">Số lượng: {{this.StockQuantity}}</p>
+              <p class="card-text text-sm">Tác giả: {{this.Author}}</p>
+              <p class="card-text text-sm">Giá: {{this.Price}}</p>
+            </div>
+            <div class="card-footer">
+              <!-- Thêm hai nút Delete và Edit -->
+              <button type="button" class="btn btn-danger btn-sm">Delete</button>
+              <button type="button" class="btn btn-primary btn-sm ml-2" style="width: 60px">Edit</button>
+            </div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{else}}
+      <p class="text-center">Không Tìm Thấy Sách Theo Yêu Cầu🥲</p>
+      {{/if}}
+    </div>
+    <div class="d-flex justify-content-center mt-4 mb-4">
+      {{#if pages}}
+      <select class="col-2 align-self-center paging form-select">
+        {{#each pages}}
+        <option value="{{this}}">Page {{this}}</option>
+        {{/each}}
+      </select>
+      {{/if}}
+    </div>
   </div>
-  <select class="col-2 align-self-center form-select">
-    <option value="page-1">Page 1</option>
-    <option value="page-2">Page 2</option>
-    <option value="page-3">Page 3</option>
-  </select>
+  <style>
+    .card:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transform: scale(1.05);
+      cursor: pointer;
+      /* Sử dụng con trỏ pointer khi rê vào */
+    }
+  </style>
 </div>
+<script>
+  // Update Page
+  const selection = document.querySelector(".paging");
+  selection?.addEventListener("change", (e) => {
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", e.target.value);
+    url.search = query;
+    location.assign(url.href);
+  });
+  const query = new URLSearchParams(window.location.search);
+  if (selection) selection.value = query.get("page") || 1;
+
+  document.querySelector(".option").value = query.get("type") || "ProductName"
+</script>

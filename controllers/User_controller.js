@@ -60,7 +60,6 @@ exports.CheckLoginAdmin = async (req, res, next) => {
 
         const user = await UserModel.getUserByUserName(body.Username);
         if (user) {
-
             const checkPass = await bcrypt.compare(body.Password, user.Password);
             if (checkPass && user.Role === 'Admin') {
                 const key = process.env.KEY;

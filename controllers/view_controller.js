@@ -6,7 +6,6 @@ const Product = require('../models/Users_model');
 exports.Login = (req, res, next) =>
 {
 
-
     res.render("loginPage", {
       layout: 'account-form',
         Username: req.Username,

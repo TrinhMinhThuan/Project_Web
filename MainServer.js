@@ -3,9 +3,12 @@ const express = require("express");
 const { create } = require("express-handlebars");
 const app = express();
 const https = require('https');
+
 const viewRoute = require('./routes/view_route');
 const UserRoute = require('./routes/User_route');
 const CategoriesRoute = require('./routes/Categories_route');
+const BookRoute = require('./routes/Book_route');
+
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const middle = require('./middleware/middleware');
@@ -36,6 +39,7 @@ app.use(middle.isLogin);
 app.use("/", UserRoute);
 app.use("/", viewRoute);
 app.use("/", CategoriesRoute);
+app.use("/", BookRoute);
 
 const server = https.createServer({
   key: process.env.KEY,
