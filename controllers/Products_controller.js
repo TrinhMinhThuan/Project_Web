@@ -1,4 +1,4 @@
-const Book = require('../models/Book_model');
+const Book = require('../models/Products_model');
 
 exports.getSearchBook = async (req, res, next) => {
     const { keyword = "", type = "ProductName", page = 1, limit = 4 } = req.query;

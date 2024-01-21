@@ -8,6 +8,7 @@ const viewRoute = require('./routes/view_route');
 const UserRoute = require('./routes/User_route');
 const CategoriesRoute = require('./routes/Categories_route');
 const BookRoute = require('./routes/Products_route');
+const CartsRoute = require('./routes/Carts_route');
 
 const session = require('express-session');
 const bodyParser = require('body-parser');
@@ -38,8 +39,9 @@ app.use(middle.isLogin);
 //app.use('/admin', middle.authenticateAdmin);
 app.use("/", UserRoute);
 app.use("/", viewRoute);
-app.use("/", CategoriesRoute);
+app.use("/admin", CategoriesRoute);
 app.use("/", BookRoute);
+app.use('/cartBook', CartsRoute);
 
 const server = https.createServer({
   key: process.env.KEY,

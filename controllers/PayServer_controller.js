@@ -19,6 +19,16 @@ exports.createUser = async (req, res, next) =>{
     }
 }
 
+exports.Pay = async (req, res, next) =>{
+    try {
+        const body = req.body;
+        console.log(body);
+        res.json({});
+        
+    } catch (error) {
+        next(error);
+    }
+}
 
 
 

@@ -119,7 +119,6 @@ exports.Signup = async (req, res, next) => {
         user.Password = await bcrypt.hash(user.Password, saltRounds);
         const PAY_PORT = process.env.PAY_SERVER_PORT;
         const agent = new https.Agent({
-            //ca: process.env.CERT,
             rejectUnauthorized: false
         });
 
@@ -148,7 +147,7 @@ exports.Signup = async (req, res, next) => {
                 layout: 'account-form',
                 Username: req.Username,
 
-                error: 'Đăng ký thành công'
+                notification: 'Đăng ký thành công'
             });
         }
 

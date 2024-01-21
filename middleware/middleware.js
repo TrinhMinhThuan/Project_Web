@@ -10,7 +10,7 @@ exports.authenticate = (req, res, next) => {
 
       res.render('errorPage', {
         layout: 'account-form',
-        error: 'Bạn phải đăng nhập vào tài khoản admin để thực hiện chức năng này'
+        error: 'Bạn phải đăng nhập vào tài khoản để thực hiện chức năng này'
       })
     }
     else {
