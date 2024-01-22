@@ -1,0 +1,134 @@
+<div class="container d-flex flex-column">
+  <form id="searchForm" >
+    <div class="row gap-3">
+      <input type="text" class="col-7 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" required/>
+      <select name="type" class="col-2 form-select option">
+        <option value="ProductName">Tên sách</option>
+        <option value="Author">Tác Giả</option>
+        <option value="CategoryName">Thể loại</option>
+      </select>
+      <button type="submit" class="col btn btn-success">Tra cứu</button>
+    </div>
+  </form>
+   <form id="filterForm">
+    <div class="row gap-3">
+      <input type="number" class="col-3 form-control" placeholder="đ Từ" name="minPrice" value="{{MinPrice}}"
+        required />
+      <input type="number" class="col-3 form-control" placeholder="đ Đến" name="maxPrice" value="{{MaxPrice}}"
+        required />
+      <button type="submit" class="col-2 btn btn-success" id="applyFilter">Áp dụng bộ lọc</button>
+    </div>
+  </form>
+  <div class="query-result mt-5">
+    <h5 class="text-center mb-3">KẾT QUẢ TRA CỨU</h5>
+    <div class="container mt-4">
+      <div class="row justify-content-center">
+        {{#if _books.length}}
+        {{#each _books}}
+        <div class="col-md-4 col-lg-3 col-sm-6 mt-4">
+          <div class="card text-center">
+            <img src="/Images/{{this.Image}}" height="190px" class="card-img-top" alt="Ảnh bị hư">
+            <div class="card-body" style="Height: 210px">
+              <p class="card-title font-weight-bold" style="Height: 30px;">{{this.ProductName}}</p>
+              <p class="card-text text-sm mt-4" >Số lượng: {{this.StockQuantity}}</p>
+              <p class="card-text text-sm">Tác giả: {{this.Author}}</p>
+              <p class="card-text text-sm">Giá: {{this.Price}} VNĐ</p>
+            </div>
+            <div class="card-footer">
+              <!-- Thêm nút thêm vào giỏ hàng -->
+              <input type="number" placeholder="Nhập số lượng" name="quantity" id="quantityInput"/>
+              <button type="button" data-product-id="{{this.ProductID}}" class="mt-2 btn-addCart btn btn-danger btn-sm">Thêm vào giỏ hàng</button>
+            </div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{else}}
+      <p class="text-center">Không Tìm Thấy Sách Theo Yêu Cầu🥲</p>
+      {{/if}}
+    </div>
+    <div class="d-flex justify-content-center mt-4 mb-4">
+      {{#if pages}}
+      <select class="col-2 align-self-center paging form-select">
+        {{#each pages}}
+        <option value="{{this}}">Page {{this}}</option>
+        {{/each}}
+      </select>
+      {{/if}}
+    </div>
+  </div>
+  <style>
+    .card:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transform: scale(1.05);
+      cursor: pointer;
+      /* Sử dụng con trỏ pointer khi rê vào */
+    }
+  </style>
+</div>
+<script>
+  // Update Page
+  const selection = document.querySelector(".paging");
+  selection?.addEventListener("change", (e) => {
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", e.target.value);
+    url.search = query;
+    location.assign(url.href);
+  });
+  const query = new URLSearchParams(window.location.search);
+  if (selection) selection.value = query.get("page") || 1;
+
+  document.querySelector(".option").value = query.get("type") || "ProductName"
+
+  // Add cart
+  document.querySelectorAll('.btn-addCart').forEach(button => {
+    button.addEventListener('click', function() {
+      event.preventDefault();
+
+      const productID = this.getAttribute('data-product-id');
+
+      var quantityValue = document.getElementById("quantityInput").value;
+      const url = new URL(`/addCart/${productID}`,window.location.href);
+      const query = new URLSearchParams(window.location.search);
+      query.set("quantity", quantityValue);
+      url.search = query;
+      location.assign(url.href);
+    });
+  });
+
+  document.getElementById("filterForm").addEventListener("submit", function (event) {
+    event.preventDefault(); // Ngăn chặn form submit mặc định để xử lý bằng JavaScript
+
+    var minValue = document.getElementsByName("minPrice")[0].value;
+    var maxValue = document.getElementsByName("maxPrice")[0].value;
+
+    // Tạo URL với tham số
+    var url = new URL(window.location.href);
+    var query = new URLSearchParams(url.search);
+    query.set("minPrice", encodeURIComponent(minValue));
+    query.set("maxPrice", encodeURIComponent(maxValue));
+    url.search = query.toString();
+
+    // Chuyển hướng trang
+    window.location.href = "/addCart/";
+  });
+
+  document.getElementById("searchForm").addEventListener("submit", function (event) {
+    event.preventDefault(); // Ngăn chặn form submit mặc định để xử lý bằng JavaScript
+
+    // Lấy giá trị từ input và select
+    var keywordValue = document.getElementsByName("keyword")[0].value;
+    var typeValue = document.getElementsByName("type")[0].value;
+
+    // Tạo URL với tham số
+    var url = new URL(window.location.href);
+    var query = new URLSearchParams(url.search);
+    query.set("keyword", encodeURIComponent(keywordValue));
+    query.set("type", encodeURIComponent(typeValue));
+    url.search = query.toString();
+
+    // Chuyển hướng trang
+    location.assign(url.href);
+  });
+</script>

@@ -33,15 +33,24 @@ module.exports = class Book
     // Search theo key và phân trang
     static async search(options)
     {
+        let query = ``;
+        if(options.Min != "" && options.Max != ""){
+            query += `SELECT * , count(*) over() as Total  FROM Products where Price >= ${options.Min} and Price <= ${options.Max}
+            ORDER BY ProductID
+            OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY `
+        }
+        else{
+            query += `SELECT * , count(*) over() as Total  FROM Products  
+            ORDER BY ProductID
+            OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY `
+        }
         let pool = await sql.connect(databaseConnection);
         if(options.Keyword == ""){
            let Products = await pool.request()
           .input("Offset", sql.Int, (options.Page - 1) * options.Limit)
           .input("Limit", sql.Int, options.Limit)
           .query(
-            `SELECT * , count(*) over() as Total  FROM Products  
-            ORDER BY ProductID
-            OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY `
+            query
           );
           return Products.recordsets[0];
         }
@@ -67,4 +76,19 @@ module.exports = class Book
            return Products.recordsets[0];
         }
     }
+    static async addCart(options){
+        let pool = await sql.connect(databaseConnection);
+        let add = await pool.request()
+        .input('CartID', sql.Int, options.maxCartID + 1)
+        .input('UserID', sql.Int, options.UserID)
+        .input('ProductID', sql.Int, options.BookID)
+        .input('Quantity', sql.Int, options.quantity)
+        .query('INSERT INTO Carts (CartID, UserID, ProductID, Quantity) VALUES (@CartID, @UserID, @ProductID,@Quantity)');
+        if (add.rowsAffected[0] > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }        
+    //BookID: '1', quantity: '123', Username: 'tcv123'
 }
