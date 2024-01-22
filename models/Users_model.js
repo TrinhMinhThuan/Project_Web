@@ -65,4 +65,15 @@ module.exports = class Users {
         .query("INSERT INTO Users VALUES (@UserID, @GoogleID, @Username, @Password, @Email, @Role, @Balance)");
         return User.rowsAffected[0];
     }
+    static async updateBalanceById(ID, Balance) {
+        let pool = await sql.connect(databaseConnection);
+        let update = await pool
+            .request()
+            .input("ID", sql.Int, ID)
+            .input("Balance", sql.Int, Balance)
+            .query(
+                "UPDATE Users SET Balance = Balance + @Balance WHERE UserID = @ID "
+            );
+        return update.recordset;
+    }
 }

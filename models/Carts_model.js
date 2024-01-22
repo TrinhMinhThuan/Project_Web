@@ -19,6 +19,13 @@ module.exports = class Carts {
         .query(`SELECT * FROM Carts WHERE UserID = @userID`);
         return Carts.recordset;
     }
+    static async deleteByUserID(userID)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let deletee = await pool.request()
+        .input('Id', sql.Int, userID)
+        .query('DELETE FROM Carts WHERE UserID = @Id');
+    }
 }
 
 

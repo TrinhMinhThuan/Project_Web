@@ -1,7 +1,10 @@
 
-
+const UserModel = require('../models/Users_model');
 const CartModel = require('../models/Carts_model');
 const ProductModel = require('../models/Products_model');
+const https = require('https');
+const fetch = require('node-fetch');
+const jwt = require('jsonwebtoken');
 
 exports.LoadAllItemOfCart = async (req, res, next) => {
     const cartOfUser = await CartModel.getByUserID(req.user.UserID);
@@ -16,11 +19,20 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
         cart.TotalPrice = product.Price * cart.Quantity;
         TotalPriceAllItem += cart.TotalPrice;
     }
+    let UserID;
+    if (cartOfUser.length > 0)
+    {
+        UserID = cartOfUser[0].UserID;
+    }
+    else
+    {
+        UserID = 0;
+    }
 
     res.render('cartPageClient', {
         layout: 'customer',
         Username: req.Username,
-        UserID: (cartOfUser.length > 0) ? cartOfUser[0].UserID : null,
+        UserID: UserID,
         cart: cartOfUser,
         TotalPriceAllItem,
         title: "Danh sách sản phẩm trong giỏ hàng"
@@ -28,28 +40,53 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
 }
 
 
+
+
 exports.Pay = async (req, res, next) => {
 
     try {
         const user = req.user;
+        
+        const key = process.env.PRIVATE_KEY;
+
+        const UserID = jwt.sign({UserID: user.UserID}, key, { expiresIn: '1h'});
 
         const PAY_PORT = process.env.PAY_SERVER_PORT;
         const agent = new https.Agent({
+            //ca: process.env.KEY,
             rejectUnauthorized: false
         });
 
+        const secret = jwt.sign({secret: process.env.SERVER_SECRET}, key, { expiresIn: '1h' })
         const _fetch = await fetch(`https://localhost:${PAY_PORT}/pay`, {
             agent,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(user),
+            body: JSON.stringify({UserID, secret}),
         });
 
 
         const resJson = await _fetch.json();
-        console.log(resJson);
+
+        if (resJson._status == false)
+        {
+            res.render('errorPage', {
+                layout: 'customer',
+                Username: req.Username,
+                error: resJson._errorMsg
+            });
+        }
+        else
+        {
+            res.render('truePage', {
+                Username: req.Username,
+                layout: 'customer',
+                notification: 'Thanh toán thành công'
+            });
+        }
+
     } catch (error) {
         next(error);
     }
