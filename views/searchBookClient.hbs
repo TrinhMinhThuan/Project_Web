@@ -1,7 +1,7 @@
 <div class="container d-flex flex-column">
   <form id="searchForm" >
     <div class="row gap-3">
-      <input type="text" class="col-7 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" required/>
+      <input type="text" class="col-7 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" />
       <select name="type" class="col-2 form-select option">
         <option value="ProductName">Tên sách</option>
         <option value="Author">Tác Giả</option>
@@ -12,15 +12,17 @@
   </form>
    <form id="filterForm">
     <div class="row gap-3">
-      <input type="number" class="col-3 form-control" placeholder="đ Từ" name="minPrice" value="{{MinPrice}}"
+      <p class="col fw-bold mt-2" style="align-items: center;">Lọc theo giá (VNĐ): </p>
+      <input type="number" class="col-3 form-control" placeholder="Từ" name="minPrice" value="{{MinPrice}}"
         required />
-      <input type="number" class="col-3 form-control" placeholder="đ Đến" name="maxPrice" value="{{MaxPrice}}"
+      <input type="number" class="col-3 form-control" placeholder="Đến" name="maxPrice" value="{{MaxPrice}}"
         required />
-      <button type="submit" class="col-2 btn btn-success" id="applyFilter">Áp dụng bộ lọc</button>
+      <button type="submit" class="col btn btn-success h-75 justify-content-end" id="applyFilter">
+        <i class="fa-solid fa-filter"></i> Áp dụng bộ lọc</button>
     </div>
   </form>
-  <div class="query-result mt-5">
-    <h5 class="text-center mb-3">KẾT QUẢ TRA CỨU</h5>
+  <div class="query-result mt-3">
+    <h5 class="text-center mb-3 fw-bold">KẾT QUẢ TRA CỨU</h5>
     <div class="container mt-4">
       <div class="row justify-content-center">
         {{#if _books.length}}
@@ -36,8 +38,8 @@
             </div>
             <div class="card-footer">
               <!-- Thêm nút thêm vào giỏ hàng -->
-              <input type="number" placeholder="Nhập số lượng" name="quantity" id="quantityInput"/>
-              <button type="button" data-product-id="{{this.ProductID}}" class="mt-2 btn-addCart btn btn-danger btn-sm">Thêm vào giỏ hàng</button>
+              <input type="number" placeholder="Nhập số lượng" name="quantity" id="quantityInput{{this.ProductID}}" min="1" value="1" style="text-align: center;" required/>
+              <button   type="button" data-product-id="{{this.ProductID}}" class="mt-2 btn-addCart btn btn-danger btn-sm">Thêm vào giỏ hàng</button>
             </div>
           </div>
         </div>
@@ -88,8 +90,8 @@
 
       const productID = this.getAttribute('data-product-id');
 
-      var quantityValue = document.getElementById("quantityInput").value;
-      const url = new URL(`/addCart/${productID}`,window.location.href);
+      var quantityValue = document.getElementById(`quantityInput${productID}`).value;
+      const url = new URL(`/cartBook/addCart/${productID}`,window.location.href);
       const query = new URLSearchParams(window.location.search);
       query.set("quantity", quantityValue);
       url.search = query;
@@ -111,7 +113,7 @@
     url.search = query.toString();
 
     // Chuyển hướng trang
-    window.location.href = "/addCart/";
+    window.location.href = "/cartBook/addCart/";
   });
 
   document.getElementById("searchForm").addEventListener("submit", function (event) {

@@ -1,0 +1,153 @@
+<section style="background-color: #eee;">
+    <div class="container py-5">
+
+
+        <div class="row">
+
+            <div class="col">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Account ID</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <input style="border: none;" class="text-primary mb-0" value="{{UserID}}">
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">User Name</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <input style="border: none;" class="text-primary mb-0" value="{{Username}}">
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Google ID</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <input style="border: none;" class="text-primary mb-0" value="{{GoogleID}}">
+
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Email</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <input style="border: none;" class="text-primary mb-0" value="{{Email}}">
+
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Số dư tài khoản</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <input style="border: none;" class="text-primary mb-0" value="{{Balance}} VNĐ">
+                            </div>
+                        </div>
+                        <hr>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4 mb-md-0">
+                            <div class="card-body">
+                                <p class="mb-4 fw-bold" style="text-align: center;"> Lịch sử mua hàng
+                                </p>
+                                {{#if Orders.length}}
+                                <div>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+
+                                                <th scope="col">Mã hóa đơn</th>
+                                                <th scope="col">Ngày giao dịch</th>
+                                                <th scope="col">Số tiền</th>
+                                                <th scope="col">Xem chi tiết</th>
+                                                
+                                            </tr>
+                                        </thead>
+                                        <tbody id="listBook">
+                                            {{#each Orders}}
+                                            <tr>
+                                                <th scope="row">{{this.OrderID}}</th>
+                                                <td>{{this.OrderDate}}</td>
+                                                <td>{{this.TotalAmount}} VNĐ</td>
+                                                <td>
+                                                    <a  href="/orderDetail?ID={{this.OrderID}}" type="submit" class="btn btn-success">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </a>
+                                                </td>
+                                                
+                                            </tr>
+                                            {{/each}}
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                               
+                                
+                                {{else}}
+                                <p class="text-center">Bạn chưa thực hiện giao dịch nào 🥲</p>
+                               
+                                {{/if}}
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-4 mb-md-0">
+                            <div class="card-body">
+                                 <p class="mb-4 fw-bold" style="text-align: center;"> Lịch sử nạp tiền
+                                </p>
+                                {{#if cart.length}}
+                                <div>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+
+                                                <th scope="col">Mã giao dịch</th>
+                                                <th scope="col">Ngày giao dịch</th>
+                                                <th scope="col">Số tiền nạp</th>
+                                                
+                                            </tr>
+                                        </thead>
+                                        <tbody id="listBook">
+                                            {{#each cart}}
+                                            <tr>
+                                                <th scope="row">{{this.TopUpID}}</th>
+                                                <td>{{this.TopUpDay}}</td>
+                                                <td>{{this.Amount}} VNĐ</td>
+                                               
+                                                
+                                            </tr>
+                                            {{/each}}
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                               
+                                
+                                {{else}}
+                                <p class="text-center">Bạn chưa thực hiện giao dịch nào 🥲</p>
+                               
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

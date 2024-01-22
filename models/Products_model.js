@@ -76,19 +76,6 @@ module.exports = class Book
            return Products.recordsets[0];
         }
     }
-    static async addCart(options){
-        let pool = await sql.connect(databaseConnection);
-        let add = await pool.request()
-        .input('CartID', sql.Int, options.maxCartID + 1)
-        .input('UserID', sql.Int, options.UserID)
-        .input('ProductID', sql.Int, options.BookID)
-        .input('Quantity', sql.Int, options.quantity)
-        .query('INSERT INTO Carts (CartID, UserID, ProductID, Quantity) VALUES (@CartID, @UserID, @ProductID,@Quantity)');
-        if (add.rowsAffected[0] > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }        
+    
     //BookID: '1', quantity: '123', Username: 'tcv123'
 }

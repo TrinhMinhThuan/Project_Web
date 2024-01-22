@@ -1,15 +1,16 @@
 const Book = require('../models/Products_model');
-const User = require('../models/Users_model')
-const Cart = require('../models/Carts_model')
 
 exports.getSearchBook = async (req, res, next) => {
-    const { keyword = "", type = "ProductName", page = 1, limit = 4 } = req.query;
+ 
+    let { keyword = "", minPrice = "", maxPrice = "", type = "ProductName", page = 1, limit = 4 } = req.query;
+    keyword = decodeURIComponent(keyword);
     const _books = await Book.search({
         Keyword: keyword,
         Page: page,
         Limit: limit,
         Type: type,
     });
+
     const pages = Array.from(
         { length: Math.ceil(_books[0]?.Total / limit || 0) },
         (_, i) => i + 1
@@ -24,7 +25,8 @@ exports.getSearchBook = async (req, res, next) => {
     })
 }
 exports.getSearchBook_client = async (req, res, next) => {
-    const { keyword = "", minPrice = "", maxPrice = "", type = "ProductName", page = 1, limit = 4 } = req.query;
+    let { keyword = "", minPrice = "", maxPrice = "", type = "ProductName", page = 1, limit = 4 } = req.query;
+    keyword = decodeURIComponent(keyword);
     const _books = await Book.search({
         Min: minPrice,
         Max: maxPrice,
@@ -37,7 +39,7 @@ exports.getSearchBook_client = async (req, res, next) => {
     // Check giá max có nhỏ hơn giá min
     if (maxPrice < minPrice) {
         res.render("errorPage", {
-            layout: 'client',
+            layout: 'customer',
             admin: false,
             error: "Lỗi: Giá Max nhỏ hơn giá Min",
         });
@@ -63,35 +65,4 @@ exports.getSearchBook_client = async (req, res, next) => {
         keyword: keyword,
         genre: type,
     })
-}
-
-exports.addCart = async (req, res, next) => {
-    const Username =  req.Username;
-    const _User = await User.getUserByUserName(Username);
-    const UserID = _User.UserID;
-    const _Cart = await  Cart.getAll();
-    const maxCartID = _Cart.reduce((max, obj) => (obj.CartID > max ? obj.CartID : max), _Cart[0].CartID);
-    console.log(maxCartID);
-    const { BookID } = req.params;
-    const { quantity = "0" } = req.query;
-    const check = await Book.addCart({
-        BookID,quantity, UserID, maxCartID
-    });
-
-    if(check){
-        res.render("truePage",{
-            layout: 'customer',
-            Username: req.Username,
-            admin: false,
-            notification: "Thêm giỏ hàng thành công"
-        })
-    }
-    else{
-        res.render("errorPage",{
-            layout: 'customer',
-            Username: req.Username,
-            admin: false,
-            error: "Thêm giỏ hàng không thành công",
-        })
-    }
 }

@@ -9,6 +9,7 @@ const UserRoute = require('./routes/User_route');
 const CategoriesRoute = require('./routes/Categories_route');
 const BookRoute = require('./routes/Products_route');
 const CartsRoute = require('./routes/Carts_route');
+const topupRoute = require('./routes/TopUp_route');
 
 const session = require('express-session');
 const bodyParser = require('body-parser');
@@ -42,6 +43,7 @@ app.use("/", viewRoute);
 app.use("/admin", CategoriesRoute);
 app.use("/", BookRoute);
 app.use('/cartBook', CartsRoute);
+app.use('/topUp', topupRoute);
 
 const server = https.createServer({
   key: process.env.KEY,

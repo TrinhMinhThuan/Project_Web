@@ -19,15 +19,10 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
         cart.TotalPrice = product.Price * cart.Quantity;
         TotalPriceAllItem += cart.TotalPrice;
     }
-    let UserID;
-    if (cartOfUser.length > 0)
-    {
-        UserID = cartOfUser[0].UserID;
-    }
-    else
-    {
-        UserID = 0;
-    }
+    const  UserID = req.user.UserID;
+    const temp = await UserModel.getUserByUserID(UserID);
+
+    const Balance = temp.Balance;
 
     res.render('cartPageClient', {
         layout: 'customer',
@@ -35,6 +30,7 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
         UserID: UserID,
         cart: cartOfUser,
         TotalPriceAllItem,
+        Balance,
         title: "Danh sách sản phẩm trong giỏ hàng"
     });
 }
@@ -91,4 +87,35 @@ exports.Pay = async (req, res, next) => {
         next(error);
     }
 
+}
+
+
+
+exports.addCart = async (req, res, next) => {
+
+    const UserID = req.user.UserID;
+    const _Cart = await  CartModel.getAll();
+    const maxCartID = _Cart.reduce((max, obj) => (obj.CartID > max ? obj.CartID : max), _Cart[0].CartID);
+    const { BookID } = req.params;
+    const quantity = req.query.quantity;
+    const check = await CartModel.addCart({
+        BookID,quantity, UserID, maxCartID
+    });
+
+    if(check){
+        res.render("truePage",{
+            layout: 'customer',
+            Username: req.Username,
+            admin: false,
+            notification: "Thêm giỏ hàng thành công"
+        })
+    }
+    else{
+        res.render("errorPage",{
+            layout: 'customer',
+            Username: req.Username,
+            admin: false,
+            error: "Thêm giỏ hàng không thành công",
+        })
+    }
 }
