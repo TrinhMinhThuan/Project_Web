@@ -32,6 +32,14 @@ module.exports = class Users {
             .query("SELECT * FROM Users WHERE UserID = @ID");
         return user.recordset[0];
     }
+    static async getUserByGoogleID(GoogleID) {
+        let pool = await sql.connect(databaseConnection);
+        let user = await pool
+            .request()
+            .input("GoogleID", sql.NVarChar, GoogleID)
+            .query("SELECT * FROM Users WHERE GoogleID = @GoogleID");
+        return user.recordset[0];
+    }
     static async getIDInLastRow() {
         let pool = await sql.connect(databaseConnection);
         let user = await pool
@@ -39,22 +47,22 @@ module.exports = class Users {
             .query("SELECT TOP(1) * FROM Users ORDER BY UserID DESC");
         return user.recordset[0].UserID;
     }
-    static async createAccount(user) {
-        
-        let pool = await sql.connect(databaseConnection);
 
+    static async createAccount(user) {
+        let pool = await sql.connect(databaseConnection);
         let id = await this.getIDInLastRow();
         id += 1;
 
         let User = await pool
         .request()
         .input("UserID", sql.Int, id)
+        .input("GoogleID", sql.NVarChar, user.GoogleID)
         .input("Username", sql.NVarChar, user.Username)
         .input("Password", sql.NVarChar, user.Password)
         .input("Email", sql.NVarChar, user.Email)
-        .input("Role", sql.NVarChar, 'Admin')
+        .input("Role", sql.NVarChar, 'Client')
         .input("Balance", sql.Int, 0)
-        .query("INSERT INTO Users VALUES (@UserID, @Username, @Password, @Email, @Role, @Balance)");
+        .query("INSERT INTO Users VALUES (@UserID, @GoogleID, @Username, @Password, @Email, @Role, @Balance)");
         return User.rowsAffected[0];
     }
 }

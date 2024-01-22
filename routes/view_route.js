@@ -7,4 +7,5 @@ viewRoute.get('/login', viewController.Login);
 viewRoute.get('/login-admin', viewController.LoginAdmin);
 viewRoute.get('/signup', viewController.Sigup);
 viewRoute.get('/', viewController.BookStore);
+
 module.exports = viewRoute;

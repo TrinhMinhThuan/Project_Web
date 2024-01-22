@@ -1,11 +1,7 @@
-
 const Product = require('../models/Users_model');
-
-
 
 exports.Login = (req, res, next) =>
 {
-
     res.render("loginPage", {
       layout: 'account-form',
         Username: req.Username,
@@ -28,7 +24,6 @@ exports.LoginAdmin = (req, res, next) =>
 
 exports.Sigup =  (req, res, next) =>
 {
-    
     res.render("signupPage", {
       layout: 'account-form',
       Username: req.Username,
@@ -47,7 +42,6 @@ exports.BookStore = async (req,res,next)=>{
 
 exports.clientHome = (req, res, next) =>
 {
-    
   res.render("truePage", {
     layout: 'customer',
     Username: req.Username,

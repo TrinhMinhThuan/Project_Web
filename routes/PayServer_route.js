@@ -1,5 +1,3 @@
-
-
 const express = require("express");
 const PayRoute = express.Router();
 const PayController = require('../controllers/PayServer_controller');
