@@ -18,6 +18,7 @@ const storage = multer.diskStorage({
  const upload = multer({ storage: storage });
 
 // admin
+productRouter.get('/admin',  product_controller.getSearchBook);
 productRouter.get("/admin/searchBook-Admin",  product_controller.getSearchBook);
 productRouter.get("/admin/book/edit/:productId",product_controller.editBook);
 productRouter.post("/admin/book/edit/:productId", upload.single('image'), product_controller.editBook);
