@@ -46,4 +46,12 @@ module.exports = class Orders
         return id;
 
     }
+    static async getByUserID (UserID)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let Orders = await pool.request()
+        .input('userID', sql.Int, UserID)
+        .query(`SELECT * FROM Orders WHERE UserID = @userID ORDER BY OrderDate DESC`);
+        return Orders.recordset;
+    }
 }

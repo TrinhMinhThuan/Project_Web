@@ -1,6 +1,9 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/Users_model');
+const OrdersModel = require ('../models/Orders_model');
+const OrderDetailModel = require('../models/Order_Detail_model');
+const TopupModel = require('../models/TopUp_model'); 
 const fetch = require('node-fetch');
 
 const https = require('https');
@@ -66,7 +69,7 @@ exports.GoogleAuth = async (req, res, next) => {
         if (!user) {
 
 
-            
+
             user = {};
             user.GoogleID = decodedToken.sub;
             user.Username = null;
@@ -81,9 +84,9 @@ exports.GoogleAuth = async (req, res, next) => {
             const _user = jwt.sign(user, key, { expiresIn: '1h' });
 
             const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
-           
 
-           
+
+
 
             await fetch(`https://localhost:${PAY_PORT}/createUser`, {
                 agent,
@@ -281,3 +284,34 @@ exports.Logout = (req, res, next) => {
     }
 }
 
+exports.GetProfile = async (req, res, next) => {
+    let { UserID = '', GoogleID = '', Balance = 0, Email = '' } = req.user;
+    const Orders = await OrdersModel.getByUserID(req.user.UserID);
+    let date;
+    for (let order of Orders)
+    {
+        date = new Date(order.OrderDate);
+        order.OrderDateToString = `${date.getDay()}-${date.getMonth()+1}-${date.getFullYear()}`;
+    }
+    
+
+    const Topup = await TopupModel.getByUserID(req.user.UserID);
+
+    for (let row of Topup)
+    {
+        date = new Date(row.TopUpDay);
+        row.TopUpDayToString = `${date.getDay()}-${date.getMonth()+1}-${date.getFullYear()}`;
+    }
+
+    res.render('profilePageClient', {
+        layout: 'customer',
+        Username: req.Username,
+        UserID,
+        GoogleID,
+        Balance,
+        Email,
+        Orders,
+        Topup,
+        title: 'Thông tin tài khoản'
+    });
+}

@@ -45,13 +45,7 @@ exports.clientHome = (req, res, next) => {
   });
 }
 
-exports.GetProfile = async (req, res, next) => {
-  res.render('profilePageClient', {
-    layout: 'customer',
-    Username: req.Username,
-    title: 'Thông tin tài khoản'
-  })
-}
+
 
 exports.Topup = async (req, res, next) => 
 {
