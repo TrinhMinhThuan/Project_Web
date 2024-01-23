@@ -1,7 +1,7 @@
 <div class="container d-flex flex-column">
-  <form id="searchForm" action="/admin/searchBook-Admin" method="GET">
+  <form id="searchForm">
     <div class="row gap-3">
-      <input type="text" class="col-7 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" required/>
+      <input type="text" class="col-7 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" />
       <select name="type" class="col-2 form-select option">
         <option value="ProductName">Tên sách</option>
         <option value="Author">Tác Giả</option>
@@ -10,8 +10,17 @@
       <button type="submit" class="col btn btn-success">Tra cứu</button>
     </div>
   </form>
-  <div class="query-result mt-5">
-    <h5 class="text-center mb-3">KẾT QUẢ TRA CỨU</h5>
+  <form id="filterForm">
+    <div class="row gap-3">
+      <p class="col fw-bold mt-2" style="align-items: center;">Lọc theo giá (VNĐ): </p>
+      <input type="number" class="col-3 form-control" placeholder="Từ" name="minPrice" value="{{MinPrice}}" required />
+      <input type="number" class="col-3 form-control" placeholder="Đến" name="maxPrice" value="{{MaxPrice}}" required />
+      <button type="submit" class="col btn btn-success h-75 justify-content-end" id="applyFilter">
+        <i class="fa-solid fa-filter"></i> Áp dụng bộ lọc</button>
+    </div>
+  </form>
+  <div class="query-result mt-3">
+    <h5 class="text-center mb-3 fw-bold">KẾT QUẢ TRA CỨU</h5>
     <div class="container mt-4">
       <div class="row justify-content-center">
         {{#if _books.length}}
@@ -21,14 +30,14 @@
             <img src="/Images/{{this.Image}}" height="190px" class="card-img-top" alt="Ảnh bị hư">
             <div class="card-body" style="Height: 210px">
               <p class="card-title font-weight-bold" style="Height: 30px;">{{this.ProductName}}</p>
-              <p class="card-text text-sm mt-4" >Số lượng: {{this.StockQuantity}}</p>
+              <p class="card-text text-sm mt-4">Số lượng: {{this.StockQuantity}}</p>
               <p class="card-text text-sm">Tác giả: {{this.Author}}</p>
-              <p class="card-text text-sm">Giá: {{this.Price}} VNĐ</p>
+              <p class="card-text text-sm">Giá: {{this.Price}}</p>
             </div>
             <div class="card-footer">
-              <!-- Thêm hai nút Delete và Edit -->
-              <button type="button" class="btn btn-danger btn-sm">Delete</button>
-              <button type="button" class="btn btn-primary btn-sm ml-2" style="width: 60px">Edit</button>
+               <!-- Thêm hai nút Delete và Edit -->
+              <button type="button" data-product-id="{{this.ProductID}}" class="btn btn-danger btn-sm btn-delete">Delete</button>
+              <button type="button" data-product-id="{{this.ProductID}}" class="btn btn-primary btn-sm ml-2 btn-edit" style="width: 60px">Edit</button>
             </div>
           </div>
         </div>
@@ -38,15 +47,15 @@
       <p class="text-center">Không Tìm Thấy Sách Theo Yêu Cầu🥲</p>
       {{/if}}
     </div>
-    <div class="d-flex justify-content-center mt-4 mb-4">
-      {{#if pages}}
-      <select class="col-2 align-self-center paging form-select">
-        {{#each pages}}
-        <option value="{{this}}">Page {{this}}</option>
-        {{/each}}
-      </select>
-      {{/if}}
-    </div>
+  </div>
+  <div class="d-flex justify-content-center mt-4 mb-4">
+    {{#if pages}}
+    <select class="col-2 align-self-center paging form-select text-center">
+      {{#each pages}}
+      <option value="{{this}}">Page {{this}}</option>
+      {{/each}}
+    </select>
+    {{/if}}
   </div>
   <style>
     .card:hover {
@@ -71,4 +80,50 @@
   if (selection) selection.value = query.get("page") || 1;
 
   document.querySelector(".option").value = query.get("type") || "ProductName"
+
+  document.getElementById("filterForm").addEventListener("submit", function (event) {
+    event.preventDefault(); // Ngăn chặn form submit mặc định để xử lý bằng JavaScript
+
+    var minValue = document.getElementsByName("minPrice")[0].value;
+    var maxValue = document.getElementsByName("maxPrice")[0].value;
+
+    // Tạo URL với tham số
+    var url = new URL(window.location.href);
+    var query = new URLSearchParams(url.search);
+    query.set("minPrice", minValue);
+    query.set("maxPrice", maxValue);
+    url.search = query.toString();
+
+    // Chuyển hướng trang
+    location.assign(url.href);
+  });
+
+  document.getElementById("searchForm").addEventListener("submit", function (event) {
+    event.preventDefault(); // Ngăn chặn form submit mặc định để xử lý bằng JavaScript
+
+    // Lấy giá trị từ input và select
+    var keywordValue = document.getElementsByName("keyword")[0].value;
+    var typeValue = document.getElementsByName("type")[0].value;
+
+    // Tạo URL với tham số
+    var url = new URL(window.location.href);
+    var query = new URLSearchParams(url.search);
+    query.set("keyword", keywordValue);
+    query.set("type", typeValue);
+    url.search = query.toString();
+
+    // Chuyển hướng trang
+    location.assign(url.href);
+  });
+
+
+  // Edit
+  document.querySelectorAll('.btn-edit').forEach(button => {
+    button.addEventListener('click', function() {
+      event.preventDefault();
+      const productID = this.getAttribute('data-product-id');
+      window.location.href = `/admin/book/edit/${productID}`;
+    });
+  });
+
 </script>

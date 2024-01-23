@@ -1,14 +1,32 @@
 const express = require("express");
-const bookRouter = express.Router();
-const book_controller = require('../controllers/Products_controller');
+const productRouter = express.Router();
+const product_controller = require('../controllers/Products_controller');
 const middle = require('../middleware/middleware');
 
+//upload image
+const multer  = require('multer');
+const path = require('path');
+// Upload ảnh
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'public/Images/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname); // Sử dụng tên gốc của tệp
+    }
+  });
+ const upload = multer({ storage: storage });
+
 // admin
-bookRouter.get("/admin/searchBook-Admin",  book_controller.getSearchBook);
+productRouter.get("/admin/searchBook-Admin",  product_controller.getSearchBook);
+productRouter.get("/admin/book/edit/:productId",product_controller.editBook);
+productRouter.post("/admin/book/edit/:productId", upload.single('image'), product_controller.editBook);
+productRouter.get("/admin/addBook-Admin",product_controller.addBook);
+productRouter.post("/admin/addBook-Admin",upload.single('image'),product_controller.addBook);
 
 
 // client
-bookRouter.get("/",  book_controller.getSearchBook_client);
-bookRouter.get("/searchBook", middle.authenticate, book_controller.getSearchBook_client);
+productRouter.get("/",  product_controller.getSearchBook_client);
+productRouter.get("/searchBook", middle.authenticate, product_controller.getSearchBook_client);
 
-module.exports = bookRouter;
+module.exports = productRouter;

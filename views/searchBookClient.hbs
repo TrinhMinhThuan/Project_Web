@@ -34,7 +34,7 @@
               <p class="card-title font-weight-bold" style="Height: 30px;">{{this.ProductName}}</p>
               <p class="card-text text-sm mt-4" >Số lượng: {{this.StockQuantity}}</p>
               <p class="card-text text-sm">Tác giả: {{this.Author}}</p>
-              <p class="card-text text-sm">Giá: {{this.Price}} VNĐ</p>
+              <p class="card-text text-sm">Giá: {{this.Price}}</p>
             </div>
             <div class="card-footer">
               <!-- Thêm nút thêm vào giỏ hàng -->
@@ -108,8 +108,8 @@
     // Tạo URL với tham số
     var url = new URL(window.location.href);
     var query = new URLSearchParams(url.search);
-    query.set("minPrice", encodeURIComponent(minValue));
-    query.set("maxPrice", encodeURIComponent(maxValue));
+    query.set("minPrice", minValue);
+    query.set("maxPrice", maxValue);
     url.search = query.toString();
 
     // Chuyển hướng trang
@@ -126,8 +126,8 @@
     // Tạo URL với tham số
     var url = new URL(window.location.href);
     var query = new URLSearchParams(url.search);
-    query.set("keyword", encodeURIComponent(keywordValue));
-    query.set("type", encodeURIComponent(typeValue));
+    query.set("keyword", keywordValue);
+    query.set("type", typeValue);
     url.search = query.toString();
 
     // Chuyển hướng trang

@@ -86,11 +86,11 @@ exports.editCategories = async (req, res, next) => {
   const _Categories = await Categories.searchID(categoryId)
   const categoryid = _Categories.CategoryID;
   const categoryname = _Categories.CategoryName;
-  const categoryquantity = _Categories.CategoryQuantity;
+  //const categoryquantity = _Categories.CategoryQuantity;
 
 
   // Category edit
-  const { categoryID, categoryName, categoryQuantity } = req.query;
+  const { categoryID, categoryName} = req.query;
 
   // Check CategoryID
   if (categoryID !== undefined && categoryID != categoryId) {
@@ -102,7 +102,15 @@ exports.editCategories = async (req, res, next) => {
       });
     }
   }
-  if (categoryID !== undefined && categoryQuantity !== undefined && categoryName !== undefined) {
+  if(categoryID == categoryId && categoryName == categoryname){
+    console.log("testttttttttttttttttttt");
+    res.render("errorPage", {
+      layout: 'admin',
+      admin: true,
+      error: "Không có sự thay đổi",
+    });
+  }
+  else if(categoryID !== undefined && categoryName !== undefined) {
     let query = `UPDATE Categories SET `;
     let checkdot = false;
     if (categoryID != categoryid) {
@@ -114,38 +122,39 @@ exports.editCategories = async (req, res, next) => {
       query = query + `CategoryName = @categoryName `;
       checkdot = true;
     }
-    if (categoryQuantity != categoryquantity) {
-      if (checkdot == true) query = query + `,`;
-      query = query + `CategoryQuantity = @categoryQuantity `;
-      checkdot = true;
-    }
+    // if (categoryQuantity != categoryquantity) {
+    //   if (checkdot == true) query = query + `,`;
+    //   query = query + `CategoryQuantity = @categoryQuantity `;
+    //   checkdot = true;
+    // }
     query = query + `Where CategoryID = ${categoryid}`;
     const temp = await Categories.edit({
       ID: categoryID,
       Name: categoryName,
-      Quantity: categoryQuantity,
+      //Quantity: categoryQuantity,
       Query: query
     });
     if (temp) {
       res.render("truePage", {
         layout: 'admin',
+        admin: true,
         notification: "Chỉnh sửa thành công",
       });
     }
     else {
       res.render("errorPage", {
         layout: 'admin',
-        error: "Không có sự thay đổi",
+        admin: true,
+        error: "Chỉnh sửa thất bại",
       });
     }
   } else {
-
     res.render("editCategoriesAdmin", {
       layout: 'admin',
       title: "Chỉnh sửa danh mục",
       CategoryID: categoryid,
       CategoryName: categoryname,
-      CategoryQuantity: categoryquantity
+      //CategoryQuantity: categoryquantity,
     });
   }
 }
