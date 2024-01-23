@@ -33,6 +33,7 @@ module.exports = class Book
     // Search theo key và phân trang
     static async search(options)
     {
+        
         let query = ``;
         if(options.Min != "" && options.Max != ""){
             query += `SELECT * , count(*) over() as Total  FROM Products where Price >= ${options.Min} and Price <= ${options.Max}
@@ -45,7 +46,7 @@ module.exports = class Book
             OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY `
         }
         let pool = await sql.connect(databaseConnection);
-        if(options.Keyword == ""){
+        if(options.Keyword == "" && options.Category == 0){
            let Products = await pool.request()
           .input("Offset", sql.Int, (options.Page - 1) * options.Limit)
           .input("Limit", sql.Int, options.Limit)
@@ -56,13 +57,17 @@ module.exports = class Book
         }
         else{
             let query = ``;
-            if(options.Type == "CategoryName"){
-                query = query + `SELECT * , count(*) over() as Total  FROM Products join Categories on Products.CategoryID = Categories.CategoryID WHERE Categories.${options.Type} LIKE @Keyword 
+            if(options.Category == 0){
+                
+                query = query + `SELECT * , count(*) over() as Total  FROM Products
+                WHERE Products.${options.Type} LIKE @Keyword 
                 ORDER BY Products.ProductId
                 OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`
             }
             else{
-                query = query + `SELECT * , count(*) over() as Total  FROM Products join Categories on Products.CategoryID = Categories.CategoryID WHERE Products.${options.Type} LIKE @Keyword 
+                
+                query = query + `SELECT * , count(*) over() as Total  FROM Products 
+                WHERE Products.${options.Type} LIKE @Keyword AND Products.CategoryID = ${options.Category}
                 ORDER BY Products.ProductId
                 OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`
             }

@@ -1,13 +1,19 @@
 <div class="container d-flex flex-column">
   <form id="searchForm" >
     <div class="row gap-3">
-      <input type="text" id="inputKey" class="col-7 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" />
-      <select name="type" class="col-2 form-select option">
+      <input type="text" id="inputKey" class="col-5 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" />
+      
+      <select name="type" class="col-2 text-center form-select option option-1">
         <option value="ProductName">Tên sách</option>
         <option value="Author">Tác Giả</option>
-        <option value="CategoryName">Thể loại</option>
       </select>
-      <button type="submit" class="col btn btn-success">Tra cứu</button>
+      <select name="category" class="text-center col form-select option option-2">
+        <option value="0" selected>Tất cả</option>
+        {{#each categories}}
+          <option value="{{this.CategoryID}}">{{this.CategoryName}}</option>
+        {{/each}}
+      </select>
+      <button type="submit" class="col-2 btn btn-success">Tra cứu</button>
     </div>
   </form>
    <form id="filterForm">
@@ -81,8 +87,8 @@
   const query = new URLSearchParams(window.location.search);
   if (selection) selection.value = query.get("page") || 1;
   
-  document.querySelector(".option").value = query.get("type") || "ProductName"
-
+  document.querySelector(".option-1").value = query.get("type") || "ProductName";
+  document.querySelector(".option-2").value = query.get("category") || 0;
   // Add cart
   document.querySelectorAll('.btn-addCart').forEach(button => {
     button.addEventListener('click', function() {
@@ -121,12 +127,14 @@
 
     // Lấy giá trị từ input và select
     var keywordValue = document.getElementsByName("keyword")[0].value;
+    var categoryValue = document.getElementsByName("category")[0].value;
     var typeValue = document.getElementsByName("type")[0].value;
 
     // Tạo URL với tham số
     var url = new URL(window.location.href);
     var query = new URLSearchParams(url.search);
     query.set("keyword", keywordValue);
+    query.set("category", categoryValue);
     query.set("type", typeValue);
     url.search = query.toString();
 

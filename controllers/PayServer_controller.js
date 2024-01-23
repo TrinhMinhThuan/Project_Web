@@ -110,8 +110,10 @@ exports.Pay = async (req, res, next) => {
                     }
                     else
                     {
-                        const updateBalance = await UserModel.updateBalanceById(_UserID, -TotalPriceAllItem);
-                        const updateCart = await CartModel.deleteByUserID(_UserID);
+                        await UserModel.updateBalanceById(_UserID, -TotalPriceAllItem);
+                        const adminAccount = await UserModel.getAdminUser();
+                        await UserModel.updateBalanceById(adminAccount.UserID, TotalPriceAllItem);
+                        await CartModel.deleteByUserID(_UserID);
                         const OrderID = await OrderModel.create(_UserID, TotalPriceAllItem);
                         for (let cart of cartOfUser)
                         {

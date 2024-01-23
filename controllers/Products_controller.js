@@ -4,7 +4,8 @@ const Categories = require('../models/Categories_model');
 //admin
 exports.getSearchBook = async (req, res, next) => {
 
-    const { keyword = "", minPrice = "", maxPrice = "", type = "ProductName", page = 1, limit = 4 } = req.query;
+    const { keyword = "", minPrice = "", maxPrice = "", category = 0,type = "ProductName", page = 1, limit = 4 } = req.query;
+    const categories = await Categories.getAll();
     const _books = await Book.search({
         Min: minPrice,
         Max: maxPrice,
@@ -12,8 +13,9 @@ exports.getSearchBook = async (req, res, next) => {
         Page: page,
         Limit: limit,
         Type: type,
+        Category: category
     });
-
+    
     const _preview = await Book.search({
         Min: minPrice,
         Max: maxPrice,
@@ -21,14 +23,16 @@ exports.getSearchBook = async (req, res, next) => {
         Page: 1,
         Limit: limit,
         Type: type,
+        Category: category
     });
+
     // Check giá max có nhỏ hơn giá min
     if (maxPrice < minPrice) {
         res.render("errorPage", {
             layout: 'admin',
-            admin: true,
-            Username: req.Username,
+            admin: false,
             error: "Lỗi: Giá Max nhỏ hơn giá Min",
+            Username: req.Username,
         });
     }
 
@@ -44,23 +48,24 @@ exports.getSearchBook = async (req, res, next) => {
 
     if (_preview[0]?.Total/4 < req.query.page - 1)
     {
-        res.redirect(`/admin/?page=1&keyword=${keyword}&type=${type}`);
+        res.redirect(`/?page=1&keyword=${keyword}&type=${type}`);
         
     }
     else
     {
-
         res.render("searchBookAdmin", {
             layout: 'admin',
-            title: "Quản lý sản phẩm",
-            _books,
+            title: "Tìm kiếm sản phẩm",
             Username: req.Username,
+            _books,
             pages,
+            categories,
+            Username: req.Username,
             MinPrice: minPrice,
             MaxPrice: maxPrice,
             keyword: keyword,
             genre: type,
-        });
+        })
     }
 }
 
@@ -217,7 +222,8 @@ exports.gethotBook_client = async (req, res, next) => {
     });
 }
 exports.getSearchBook_client = async (req, res, next) => {
-    const { keyword = "", minPrice = "", maxPrice = "", type = "ProductName", page = 1, limit = 4 } = req.query;
+    const { keyword = "", minPrice = "", maxPrice = "", category = 0,type = "ProductName", page = 1, limit = 4 } = req.query;
+    const categories = await Categories.getAll();
     const _books = await Book.search({
         Min: minPrice,
         Max: maxPrice,
@@ -225,6 +231,7 @@ exports.getSearchBook_client = async (req, res, next) => {
         Page: page,
         Limit: limit,
         Type: type,
+        Category: category
     });
     
     const _preview = await Book.search({
@@ -234,6 +241,7 @@ exports.getSearchBook_client = async (req, res, next) => {
         Page: 1,
         Limit: limit,
         Type: type,
+        Category: category
     });
 
     // Check giá max có nhỏ hơn giá min
@@ -269,6 +277,7 @@ exports.getSearchBook_client = async (req, res, next) => {
             Username: req.Username,
             _books,
             pages,
+            categories,
             Username: req.Username,
             MinPrice: minPrice,
             MaxPrice: maxPrice,
