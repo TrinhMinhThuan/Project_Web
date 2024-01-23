@@ -80,7 +80,7 @@ module.exports = class Categories
         let add = await pool.request()
         .input('categoryId', sql.Int, Category.ID)
         .input('categoryName', sql.NVarChar, `${Category.Name}`)
-        .input('categoryQuantity', sql.Int, Category.Quantity)
+        //.input('categoryQuantity', sql.Int, Category.Quantity)
         .query(`${Category.Query}`);
         if (add.rowsAffected[0] > 0) {
             return true;

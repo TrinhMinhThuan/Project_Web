@@ -76,19 +76,132 @@ module.exports = class Book
            return Products.recordsets[0];
         }
     }
-    static async addCart(options){
+    static async checkID(productID){
+        let pool = await sql.connect(databaseConnection);
+        let check = await pool.request()
+        .input("productID", sql.Int, productID)
+        .query('SELECT * FROM Products WHERE ProductID = @productID');
+
+        if (check.recordset.length > 0) {
+            return true; // Đã tồn tại id
+        } else {
+            return false; // Chưa tồn tại id có thể thêm vào
+        }
+    }
+    static async edit(product, newProduct){
+        let pool = await sql.connect(databaseConnection);
+        let query = `UPDATE Products SET `;
+        let checkdot = false;
+        
+        if (product.ProductID != newProduct.newProductID) {
+          query = query + `ProductID = @productid `;
+          checkdot = true;
+        }
+        if (product.Image != newProduct.newImage) {
+            if(checkdot) query = query + `,`;
+            query = query + `Image = @image `;
+            checkdot = true;
+        }
+        if (product.ProductName != newProduct.productName) {
+            if(checkdot) query = query + `,`; 
+            query = query + `ProductName = @productName `;
+            checkdot = true;
+        }
+        if (product.CategoryID != newProduct.categoryId) {
+            if(checkdot) query = query + `,`;
+            query = query + `CategoryID = @categoryId `;
+            checkdot = true;
+        }
+        if (product.StockQuantity != newProduct.stockquantity) {
+            if(checkdot) query = query + `,`;
+            query = query + `StockQuantity = @stockquantity `;
+            checkdot = true;
+        }
+        if (product.Author != newProduct.author) {
+            if(checkdot) query = query + `,`;
+            query = query + `Author = @author `;
+            checkdot = true;
+        }
+        if (product.PublishedYear != newProduct.publishedyear) {
+            if(checkdot) query = query + `,`;
+            query = query + `PublishedYear = @publishedyear `;
+            checkdot = true;
+        }
+        if (product.Price != newProduct.price) {
+            if(checkdot) query = query + `,`; 
+            query = query + `Price = @price `;
+            checkdot = true;
+        }
+        if(product.ProductID == newProduct.newProductID &&
+            product.ProductName == newProduct.productName &&
+            product.CategoryID == newProduct.categoryId &&
+            product.Image == newProduct.newImage  &&
+            product.StockQuantity == newProduct.stockquantity &&
+            product.Author == newProduct.author &&
+            product.PublishedYear == newProduct.publishedyear &&
+            product.Price == newProduct.price
+        ) return false;
+
+        query = query + `Where ProductID = ${product.ProductID}`;
+        let check = await pool.request()
+        .input("productid", sql.Int, newProduct.newProductID)
+        .input("image", sql.NVarChar, `${newProduct.newImage}`)
+        .input("productName", sql.NVarChar, `${newProduct.productName}`)
+        .input("categoryId", sql.Int, newProduct.categoryId)
+        .input("stockquantity", sql.Int, newProduct.stockquantity)
+        .input("author", sql.NVarChar, `${newProduct.author}`)
+        .input("publishedyear", sql.Int, newProduct.publishedyear)
+        .input("price", sql.Int, newProduct.price)
+        .query(query);
+        if (check.rowsAffected[0] > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    static async add(newProduct){
+        // let pool = await sql.connect(databaseConnection);
+        // let add = await pool.request()
+        // .input('categoryId', sql.Int, Category.ID)
+        // .input('categoryName', sql.NVarChar, `${Category.Name}`)
+        // .query('INSERT INTO Categories (CategoryID, CategoryName, CategoryQuantity) VALUES (@categoryId, @categoryName, 0);');
+        // if (add.rowsAffected[0] > 0) {
+        //     return true;
+        // } else {
+        //     return false;
+        // }    
+
         let pool = await sql.connect(databaseConnection);
         let add = await pool.request()
-        .input('CartID', sql.Int, options.maxCartID + 1)
-        .input('UserID', sql.Int, options.UserID)
-        .input('ProductID', sql.Int, options.BookID)
-        .input('Quantity', sql.Int, options.quantity)
-        .query('INSERT INTO Carts (CartID, UserID, ProductID, Quantity) VALUES (@CartID, @UserID, @ProductID,@Quantity)');
+        .input('productid', sql.Int, newProduct.newProductID)
+        .input('image', sql.NVarChar, `${newProduct.newImage}`)
+        .input('productName', sql.NVarChar, `${newProduct.productName}`)
+        .input('categoryId', sql.Int, newProduct.categoryId)
+        .input('stockquantity', sql.Int, newProduct.stockquantity)
+        .input('author', sql.NVarChar, `${newProduct.author}`)
+        .input('publishedyear', sql.Int, newProduct.publishedyear)
+        .input('price', sql.Int, newProduct.price)
+        .query(`INSERT INTO Products (ProductID, ProductName, CategoryID, StockQuantity, Author, PublishedYear, Image, Price) 
+                VALUES (@productid, @productName, @categoryId, @stockquantity, @author, @publishedyear, @image, @price  )`)
         if (add.rowsAffected[0] > 0) {
             return true;
         } else {
             return false;
         }
-    }        
-    //BookID: '1', quantity: '123', Username: 'tcv123'
+    }
+
+    static async getStatisticalData_client(month, year){
+        let pool = await sql.connect(databaseConnection);
+        let check = await pool.request()
+        .input("month", sql.Int, month)
+        .input("year", sql.Int, year)
+        .query(`select B.ProductName, A.Total
+                from (
+                select order_detail.ProductID, sum(order_detail.quantity) as total from orders join order_detail on orders.orderID = order_detail.OrderID 
+                where Month(orders.OrderDate) = @month and Year(orders.OrderDate) = @year
+                    GROUP BY order_detail.ProductID
+                )A join Products B on A.productID = B.productID`
+        );
+        return check.recordset;
+    }
 }

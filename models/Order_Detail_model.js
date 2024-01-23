@@ -44,4 +44,15 @@ module.exports = class Orders
             .query("INSERT INTO Order_Detail VALUES (@OrderDetailID, @OrderID, @ProductID, @Quantity, @Price)");
         return OrderDetail.rowsAffected[0];
     }
+
+
+    static async getByOrderID(orderID)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let user = await pool
+            .request()
+            .input("ID", sql.Int, orderID)
+            .query("SELECT * FROM Order_Detail WHERE OrderID = @ID");
+        return user.recordset;
+    }
 }

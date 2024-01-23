@@ -10,7 +10,7 @@
       />
       <button type="submit" class="col btn btn-success">Tra cứu</button>
     </div>
-  </from>
+  </form>
 
   <div class="query-result mt-5">
     <h5 class="text-center mb-3">KẾT QUẢ TRA CỨU</h5>
@@ -41,23 +41,31 @@
             </td>
           </tr>
         {{else}}
-          <td colspan="6" class="text-center">Không Tìm Thấy Sách Theo Yêu Cầu🥲</td>
+          <td colspan="6" class="text-center">Không Tìm Thấy Thể Loại Theo Yêu Cầu🥲</td>
         {{/each}}
       </tbody>
     </table>
   </div>
   <div class="d-flex justify-content-center">
     {{#if pages}}
-    <select class="col-2 align-self-center paging form-select">
+    <button class="btn-prev btn btn-success mr-2">Trước</button>
+    <select id = "pageSelect" class="col-2 align-self-center text-center paging form-select ">
       {{#each pages}}
       <option value="{{this}}">Page {{this}}</option>
       {{/each}}
     </select>
+    <button  class="btn-next btn btn-success ml-2">Sau</button>
     {{/if}}
   </div>
 </div>
 <script>
 // Update Page
+var currentPage;
+// Hàm để cập nhật currentPage khi có sự kiện thay đổi
+function updateCurrentPage() {
+    currentPage = document.getElementById("pageSelect").value;
+}
+
 const selection = document.querySelector(".paging");
 selection?.addEventListener("change", (e) => {
   const url = new URL(window.location.href);
@@ -68,6 +76,39 @@ selection?.addEventListener("change", (e) => {
 });
 const query = new URLSearchParams(window.location.search);
 if (selection) selection.value = query.get("page") || 1;
+
+
+document.querySelectorAll('.btn-prev').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    //const max = {{pages.length}};
+    if(currentPage == 1){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", currentPage - 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-next').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    const max = {{pages.length}};
+    if(currentPage == max){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", parseInt(currentPage,10) + 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
 
 // Delete vs ajax
 document.querySelectorAll('.btn-delete').forEach(button => {
@@ -107,7 +148,6 @@ function updateUI(categoryId) {
       console.error('Không tìm thấy hàng để loại bỏ.');
     }
 }
-
 
 // Edit
 document.querySelectorAll('.btn-edit').forEach(button => {

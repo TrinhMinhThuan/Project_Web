@@ -9,7 +9,7 @@ exports.authenticate = (req, res, next) => {
     if (err) {
 
       res.render('errorPage', {
-        layout: 'account-form',
+        layout: 'customer',
         error: 'Bạn phải đăng nhập vào tài khoản để thực hiện chức năng này'
       })
     }
