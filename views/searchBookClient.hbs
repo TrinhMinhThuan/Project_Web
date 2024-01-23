@@ -1,7 +1,7 @@
 <div class="container d-flex flex-column">
   <form id="searchForm" >
     <div class="row gap-3">
-      <input type="text" class="col-7 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" />
+      <input type="text" id="inputKey" class="col-7 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" />
       <select name="type" class="col-2 form-select option">
         <option value="ProductName">Tên sách</option>
         <option value="Author">Tác Giả</option>
@@ -80,7 +80,7 @@
   });
   const query = new URLSearchParams(window.location.search);
   if (selection) selection.value = query.get("page") || 1;
-
+  
   document.querySelector(".option").value = query.get("type") || "ProductName"
 
   // Add cart

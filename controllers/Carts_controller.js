@@ -42,6 +42,10 @@ exports.Pay = async (req, res, next) => {
 
     try {
         const user = req.user;
+        const BalanceClient = user.Balance;
+        const admin = await UserModel.getAdminUser();
+        const BalanceAdmin = admin.Balance;
+        
         
         const key = process.env.PRIVATE_KEY;
 
@@ -68,6 +72,8 @@ exports.Pay = async (req, res, next) => {
 
         if (resJson._status == false)
         {
+            await UserModel.setBalanceByUserID(admin.UserID, BalanceAdmin);
+            await UserModel.setBalanceByUserID(user.UserID, BalanceClient);
             res.render('errorPage', {
                 layout: 'customer',
                 Username: req.Username,

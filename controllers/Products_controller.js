@@ -14,6 +14,14 @@ exports.getSearchBook = async (req, res, next) => {
         Type: type,
     });
 
+    const _preview = await Book.search({
+        Min: minPrice,
+        Max: maxPrice,
+        Keyword: keyword,
+        Page: 1,
+        Limit: limit,
+        Type: type,
+    });
     // Check giá max có nhỏ hơn giá min
     if (maxPrice < minPrice) {
         res.render("errorPage", {
@@ -33,17 +41,27 @@ exports.getSearchBook = async (req, res, next) => {
     for (var i = 0; i < _books.length; i++) {
         _books[i].Price = _books[i].Price.toLocaleString('vi-VN') + ' đ';
     }
-    res.render("searchBookAdmin", {
-        layout: 'admin',
-        title: "Quản lý sản phẩm",
-        _books,
-        Username: req.Username,
-        pages,
-        MinPrice: minPrice,
-        MaxPrice: maxPrice,
-        keyword: keyword,
-        genre: type,
-    })
+
+    if (_preview[0]?.Total/4 < req.query.page - 1)
+    {
+        res.redirect(`/admin/?page=1&keyword=${keyword}&type=${type}`);
+        
+    }
+    else
+    {
+
+        res.render("searchBookAdmin", {
+            layout: 'admin',
+            title: "Quản lý sản phẩm",
+            _books,
+            Username: req.Username,
+            pages,
+            MinPrice: minPrice,
+            MaxPrice: maxPrice,
+            keyword: keyword,
+            genre: type,
+        });
+    }
 }
 
 exports.editBook = async (req, res, next) => {
@@ -208,6 +226,15 @@ exports.getSearchBook_client = async (req, res, next) => {
         Limit: limit,
         Type: type,
     });
+    
+    const _preview = await Book.search({
+        Min: minPrice,
+        Max: maxPrice,
+        Keyword: keyword,
+        Page: 1,
+        Limit: limit,
+        Type: type,
+    });
 
     // Check giá max có nhỏ hơn giá min
     if (maxPrice < minPrice) {
@@ -228,16 +255,26 @@ exports.getSearchBook_client = async (req, res, next) => {
     for (var i = 0; i < _books.length; i++) {
         _books[i].Price = _books[i].Price.toLocaleString('vi-VN') + ' đ';
     }
-    res.render("searchBookClient", {
-        layout: 'customer',
-        title: "Tìm kiếm sản phẩm",
-        Username: req.Username,
-        _books,
-        pages,
-        Username: req.Username,
-        MinPrice: minPrice,
-        MaxPrice: maxPrice,
-        keyword: keyword,
-        genre: type,
-    })
+
+    if (_preview[0]?.Total/4 < req.query.page - 1)
+    {
+        res.redirect(`/?page=1&keyword=${keyword}&type=${type}`);
+        
+    }
+    else
+    {
+        res.render("searchBookClient", {
+            layout: 'customer',
+            title: "Tìm kiếm sản phẩm",
+            Username: req.Username,
+            _books,
+            pages,
+            Username: req.Username,
+            MinPrice: minPrice,
+            MaxPrice: maxPrice,
+            keyword: keyword,
+            genre: type,
+        })
+    }
+    
 }
