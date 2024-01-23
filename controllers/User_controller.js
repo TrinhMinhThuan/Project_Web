@@ -54,7 +54,7 @@ exports.GoogleAuth = async (req, res, next) => {
         const userInfo = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${data.access_token}`, {
             method: 'GET'
         });
-
+        
         const userData = await userInfo.json();
         const decodedToken = jwt.decode(data.id_token);
         let user;
@@ -62,11 +62,7 @@ exports.GoogleAuth = async (req, res, next) => {
             user = await UserModel.getUserByGoogleID(decodedToken.sub);
         }
 
-
-        if (!user) {
-
-
-            
+        if (!user) { 
             user = {};
             user.GoogleID = decodedToken.sub;
             user.Username = null;
@@ -79,12 +75,8 @@ exports.GoogleAuth = async (req, res, next) => {
 
             const key = process.env.PRIVATE_KEY;
             const _user = jwt.sign(user, key, { expiresIn: '1h' });
-
             const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
            
-
-           
-
             await fetch(`https://localhost:${PAY_PORT}/createUser`, {
                 agent,
                 method: 'POST',
