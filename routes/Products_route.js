@@ -29,5 +29,6 @@ productRouter.post("/admin/addBook-Admin",upload.single('image'),product_control
 // client
 productRouter.get("/",  product_controller.getSearchBook_client);
 productRouter.get("/searchBook", middle.authenticate, product_controller.getSearchBook_client);
-
+productRouter.get("/getStatisticalData",product_controller.getStatisticalData_client );
+productRouter.get("/hotbook", product_controller.gethotBook_client);
 module.exports = productRouter;

@@ -155,6 +155,49 @@ exports.addBook = async (req, res, next) => {
 }
 
 //client
+exports.getStatisticalData_client = async (req, res, next) => {
+    const month = req.query.month;
+    const year = req.query.year;
+    // Lấy dữ liệu 
+    const _data = await Book.getStatisticalData_client(month, year)
+
+    const newDataObject = {
+        labels: [],
+        data: []
+    };
+    _data.forEach(item => {
+        newDataObject.labels.push(item.ProductName);
+        newDataObject.data.push(item.Total);
+    });
+
+    // Kiểm tra xem tháng và năm có vượt quá thời điểm hiện tại hay không
+    // const currentYear = new Date().getFullYear();
+    // const currentMonth = new Date().getMonth() + 1;
+
+    // if (year > currentYear || (year == currentYear && month > currentMonth)) {
+    //     res.render("errorPage", {
+    //         layout: 'customer',
+    //         admin: false,
+    //         error: "Lỗi: Thời gian vượt quá thời điểm hiện tại",
+    //         Username: req.Username,
+    //     });
+    // }
+    const data = {
+        labels: newDataObject.labels,
+        data: newDataObject.data,
+        month: month,
+        year: year,
+    };
+    res.json(data);
+}
+exports.gethotBook_client = async (req, res, next) => {
+    res.render("hotBookPageClient", {
+        layout: 'customer',
+        admin: false,
+        title: "Sản phẩm bán chạy",
+        Username: req.Username,
+    });
+}
 exports.getSearchBook_client = async (req, res, next) => {
     const { keyword = "", minPrice = "", maxPrice = "", type = "ProductName", page = 1, limit = 4 } = req.query;
     const _books = await Book.search({
