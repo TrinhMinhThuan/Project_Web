@@ -56,10 +56,42 @@ module.exports = class Categories
 
 
     static async delete(categoryId){
+
         let pool = await sql.connect(databaseConnection);
         let deletee = await pool.request()
         .input('categoryId', sql.Int, categoryId)
         .query('DELETE FROM Categories WHERE CategoryID = @categoryId');
+
+        // Xóa sách có thể loại là CategoryID
+
+    }
+    // Tăng
+    static async updateCategoryQuantity(categoryID){
+        let pool = await sql.connect(databaseConnection);
+        let add = await pool.request()
+        .input('categoryId', sql.Int, categoryID)
+        .query(`UPDATE categories
+        SET CategoryQuantity = CategoryQuantity + 1
+        WHERE CategoryID = @categoryid`);
+        if (add.rowsAffected[0] > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    // Trừ sản phẩm
+    static async update_CategoryQuantity(categoryID){
+        let pool = await sql.connect(databaseConnection);
+        let add = await pool.request()
+        .input('categoryId', sql.Int, categoryID)
+        .query(`UPDATE categories
+        SET CategoryQuantity = CategoryQuantity - 1
+        WHERE CategoryID = @categoryid`);
+        if (add.rowsAffected[0] > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     static async add(Category){

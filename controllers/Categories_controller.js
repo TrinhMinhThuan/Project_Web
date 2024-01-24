@@ -27,6 +27,7 @@ exports.deleteCategories = async (req, res, next) => {
   const { categoryId } = req.params;
   try {
     await Categories.delete(categoryId)
+    await Products.deleteProductByCategoryID(categoryId)
     res.status(200).json({ message: 'Dữ liệu đã được xóa thành công!' });
   } catch (error) {
     res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });
@@ -46,6 +47,7 @@ exports.addCategories = async (req, res, next) => {
         admin: true,
         error: "Đã tồn tại ID",
       });
+      return;
     }
   }
   if (categoryID !== undefined && importDate !== undefined && categoryName !== undefined) {
@@ -61,6 +63,7 @@ exports.addCategories = async (req, res, next) => {
         admin: true,
         notification: "Thêm danh mục thành công",
       });
+      return;
     }
     else {
       res.render("errorPage", {
@@ -100,6 +103,8 @@ exports.editCategories = async (req, res, next) => {
       res.render("errorPage", {
         layout: 'admin',
         error: "Đã tồn tại ID",
+        Username: req.Username,
+        admin: true,
       });
     }
   }
@@ -108,6 +113,7 @@ exports.editCategories = async (req, res, next) => {
       layout: 'admin',
       admin: true,
       error: "Không có sự thay đổi",
+      Username: req.Username,
     });
   }
   else if(categoryID !== undefined && categoryName !== undefined) {
@@ -146,6 +152,7 @@ exports.editCategories = async (req, res, next) => {
         layout: 'admin',
         admin: true,
         notification: "Chỉnh sửa thành công",
+        Username: req.Username,
       });
     }
     else {
@@ -153,12 +160,15 @@ exports.editCategories = async (req, res, next) => {
         layout: 'admin',
         admin: true,
         error: "Chỉnh sửa thất bại",
+        Username: req.Username,
       });
     }
   } else {
     res.render("editCategoriesAdmin", {
       layout: 'admin',
       title: "Chỉnh sửa danh mục",
+      Username: req.Username,
+      admin: true,
       CategoryID: categoryid,
       CategoryName: categoryname,
       //CategoryQuantity: categoryquantity,

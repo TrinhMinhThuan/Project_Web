@@ -7,7 +7,11 @@ const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
 
 exports.LoadAllItemOfCart = async (req, res, next) => {
-    const cartOfUser = await CartModel.getByUserID(req.user.UserID);
+
+    // page
+    const {page = 1, limit = 5 } = req.query;
+
+    const cartOfUser = await CartModel.getByUserID_Page(req.user.UserID,page,limit);
     let TotalPriceAllItem = 0;
     let product = {};
     for (let cart of cartOfUser) {
@@ -20,11 +24,16 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
             cart.TotalPrice = product.Price * cart.Quantity;
             TotalPriceAllItem += cart.TotalPrice;
         }
-
     }
+
+    const pages = Array.from(
+        { length: Math.ceil(cartOfUser[0]?.Total / limit || 0) },
+        (_, i) => i + 1
+      );
+
+    //console.log(cartOfUser[0]?.Total);
     const  UserID = req.user.UserID;
     const temp = await UserModel.getUserByUserID(UserID);
-
     const Balance = temp.Balance;
 
     res.render('cartPageClient', {
@@ -33,6 +42,7 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
         UserID: UserID,
         cart: cartOfUser,
         TotalPriceAllItem,
+        pages,
         Balance,
         title: "Danh sách sản phẩm trong giỏ hàng"
     });

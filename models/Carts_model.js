@@ -11,6 +11,7 @@ module.exports = class Carts {
         this.ProductID = ProductID;
         this.Quantity = Quantity;
     }
+    
     static async getAll(){
         let pool = await sql.connect(databaseConnection);
         let Carts = await pool.request()
@@ -26,6 +27,22 @@ module.exports = class Carts {
         .query(`SELECT * FROM Carts WHERE UserID = @userID`);
         return Carts.recordset;
     }
+
+    static async getByUserID_Page(userID,page,limit)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let Carts = await pool.request()
+        .input('userID', sql.Int, userID)
+        .input("Offset", sql.Int, (page - 1) * limit)
+        .input("Limit", sql.Int, limit)
+        .query(`SELECT *, count(*) over() as Total FROM Carts WHERE UserID = @userID
+                ORDER BY CartID
+                OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY 
+        `);
+        return Carts.recordset;
+    }
+
+
     static async getByUserID(userID)
     {
         let pool = await sql.connect(databaseConnection);

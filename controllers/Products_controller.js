@@ -109,6 +109,11 @@ exports.editBook = async (req, res, next) => {
             });
         }
         else {
+            if(_product.CategoryID != newProductID){
+                // Giảm số lượng sách của thể loại cũ, tăng thêr loại mới
+                await Categories.updateCategoryQuantity(newProductID);
+                await Categories.update_CategoryQuantity(CategoryID);
+            }
             res.render("truePage", {
                 layout: 'admin',
                 error: "Cập nhật sách thành công",
@@ -128,7 +133,6 @@ exports.editBook = async (req, res, next) => {
     })
 }
 exports.addBook = async (req, res, next) => {
-
     const { newProductID = "", productName = "",
         categoryId = "", stockquantity = "", author = "", publishedyear = "", price = ""
     } = req.body;
@@ -139,8 +143,9 @@ exports.addBook = async (req, res, next) => {
     const newProduct = {
         newImage, newProductID, productName, categoryId, stockquantity, author, publishedyear, price
     }
-
+    console.log(123);
     const checkID = await Book.checkID(newProductID)
+
     if (checkID) {
         res.render("errorPage", {
             layout: 'admin',
@@ -161,6 +166,8 @@ exports.addBook = async (req, res, next) => {
             });
         }
         else {
+            //Tăng số lượng sách trong thể loại lên + 1
+            await Categories.updateCategoryQuantity(categoryId)
             res.render("truePage", {
                 layout: 'admin',
                 error: "Thêm sách thành công",

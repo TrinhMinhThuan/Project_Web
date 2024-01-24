@@ -18,16 +18,16 @@ const storage = multer.diskStorage({
  const upload = multer({ storage: storage });
 
 // admin
-productRouter.get('/admin',  product_controller.getSearchBook);
-productRouter.get("/admin/searchBook-Admin",  product_controller.getSearchBook);
-productRouter.get("/admin/book/edit/:productId",product_controller.editBook);
-productRouter.post("/admin/book/edit/:productId", upload.single('image'), product_controller.editBook);
-productRouter.get("/admin/addBook-Admin",product_controller.addBook);
-productRouter.post("/admin/addBook-Admin",upload.single('image'),product_controller.addBook);
+productRouter.get('/admin', middle.authenticateAdmin, product_controller.getSearchBook);
+productRouter.get("/admin/searchBook-Admin",  middle.authenticateAdmin, product_controller.getSearchBook);
+productRouter.get("/admin/book/edit/:productId",middle.authenticateAdmin,product_controller.editBook);
+productRouter.post("/admin/book/edit/:productId", middle.authenticateAdmin,upload.single('image'), product_controller.editBook);
+productRouter.get("/admin/addBook-Admin",middle.authenticateAdmin, product_controller.addBook);
+productRouter.post("/admin/addBook-Admin",middle.authenticateAdmin, upload.single('image'),product_controller.addBook);
 
-productRouter.get("/admin/salesRevenue",product_controller.salesRevenue );
-productRouter.get("/admin/getStatisticalData-Admin", product_controller.getStatisticalData);
-productRouter.delete("/admin/product/delete", product_controller.deleteProduct);
+productRouter.get("/admin/salesRevenue",middle.authenticateAdmin, product_controller.salesRevenue );
+productRouter.get("/admin/getStatisticalData-Admin",middle.authenticateAdmin, product_controller.getStatisticalData);
+productRouter.delete("/admin/product/delete", middle.authenticateAdmin,product_controller.deleteProduct);
 
 // client
 productRouter.get("/",  product_controller.getSearchBook_client);

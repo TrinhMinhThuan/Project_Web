@@ -291,7 +291,7 @@ exports.GetProfile = async (req, res, next) => {
     for (let order of Orders)
     {
         date = new Date(order.OrderDate);
-        order.OrderDateToString = `${date.getDay()}-${date.getMonth()+1}-${date.getFullYear()}`;
+        order.OrderDateToString = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
     }
     
 

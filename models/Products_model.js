@@ -30,6 +30,14 @@ module.exports = class Book
         .query('DELETE FROM Products WHERE ProductID = @Id');
         return deletee.rowsAffected[0];
     }
+    static async deleteProductByCategoryID(ID)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let deletee = await pool.request()
+        .input('Id', sql.Int, ID)
+        .query('DELETE FROM Products WHERE CategoryID = @Id');
+        return deletee.rowsAffected[0];
+    }
     static async getByProductID(proID)
     {
         let pool = await sql.connect(databaseConnection);
