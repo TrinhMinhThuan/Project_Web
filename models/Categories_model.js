@@ -94,6 +94,21 @@ module.exports = class Categories
         }
     }
 
+    static async update_set_CategoryQuantity(categoryID, Quantity){
+        let pool = await sql.connect(databaseConnection);
+        let add = await pool.request()
+        .input('categoryId', sql.Int, categoryID)
+        .input('quantity', sql.Int, Quantity)
+        .query(`UPDATE categories
+        SET CategoryQuantity = CategoryQuantity - @quantity
+        WHERE CategoryID = @categoryid`);
+        if (add.rowsAffected[0] > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     static async add(Category){
         let pool = await sql.connect(databaseConnection);
         let add = await pool.request()
@@ -134,4 +149,5 @@ module.exports = class Categories
             return false; // Chưa tồn tại id có thể thêm vào
         }
     }
+    
 }

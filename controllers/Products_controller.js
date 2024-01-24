@@ -371,8 +371,10 @@ exports.getSearchBook_client = async (req, res, next) => {
 
 exports.deleteProduct = async (req, res, next) => {
     const Id = req.query.ID;
+    const book = await Book.getByProductID(Id);
     try {
       await Book.deleteProductByProductID(Id);
+      await Categories.update_CategoryQuantity(book.CategoryID);
       res.status(200).json({ message: 'Dữ liệu đã được xóa thành công!' });
     } catch (error) {
       res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });

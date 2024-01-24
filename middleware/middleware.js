@@ -67,6 +67,12 @@ exports.authenticateAdmin = (req, res, next) => {
   });
 }
 
+exports.getError = (req, res, next ) => {
+  res.status(404).render('errorPage', {
+    layout: 'account-form',
+    error: 'Page not found'
+  });
+}
 
 
 

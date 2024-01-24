@@ -51,7 +51,7 @@ module.exports = class Orders
         let pool = await sql.connect(databaseConnection);
         let Orders = await pool.request()
         .input('userID', sql.Int, UserID)
-        .query(`SELECT * FROM Orders WHERE UserID = @userID ORDER BY OrderDate DESC`);
+        .query(`SELECT * FROM Orders WHERE UserID = @userID ORDER BY OrderDate DESC, OrderID DESC`);
         return Orders.recordset;
     }
 

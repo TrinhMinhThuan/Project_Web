@@ -93,16 +93,26 @@ exports.Pay = async (req, res, next) => {
 
                     let TotalPriceAllItem = 0;
                     let product = {};
+
                     for (let cart of cartOfUser) {
                         product = await ProductModel.getByProductID(cart.ProductID);
+                        if( product.StockQuantity < cart.Quantity)
+                        {
+                            res.json({ _status: false, _errorCode: 14, 
+                                _errorMsg: `Sản phẩm ${product.ProductName} có số lượng tồn là ${product.StockQuantity}
+                                 nên không đủ để thục hiện giao dịch, quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
+                        }
+                    }
 
+                    for (let cart of cartOfUser) {
+                        product = await ProductModel.getByProductID(cart.ProductID);
                         cart.ProductName = product.ProductName;
                         cart.Price = product.Price;
                         cart.Author = product.Author;
                         cart.TotalPrice = product.Price * cart.Quantity;
                         TotalPriceAllItem += cart.TotalPrice;
                     }
-                const user = await UserModel.getUserByUserID(_UserID);
+                    const user = await UserModel.getUserByUserID(_UserID);
                     if (user.Balance < TotalPriceAllItem)
                     {
                         res.json({ _status: false, _errorCode: 3,_errorMsg: 'Tài khoản quý khách không đủ để thanh toán, vui lòng nạp thêm để thực hiện thanh toán' });
@@ -110,14 +120,19 @@ exports.Pay = async (req, res, next) => {
                     }
                     else
                     {
+                        //Updete số tiền
                         await UserModel.updateBalanceById(_UserID, -TotalPriceAllItem);
                         const adminAccount = await UserModel.getAdminUser();
                         await UserModel.updateBalanceById(adminAccount.UserID, TotalPriceAllItem);
+
+                        //Xóa khỏi gỏ hàng
                         await CartModel.deleteByUserID(_UserID);
                         const OrderID = await OrderModel.create(_UserID, TotalPriceAllItem);
                         for (let cart of cartOfUser)
                         {
                             await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
+                            await ProductModel.updateStockQuantityByProductID(cart.ProductID, -cart.Quantity);                           
+                            
                         }
                         res.json({_status: true});
                     }

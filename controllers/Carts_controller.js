@@ -9,15 +9,14 @@ const jwt = require('jsonwebtoken');
 exports.LoadAllItemOfCart = async (req, res, next) => {
 
     // page
-    const {page = 1, limit = 5 } = req.query;
+    const { page = 1, limit = 5 } = req.query;
 
-    const cartOfUser = await CartModel.getByUserID_Page(req.user.UserID,page,limit);
+    const cartOfUser = await CartModel.getByUserID_Page(req.user.UserID, page, limit);
     let TotalPriceAllItem = 0;
     let product = {};
     for (let cart of cartOfUser) {
         product = await ProductModel.getByProductID(cart.ProductID);
-        if (product)
-        {
+        if (product) {
             cart.ProductName = product.ProductName;
             cart.Price = product.Price;
             cart.Author = product.Author;
@@ -29,10 +28,10 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
     const pages = Array.from(
         { length: Math.ceil(cartOfUser[0]?.Total / limit || 0) },
         (_, i) => i + 1
-      );
+    );
 
     //console.log(cartOfUser[0]?.Total);
-    const  UserID = req.user.UserID;
+    const UserID = req.user.UserID;
     const temp = await UserModel.getUserByUserID(UserID);
     const Balance = temp.Balance;
 
@@ -58,11 +57,13 @@ exports.Pay = async (req, res, next) => {
         const BalanceClient = user.Balance;
         const admin = await UserModel.getAdminUser();
         const BalanceAdmin = admin.Balance;
-        
-        
+
+
+
+
         const key = process.env.PRIVATE_KEY;
 
-        const UserID = jwt.sign({UserID: user.UserID}, key, { expiresIn: '1h'});
+        const UserID = jwt.sign({ UserID: user.UserID }, key, { expiresIn: '1h' });
 
         const PAY_PORT = process.env.PAY_SERVER_PORT;
         const agent = new https.Agent({
@@ -70,21 +71,20 @@ exports.Pay = async (req, res, next) => {
             rejectUnauthorized: false
         });
 
-        const secret = jwt.sign({secret: process.env.SERVER_SECRET}, key, { expiresIn: '1h' })
+        const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
         const _fetch = await fetch(`https://localhost:${PAY_PORT}/pay`, {
             agent,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({UserID, secret}),
+            body: JSON.stringify({ UserID, secret }),
         });
 
 
         const resJson = await _fetch.json();
 
-        if (resJson._status == false)
-        {
+        if (resJson._status == false) {
             await UserModel.setBalanceByUserID(admin.UserID, BalanceAdmin);
             await UserModel.setBalanceByUserID(user.UserID, BalanceClient);
             res.render('errorPage', {
@@ -93,8 +93,7 @@ exports.Pay = async (req, res, next) => {
                 error: resJson._errorMsg
             });
         }
-        else
-        {
+        else {
             res.render('truePage', {
                 Username: req.Username,
                 layout: 'customer',
@@ -112,31 +111,74 @@ exports.Pay = async (req, res, next) => {
 
 exports.addCart = async (req, res, next) => {
 
-    const UserID = req.user.UserID;
-    const _Cart = await  CartModel.getAll();
-    const maxCartID = _Cart.reduce((max, obj) => (obj.CartID > max ? obj.CartID : max), _Cart[0].CartID);
-    const { BookID } = req.params;
-    const quantity = req.query.quantity;
-    const check = await CartModel.addCart({
-        BookID,quantity, UserID, maxCartID
-    });
+    try {
+        const UserID = req.user.UserID;
 
-    if(check){
-        res.render("truePage",{
-            layout: 'customer',
-            Username: req.Username,
-            admin: false,
-            notification: "Thêm giỏ hàng thành công"
-        })
+        const _Cart = await CartModel.getAll();
+        const maxCartID = _Cart.reduce((max, obj) => (obj.CartID > max ? obj.CartID : max), _Cart[0].CartID);
+        const { BookID } = req.params;
+        const product = await ProductModel.getByProductID(BookID);
+        
+        const quantity = req.query.quantity;
+        if (quantity <= product.StockQuantity) {
+            let check = 0;
+            for (let cart of _Cart) {
+                if (BookID == cart.ProductID && UserID == cart.UserID) {
+                    if (cart.Quantity + quantity > quantity)
+                    {
+                        res.render("errorPage", {
+                            layout: 'customer',
+                            Username: req.Username,
+                            admin: false,
+                            error: "Tổng số lượng trong giỏ hàng lớn hơn số lượng hàng cửa hàng hiện có",
+                        });
+                        return;
+                    }
+                    else
+                    {
+                        check = await CartModel.updateQuantityByCartID(cart.CartID, quantity);
+                        break;
+                    }
+                    
+                }
+
+            }
+            if (check === 0) {
+                check = await CartModel.addCart({
+                    BookID, quantity, UserID, maxCartID
+                });
+            }
+
+            if (check !== 0) {
+                res.render("truePage", {
+                    layout: 'customer',
+                    Username: req.Username,
+                    admin: false,
+                    notification: "Thêm sản phẩm giỏ hàng thành công"
+                })
+            }
+            else {
+                res.render("errorPage", {
+                    layout: 'customer',
+                    Username: req.Username,
+                    admin: false,
+                    error: "Thêm sản phẩm giỏ hàng không thành công",
+                })
+            }
+        }
+        else {
+            res.render("errorPage", {
+                layout: 'customer',
+                Username: req.Username,
+                admin: false,
+                error: "Số lượng sản phẩm của cửa hàng hiện không đủ để thêm vào giỏ hàng",
+            })
+        }
+
+    } catch (error) {
+        next(error);
     }
-    else{
-        res.render("errorPage",{
-            layout: 'customer',
-            Username: req.Username,
-            admin: false,
-            error: "Thêm giỏ hàng không thành công",
-        })
-    }
+
 }
 
 
@@ -148,6 +190,6 @@ exports.Delete = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-    
+
 
 }

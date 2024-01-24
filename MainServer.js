@@ -38,7 +38,7 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(middle.isLogin);
-//app.use('/admin', middle.authenticateAdmin);
+app.use('/admin', middle.authenticateAdmin);
 app.use("/", UserRoute);
 app.use("/", viewRoute);
 app.use("/admin", CategoriesRoute);
@@ -46,6 +46,9 @@ app.use("/", BookRoute);
 app.use('/cartBook', CartsRoute);
 app.use('/topUp', topupRoute);
 app.use('/orderDetail', orderDetailRoute);
+
+app.use(middle.getError);
+
 
 const server = https.createServer({
   key: process.env.KEY,

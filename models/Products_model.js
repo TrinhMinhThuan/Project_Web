@@ -38,6 +38,16 @@ module.exports = class Book
         .query('DELETE FROM Products WHERE CategoryID = @Id');
         return deletee.rowsAffected[0];
     }
+    static async updateStockQuantityByProductID(ID, Quantity)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let product = await pool
+            .request()
+            .input('Quantity', sql.Int, Quantity)
+            .input('ID', sql.Int, ID)
+            .query("update Products set StockQuantity = StockQuantity + @Quantity WHERE ProductID = @ID");
+        return product.rowsAffected[0];
+    }
     static async getByProductID(proID)
     {
         let pool = await sql.connect(databaseConnection);

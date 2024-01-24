@@ -6,7 +6,7 @@ const middle = require('../middleware/middleware');
 categoriesRouter.get("/searchCategories-Admin", middle.authenticateAdmin, Categories_controller.getSearchCategories);
 
  
-categoriesRouter.delete("/categories/delete/:categoryId", middle.authenticateAdmin, Categories_controller.deleteCategories);
+categoriesRouter.delete("/categories/delete/:categoryId",  Categories_controller.deleteCategories);
 
 // Thêm
 categoriesRouter.get("/addCategories-Admin", middle.authenticateAdmin, Categories_controller.addCategories);
