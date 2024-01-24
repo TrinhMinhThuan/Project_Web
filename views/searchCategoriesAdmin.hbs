@@ -16,7 +16,7 @@
     <h5 class="text-center mb-3">KẾT QUẢ TRA CỨU</h5>
     <table class="table">
       <thead>
-        <tr>
+        <tr class="text-center">
           <th scope="col">#ID</th>
           <th scope="col">Tên thể loại</th>
           <th scope="col">Số sản phẩm</th>
@@ -26,16 +26,16 @@
       </thead>
       <tbody>
          {{#each _Categories}}
-          <tr id = {{this.CategoryID}}>
+          <tr class="text-center" id = {{this.CategoryID}}>
             <th scope="row" >{{this.CategoryID}}</th>
             <td>{{this.CategoryName}}</td>
             <td>{{this.CategoryQuantity}}</td>
             <td>
-              <button class="btn-delete" data-category-id="{{this.CategoryID}}">
+              <button class="btn btn-delete btn-danger" data-category-id="{{this.CategoryID}}">
                 <i class="fas fa-trash"></i> 
               </button></td>
-             <td>
-              <button class="btn-edit" data-category-id="{{this.CategoryID}}">
+             <td class="text-center">
+              <button class="btn btn-edit btn-primary" data-category-id="{{this.CategoryID}}">
                 <i class="fas fa-edit"></i> 
               </button>
             </td>

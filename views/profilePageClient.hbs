@@ -67,7 +67,7 @@
                                 <div>
                                     <table class="table">
                                         <thead>
-                                            <tr>
+                                            <tr class="text-center">
 
                                                 <th scope="col">Mã hóa đơn</th>
                                                 <th scope="col">Ngày giao dịch</th>
@@ -78,7 +78,7 @@
                                         </thead>
                                         <tbody id="listBook">
                                             {{#each Orders}}
-                                            <tr>
+                                            <tr class="text-center">
                                                 <th scope="row">{{this.OrderID}}</th>
                                                 <td>{{this.OrderDateToString}}</td>
                                                 <td>{{this.TotalAmount}} VNĐ</td>
@@ -113,7 +113,7 @@
                                 <div>
                                     <table class="table">
                                         <thead>
-                                            <tr>
+                                            <tr class="text-center">
 
                                                 <th scope="col">Mã giao dịch</th>
                                                 <th scope="col">Ngày giao dịch</th>
@@ -123,7 +123,7 @@
                                         </thead>
                                         <tbody id="listBook">
                                             {{#each Topup}}
-                                            <tr>
+                                            <tr class="text-center">
                                                 <th scope="row">{{this.TopUpID}}</th>
                                                 <td>{{this.TopUpDayToString}}</td>
                                                 <td>{{this.Amount}} VNĐ</td>

@@ -47,9 +47,9 @@ exports.getSearchBook = async (req, res, next) => {
         _books[i].Price = _books[i].Price.toLocaleString('vi-VN') + ' đ';
     }
 
-    if (_preview[0]?.Total/4 < req.query.page - 1)
+    if (_preview[0]?.Total/4 < req.query.page && _preview[0].Total % 4 === 0)
     {
-        res.redirect(`/?page=1&keyword=${keyword}&type=${type}`);
+        res.redirect(`/admin/?page=1&keyword=${keyword}&type=${type}`);
         
     }
     else
@@ -350,3 +350,15 @@ exports.getSearchBook_client = async (req, res, next) => {
     }
     
 }
+
+
+exports.deleteProduct = async (req, res, next) => {
+    const Id = req.query.ID;
+    try {
+      await Book.deleteProductByProductID(Id);
+      res.status(200).json({ message: 'Dữ liệu đã được xóa thành công!' });
+    } catch (error) {
+      res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });
+    } finally {
+    }
+  }

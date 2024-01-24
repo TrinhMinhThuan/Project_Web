@@ -9,7 +9,7 @@ categoriesRouter.get("/searchCategories-Admin", Categories_controller.getSearchC
 categoriesRouter.delete("/categories/delete/:categoryId", Categories_controller.deleteCategories);
 
 // Thêm
-categoriesRouter.get("/addCategories-Admin", Categories_controller.addCategories)
+categoriesRouter.get("/addCategories-Admin", Categories_controller.addCategories);
 
 // Sửa
 categoriesRouter.get("/categories/edit/:categoryId", Categories_controller.editCategories)

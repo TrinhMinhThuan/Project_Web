@@ -43,10 +43,11 @@
             </div>
             <div class="card-footer">
               <!-- Thêm hai nút Delete và Edit -->
-              <button type="button" data-product-id="{{this.ProductID}}"
-                class="btn btn-danger btn-sm btn-delete">Delete</button>
-              <button type="button" data-product-id="{{this.ProductID}}" class="btn btn-primary btn-sm ml-2 btn-edit"
-                style="width: 60px">Edit</button>
+              <button id="deleteItem" type="button" data-product-id="{{this.ProductID}}"
+                class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i> Delete</button>
+                
+              <button type="button" data-product-id="{{this.ProductID}}" class="btn btn-edit btn-primary btn-sm ml-2 btn-edit"
+                style="width: 60px"> <i class="fas fa-edit"></i>  Edit</button>
             </div>
           </div>
         </div>
@@ -137,5 +138,38 @@
       window.location.href = `/admin/book/edit/${productID}`;
     });
   });
+
+
+  // Delete vs ajax
+document.querySelectorAll('.btn-delete').forEach(button => {
+  button.addEventListener('click', function() {
+    event.preventDefault();
+    const Id = this.getAttribute('data-product-id');
+    const deleteUrl = `/admin/product/delete?ID=${Id}`;
+    console.log(deleteUrl);
+    // Sử dụng AJAX để gửi yêu cầu DELETE
+    const xhr = new XMLHttpRequest();
+    xhr.open('DELETE', deleteUrl, true);
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          // Xử lý thành công
+          updateUI();
+          console.log('Dữ liệu đã được xóa thành công!');
+        } else {
+          // Xử lý lỗi
+          console.error('Lỗi xóa dữ liệu:', xhr.statusText);
+        }
+      }
+    };
+    xhr.send();
+  });
+});
+//Update giao diện
+function updateUI() {
+    location.reload();
+}
+
 
 </script>

@@ -27,7 +27,7 @@ productRouter.post("/admin/addBook-Admin",upload.single('image'),product_control
 
 productRouter.get("/admin/salesRevenue",product_controller.salesRevenue );
 productRouter.get("/admin/getStatisticalData-Admin", product_controller.getStatisticalData);
-
+productRouter.delete("/admin/product/delete", product_controller.deleteProduct);
 
 // client
 productRouter.get("/",  product_controller.getSearchBook_client);

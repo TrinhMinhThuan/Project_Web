@@ -5,9 +5,9 @@
         <div>
             <table class="table">
                 <thead>
-                    <tr>
+                    <tr class="text-center">
 
-                        <th scope="col">Sách</th>
+                        <th scope="col" >Sách</th>
                         <th scope="col">Tác giả</th>
                         <th scope="col">Giá/ Sản phẩm</th>
                         <th scope="col">Số lượng</th>
@@ -17,16 +17,16 @@
                 </thead>
                 <tbody id="listBook">
                     {{#each cart}}
-                    <tr>
+                    <tr class="text-center">
                         <th scope="row">{{this.ProductName}}</th>
                         <td>{{this.Author}}</td>
                         <td>{{this.Price}} VNĐ</td>
                         <td>{{this.Quantity}}</td>
                         <td>{{this.TotalPrice}} VNĐ</td>
                         <td>
-                            <button class="btn-delete" data-cart-id="{{this.CartID}}" onclick="DeleteCartItem()">
+                            <a href="cartBook/delete?ID={{this.CartID}}" class="btn btn-danger" data-cart-id="{{this.CartID}}" >
                                 <i class="fas fa-trash"></i>
-                            </button>
+                            </a>
                         </td>
                     </tr>
                     {{/each}}

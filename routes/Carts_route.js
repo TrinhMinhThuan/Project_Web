@@ -6,7 +6,9 @@ const middleware = require('../middleware/middleware');
 
 
 cartRoute.get('/', middleware.authenticate, CartController.LoadAllItemOfCart);
-cartRoute.get('/pay', middleware.authenticate, CartController.Pay)
+cartRoute.get('/pay', middleware.authenticate, CartController.Pay);
+
+cartRoute.get('/delete', middleware.authenticate, CartController.Delete)
 
 cartRoute.get("/addCart/:BookID", middleware.authenticate, CartController.addCart);
 

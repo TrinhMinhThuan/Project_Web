@@ -125,3 +125,16 @@ exports.addCart = async (req, res, next) => {
         })
     }
 }
+
+
+exports.Delete = async (req, res, next) => {
+    try {
+        const ID = req.query.ID;
+        const affect = await CartModel.deleteByCartID(ID);
+        res.redirect('/cartBook');
+    } catch (error) {
+        next(error);
+    }
+    
+
+}

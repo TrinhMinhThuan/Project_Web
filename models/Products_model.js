@@ -22,6 +22,14 @@ module.exports = class Book
         let books = await pool.request().query("SELECT * FROM Users");
         return books.recordset;
     }
+    static async deleteProductByProductID(ID)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let deletee = await pool.request()
+        .input('Id', sql.Int, ID)
+        .query('DELETE FROM Products WHERE ProductID = @Id');
+        return deletee.rowsAffected[0];
+    }
     static async getByProductID(proID)
     {
         let pool = await sql.connect(databaseConnection);

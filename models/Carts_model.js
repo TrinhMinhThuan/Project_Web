@@ -41,6 +41,14 @@ module.exports = class Carts {
         .input('Id', sql.Int, userID)
         .query('DELETE FROM Carts WHERE UserID = @Id');
     }
+    static async deleteByCartID(cartID)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let deletee = await pool.request()
+        .input('Id', sql.Int, cartID)
+        .query('DELETE FROM Carts WHERE CartID = @Id');
+        return deletee.rowsAffected[0];
+    }
     static async addCart(options){
         let pool = await sql.connect(databaseConnection);
         let add = await pool.request()
