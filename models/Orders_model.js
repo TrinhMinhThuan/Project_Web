@@ -54,4 +54,45 @@ module.exports = class Orders
         .query(`SELECT * FROM Orders WHERE UserID = @userID ORDER BY OrderDate DESC`);
         return Orders.recordset;
     }
+
+    // Dữ liệu Thống kê doanh thu cho admin
+    static async getStatisticalData(yearYear, yearMonth) {
+        let check;
+        let pool = await sql.connect(databaseConnection);
+        // Thống kê theo các tháng
+        if (yearYear == undefined) {
+            check = await pool.request()
+            .input("year", sql.Int, yearMonth)
+            .query(`SELECT
+            MONTH(OrderDate) AS Month,
+            SUM(TotalAmount) AS TotalPrice
+                FROM
+                    orders
+                WHERE
+                    Year(OrderDate) = @year
+                GROUP BY
+                    MONTH(OrderDate)
+                ORDER BY
+                    MONTH(OrderDate);`
+                );
+        }// Thống kê theo các năm
+        else {
+            check = await pool.request()
+                .input("year", sql.Int, yearYear)
+                .query(`SELECT
+                YEAR(OrderDate) AS Year,
+                SUM(TotalAmount) AS TotalPrice
+                    FROM
+                        orders
+                    WHERE
+                        YEAR(OrderDate) >= @year
+                    GROUP BY
+                        YEAR(OrderDate)
+                    ORDER BY
+                        YEAR(OrderDate);`
+                );
+        }
+        return check.recordset;
+    }
+
 }

@@ -55,4 +55,39 @@ module.exports = class Orders
             .query("SELECT * FROM Order_Detail WHERE OrderID = @ID");
         return user.recordset;
     }
+
+    
+
+
+    // Dữ liệu thống kê sản phẩm bán ra cho khách hàng
+    static async getStatisticalData_client(month, year){
+        let check;
+        let pool = await sql.connect(databaseConnection);
+        if (month == undefined) {
+            check = await pool.request()
+                .input("year", sql.Int, year)
+                .query(`select B.ProductName, A.Total
+                    from (
+                    select order_detail.ProductID, sum(order_detail.quantity) as total from orders join order_detail on orders.orderID = order_detail.OrderID 
+                    where Year(orders.OrderDate) = @year
+                        GROUP BY order_detail.ProductID
+                    )A join Products B on A.productID = B.productID`
+                );
+        }
+        else {
+            check = await pool.request()
+                .input("month", sql.Int, month)
+                .input("year", sql.Int, year)
+                .query(`select B.ProductName, A.Total
+                    from (
+                    select order_detail.ProductID, sum(order_detail.quantity) as total from orders join order_detail on orders.orderID = order_detail.OrderID 
+                    where Month(orders.OrderDate) = @month and Year(orders.OrderDate) = @year
+                        GROUP BY order_detail.ProductID
+                    )A join Products B on A.productID = B.productID`
+                );
+        }
+
+        return check.recordset;
+    }
+
 }

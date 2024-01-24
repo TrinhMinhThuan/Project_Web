@@ -17,19 +17,21 @@
       <div class="col-md-6">
         <div class="form-group">
           <label for="yearInput">Nhập năm</label>
-          <input type="number" id="yearInput" class="form-control" name="year" min="2000" max="2100" placeholder=""
+          <input type="number" id="yearInput" class="form-control" name="year" min="1900" max="2100" placeholder=""
             required>
         </div>
       </div>
     </div>
-    <div class="row justify-content-around">
-       <button id="getDataBtn" class="d-flex col-2 justify-content-center btn btn-success mt-3">Thống kê theo tháng</button>
-    <button id="getDataBtnn" class="d-flex col-2 justify-content-center btn btn-success mt-3">Thống kê theo năm</button>
+    <div class ="d-flex justify-content-around">
+        <button id="getDataBtn" class="btn btn-success mt-3">Thống kê theo tháng</button>
+        <button id="getDataBtnYear" class="btn btn-success mt-3">Thống kê theo năm</button>
     </div>
-   
+    
+    
+    
     {{!-- Cột --}}
     <div  class="d-none d-flex justify-content-center chart-header">
-      <h2 id = "chartHeader1" class = "d-none">Biểu đồ cột</h2>
+      <h2 id = "chartHeader1" class = "d-none mt-3">Biểu đồ cột</h2>
     </div>
     <canvas id="myChart" width="400" height="200">
 
@@ -37,9 +39,9 @@
 
     {{!-- Tròn --}}
     <div class="d-none d-flex justify-content-center chart-header">
-      <h2 id = "chartHeader2" class = "d-none" >Biểu đồ tròn</h2>
+      <h2 id = "chartHeader2" class = "d-none mt-3" >Biểu đồ tròn</h2>
     </div>
-    <canvas style="margin-top: 50px" id="myColorfulPieChart" width="400" height="200">
+    <canvas style="margin-top: 25px" id="myColorfulPieChart" width="400" height="200">
     </canvas>
 
   </div>
@@ -82,7 +84,7 @@
     const currentMonth = new Date().getMonth() + 1;
 
     if (selectedYear == "") {
-      alert('Vui lòng chọn tháng');
+      alert('Vui lòng chọn năm');
       return;
     }
 
@@ -109,6 +111,40 @@
     });
   });
 
+  // Theo năm
+  $('#getDataBtnYear').click(function () {
+    // Lấy giá trị tháng và năm từ người dùng
+    const selectedYear = $('#yearInput').val();
+
+    // Kiểm tra xem tháng và năm có vượt quá thời điểm hiện tại hay không
+    const currentYear = new Date().getFullYear();
+
+    if (selectedYear == "") {
+      alert('Vui lòng chọn năm');
+      return;
+    }
+
+    if (selectedYear > currentYear ) {
+      alert('Vui lòng chọn Năm không vượt quá thời điểm hiện tại.');
+      return;
+    }
+    // Gửi yêu cầu AJAX để lấy dữ liệu từ máy chủ
+    $.ajax({
+      url: '/getStatisticalData',
+      method: 'GET',
+      data: { year: selectedYear },
+      success: function (dataFromServer) {
+        // Cập nhật biểu đồ khi dữ liệu được nhận về từ máy chủ
+        document.getElementById('chartHeader1').classList.remove('d-none');
+        document.getElementById('chartHeader2').classList.remove('d-none');
+        updateChart(dataFromServer);
+      },
+      error: function () {
+        alert('Đã có lỗi xảy ra khi lấy dữ liệu từ máy chủ.');
+      }
+    });
+  });
+
   // Hàm để cập nhật biểu đồ
   function updateChart(dataFromServer) {
     // Nếu biểu đồ đã tồn tại, hủy nó trước khi tạo mới
@@ -125,7 +161,7 @@
       data: {
         labels: dataFromServer.labels,
         datasets: [{
-          label: 'Số lượng bán tháng ' + dataFromServer.month + '/' + dataFromServer.year,
+          label: 'Số lượng bán',
           backgroundColor: 'rgba(75, 192, 192, 0.2)',
           borderColor: 'rgba(75, 192, 192, 1)',
           borderWidth: 1,

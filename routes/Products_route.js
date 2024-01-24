@@ -25,10 +25,14 @@ productRouter.post("/admin/book/edit/:productId", upload.single('image'), produc
 productRouter.get("/admin/addBook-Admin",product_controller.addBook);
 productRouter.post("/admin/addBook-Admin",upload.single('image'),product_controller.addBook);
 
+productRouter.get("/admin/salesRevenue",product_controller.salesRevenue );
+productRouter.get("/admin/getStatisticalData-Admin", product_controller.getStatisticalData);
+
 
 // client
 productRouter.get("/",  product_controller.getSearchBook_client);
 productRouter.get("/searchBook", middle.authenticate, product_controller.getSearchBook_client);
 productRouter.get("/getStatisticalData",product_controller.getStatisticalData_client );
 productRouter.get("/hotbook", product_controller.gethotBook_client);
+
 module.exports = productRouter;

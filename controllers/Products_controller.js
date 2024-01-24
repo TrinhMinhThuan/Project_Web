@@ -1,6 +1,7 @@
 const Book = require('../models/Products_model');
 const Categories = require('../models/Categories_model');
-
+const Order_Detail = require('../models/Order_Detail_model');
+const Orders = require('../models/Orders_model');
 //admin
 exports.getSearchBook = async (req, res, next) => {
 
@@ -176,13 +177,72 @@ exports.addBook = async (req, res, next) => {
         _genre,
     })
 }
+exports.salesRevenue = async(req,res,next) =>{
+    res.render("salesRevenuePageAdmin", {
+        layout: 'admin',
+        admin: true,
+        title: "Doanh thu sản phẩm",
+        Username: req.Username,
+    });
+}
+exports.getStatisticalData = async(req,res,next) =>{
+    const yearYear = req.query.year;
+    const yearMonth = req.query.year1;
+
+    const currentYear = new Date().getFullYear();
+    // Lấy dữ liệu 
+    const _data = await Orders.getStatisticalData(yearYear, yearMonth)
+    const newDataObject = {
+        labels: [],
+        data: []
+    };
+    //console.log(_data, yearYear, yearMonth);
+    if(yearMonth != undefined){     //Thống kê theo các tháng trong năm
+        var count = 0;
+        for(var i = 1 ; i <= 12 ; i++){
+            if(count != (_data.length) && _data.length  != 0 && _data[count].Month == i ){
+                newDataObject.labels.push("Tháng " + _data[count].Month);
+                newDataObject.data.push(_data[count].TotalPrice);
+                count++;
+            }
+            else{
+                newDataObject.labels.push("Tháng " + i);
+                newDataObject.data.push(0);
+            }
+        }
+    }
+    else{
+        var count = 0;
+        for(var i = yearYear ; i <= currentYear ; i++){ // Thống kê theo các năm 
+            if( count != (_data.length) && _data.length  != 0 && _data[count].Year == i ){
+                newDataObject.labels.push(_data[count].Year);
+                newDataObject.data.push(_data[count].TotalPrice);
+                count++;
+            }
+            else{
+                newDataObject.labels.push(i);
+                newDataObject.data.push(0);
+            }
+        }
+    }
+   
+
+    const data = {
+        labels: newDataObject.labels,
+        data: newDataObject.data,
+        year1: yearMonth,
+        year2: yearYear
+    };
+    res.json(data);
+}
+
 
 //client
 exports.getStatisticalData_client = async (req, res, next) => {
     const month = req.query.month;
     const year = req.query.year;
     // Lấy dữ liệu 
-    const _data = await Book.getStatisticalData_client(month, year)
+    const _data = await Order_Detail.getStatisticalData_client(month, year)
 
     const newDataObject = {
         labels: [],
@@ -221,6 +281,9 @@ exports.gethotBook_client = async (req, res, next) => {
         Username: req.Username,
     });
 }
+
+
+
 exports.getSearchBook_client = async (req, res, next) => {
     const { keyword = "", minPrice = "", maxPrice = "", category = 0,type = "ProductName", page = 1, limit = 4 } = req.query;
     const categories = await Categories.getAll();
