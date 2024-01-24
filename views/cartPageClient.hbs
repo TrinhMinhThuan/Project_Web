@@ -1,6 +1,14 @@
 <div class="container d-flex flex-column">
-    <h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-start mt-5 mb-5">Số dư của bạn: {{Balance}} VNĐ
+  
+    <h3 class="h5 col-4 w-100 fw-bold mb-0 text-gray-800 text-start mt-2 mb-4">Số dư của bạn: {{Balance}} VNĐ
     </h3>
+    <div class="row">
+       <h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center mt-3 mb-4">Tổng hóa đơn: {{TotalPriceAllItem}} VNĐ
+    </h3>
+    </div>
+    
+  
+
     {{#if cart.length}}
     <div>
         <table class="table">
@@ -49,14 +57,11 @@
         {{/if}}
     </div>
 
-    <h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center mt-5 mb-5">Tổng hóa đơn: {{TotalPriceAllItem}} VNĐ
-    </h3>
+    
     <a href="/cartBook/pay" class="align-self-center d-block btn btn-success"> <i class="fa-solid fa-credit-card"></i> Xác nhận thanh toán
     </a>
     {{else}}
     <p class="text-center">Bạn chưa có sản phẩm nào trong giỏ hàng🥲</p>
-    <h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center mt-5 mb-5">Tổng hóa đơn: {{TotalPriceAllItem}} VNĐ
-    </h3>
     {{/if}}
 
     </h3>

@@ -16,7 +16,7 @@ module.exports = class TopUp
         let pool = await sql.connect(databaseConnection);
         let topup = await pool.request()
         .input('userID', sql.Int, userID)
-        .query(`SELECT * FROM TopUp WHERE UserID = @userID`);
+        .query(`SELECT * FROM TopUp WHERE UserID = @userID  ORDER BY TopUpDay DESC, TopUpID DESC`);
         return topup.recordset;
     }
     static async getIDInLastRow() {

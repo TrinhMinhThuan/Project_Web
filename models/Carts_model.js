@@ -27,6 +27,16 @@ module.exports = class Carts {
         .query(`SELECT * FROM Carts WHERE UserID = @userID`);
         return Carts.recordset;
     }
+    static async updateQuantityByCartID(cartID, Quantity)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let product = await pool
+            .request()
+            .input('Quantity', sql.Int, Quantity)
+            .input('ID', sql.Int, cartID)
+            .query("update Carts set Quantity = Quantity + @Quantity WHERE CartID = @ID");
+        return product.rowsAffected[0];
+    }
 
     static async getByUserID_Page(userID,page,limit)
     {

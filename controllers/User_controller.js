@@ -309,7 +309,7 @@ exports.GetProfile = async (req, res, next) => {
     for (let row of Topup)
     {
         date = new Date(row.TopUpDay);
-        row.TopUpDayToString = `${date.getDay()}-${date.getMonth()+1}-${date.getFullYear()}`;
+        row.TopUpDayToString = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
     }
 
     res.render('profilePageClient', {
