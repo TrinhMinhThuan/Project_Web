@@ -48,13 +48,15 @@
   </div>
   <div class="d-flex justify-content-center">
     {{#if pages}}
-    <button class="btn-prev btn btn-success mr-2">Trước</button>
+    <button class="btn-prevStart btn btn-light mr-2"><i class="fa fa-angle-double-left"></i></button>
+    <button class="btn-prev btn btn-light mr-2"><i class="fas fa-chevron-left"></i></button>
     <select id = "pageSelect" class="col-2 align-self-center text-center paging form-select ">
       {{#each pages}}
       <option value="{{this}}">Page {{this}}</option>
       {{/each}}
     </select>
-    <button  class="btn-next btn btn-success ml-2">Sau</button>
+    <button  class="btn-next btn btn-light ml-2"><i class="fas fa-chevron-right"></i></button>
+    <button class="btn-nextEnd btn btn-light ml-2"><i class="fa fa-angle-double-right"></i></button>
     {{/if}}
   </div>
 </div>
@@ -78,6 +80,21 @@ const query = new URLSearchParams(window.location.search);
 if (selection) selection.value = query.get("page") || 1;
 
 
+document.querySelectorAll('.btn-prevStart').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    if(currentPage == 1){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
 document.querySelectorAll('.btn-prev').forEach(button => {
   button.addEventListener('click', function(e) {
     event.preventDefault();
@@ -89,6 +106,22 @@ document.querySelectorAll('.btn-prev').forEach(button => {
     const url = new URL(window.location.href);
     const query = new URLSearchParams(window.location.search);
     query.set("page", currentPage - 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-nextEnd').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    const max = {{pages.length}};
+    if(currentPage == max){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", max);
     url.search = query;
     location.assign(url.href);
   })
@@ -109,6 +142,8 @@ document.querySelectorAll('.btn-next').forEach(button => {
     location.assign(url.href);
   })
 });
+
+
 
 // Delete vs ajax
 document.querySelectorAll('.btn-delete').forEach(button => {

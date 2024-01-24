@@ -1,8 +1,9 @@
 <div class="container d-flex flex-column">
-  <form id="searchForm" >
+  <form id="searchForm">
     <div class="row gap-3">
-      <input type="text" id="inputKey" class="col-5 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" />
-      
+      <input type="text" id="inputKey" class="col-5 form-control" placeholder="Nhập từ khóa" name="keyword"
+        value="{{keyword}}" />
+
       <select name="type" class="col-2 text-center form-select option option-1">
         <option value="ProductName">Tên sách</option>
         <option value="Author">Tác Giả</option>
@@ -10,19 +11,17 @@
       <select name="category" class="text-center col form-select option option-2">
         <option value="0" selected>Tất cả</option>
         {{#each categories}}
-          <option value="{{this.CategoryID}}">{{this.CategoryName}}</option>
+        <option value="{{this.CategoryID}}">{{this.CategoryName}}</option>
         {{/each}}
       </select>
       <button type="submit" class="col-2 btn btn-success">Tra cứu</button>
     </div>
   </form>
-   <form id="filterForm">
+  <form id="filterForm">
     <div class="row gap-3">
       <p class="col fw-bold mt-2" style="align-items: center;">Lọc theo giá (VNĐ): </p>
-      <input type="number" class="col-3 form-control" placeholder="Từ" name="minPrice" value="{{MinPrice}}"
-        required />
-      <input type="number" class="col-3 form-control" placeholder="Đến" name="maxPrice" value="{{MaxPrice}}"
-        required />
+      <input type="number" class="col-3 form-control" placeholder="Từ" name="minPrice" value="{{MinPrice}}" required />
+      <input type="number" class="col-3 form-control" placeholder="Đến" name="maxPrice" value="{{MaxPrice}}" required />
       <button type="submit" class="col btn btn-success h-75 justify-content-end" id="applyFilter">
         <i class="fa-solid fa-filter"></i> Áp dụng bộ lọc</button>
     </div>
@@ -38,14 +37,16 @@
             <img src="/Images/{{this.Image}}" height="190px" class="card-img-top" alt="Ảnh bị hư">
             <div class="card-body" style="Height: 210px">
               <p class="card-title font-weight-bold" style="Height: 30px;">{{this.ProductName}}</p>
-              <p class="card-text text-sm mt-4" >Số lượng: {{this.StockQuantity}}</p>
+              <p class="card-text text-sm mt-4">Số lượng: {{this.StockQuantity}}</p>
               <p class="card-text text-sm">Tác giả: {{this.Author}}</p>
               <p class="card-text text-sm">Giá: {{this.Price}}</p>
             </div>
             <div class="card-footer">
               <!-- Thêm nút thêm vào giỏ hàng -->
-              <input type="number" placeholder="Nhập số lượng" name="quantity" id="quantityInput{{this.ProductID}}" min="1" value="1" style="text-align: center;" required/>
-              <button   type="button" data-product-id="{{this.ProductID}}" class="mt-2 btn-addCart btn btn-danger btn-sm">Thêm vào giỏ hàng</button>
+              <input type="number" placeholder="Nhập số lượng" name="quantity" id="quantityInput{{this.ProductID}}"
+                min="1" value="1" style="text-align: center;" required />
+              <button type="button" data-product-id="{{this.ProductID}}"
+                class="mt-2 btn-addCart btn btn-danger btn-sm">Thêm vào giỏ hàng</button>
             </div>
           </div>
         </div>
@@ -56,13 +57,17 @@
       {{/if}}
     </div>
     <div class="d-flex justify-content-center mt-4 mb-4">
-      {{#if pages}}
-      <select class="col-2 align-self-center paging form-select">
-        {{#each pages}}
-        <option value="{{this}}">Page {{this}}</option>
-        {{/each}}
-      </select>
-      {{/if}}
+       {{#if pages}}
+    <button class="btn-prevStart btn btn-light mr-2"><i class="fa fa-angle-double-left"></i></button>
+    <button class="btn-prev btn btn-light mr-2"><i class="fas fa-chevron-left"></i></button>
+    <select id = "pageSelect" class="col-2 align-self-center text-center paging form-select ">
+      {{#each pages}}
+      <option value="{{this}}">Page {{this}}</option>
+      {{/each}}
+    </select>
+    <button  class="btn-next btn btn-light ml-2"><i class="fas fa-chevron-right"></i></button>
+    <button class="btn-nextEnd btn btn-light ml-2"><i class="fa fa-angle-double-right"></i></button>
+    {{/if}}
     </div>
   </div>
   <style>
@@ -76,6 +81,12 @@
 </div>
 <script>
   // Update Page
+  var currentPage;
+  // Hàm để cập nhật currentPage khi có sự kiện thay đổi
+  function updateCurrentPage() {
+    currentPage = document.getElementById("pageSelect").value;
+  }
+
   const selection = document.querySelector(".paging");
   selection?.addEventListener("change", (e) => {
     const url = new URL(window.location.href);
@@ -86,18 +97,18 @@
   });
   const query = new URLSearchParams(window.location.search);
   if (selection) selection.value = query.get("page") || 1;
-  
+
   document.querySelector(".option-1").value = query.get("type") || "ProductName";
   document.querySelector(".option-2").value = query.get("category") || 0;
   // Add cart
   document.querySelectorAll('.btn-addCart').forEach(button => {
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function () {
       event.preventDefault();
 
       const productID = this.getAttribute('data-product-id');
 
       var quantityValue = document.getElementById(`quantityInput${productID}`).value;
-      const url = new URL(`/cartBook/addCart/${productID}`,window.location.href);
+      const url = new URL(`/cartBook/addCart/${productID}`, window.location.href);
       const query = new URLSearchParams(window.location.search);
       query.set("quantity", quantityValue);
       url.search = query;
@@ -105,12 +116,76 @@
     });
   });
 
+document.querySelectorAll('.btn-prevStart').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    if(currentPage == 1){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-prev').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    //const max = {{pages.length}};
+    if(currentPage == 1){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", currentPage - 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-nextEnd').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    const max = {{pages.length}};
+    if(currentPage == max){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", max);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-next').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    const max = {{pages.length}};
+    if(currentPage == max){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", parseInt(currentPage,10) + 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
   document.getElementById("filterForm").addEventListener("submit", function (event) {
     event.preventDefault(); // Ngăn chặn form submit mặc định để xử lý bằng JavaScript
 
     var minValue = document.getElementsByName("minPrice")[0].value;
     var maxValue = document.getElementsByName("maxPrice")[0].value;
 
+  
     // Tạo URL với tham số
     var url = new URL(window.location.href);
     var query = new URLSearchParams(url.search);

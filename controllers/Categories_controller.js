@@ -1,7 +1,8 @@
 const Categories = require('../models/Categories_model');
+const Products = require('../models/Products_model');
 
 exports.getSearchCategories = async (req, res, next) => {
-  const { keyCategoryName = "", page = 1, limit = 3 } = req.query;
+  const { keyCategoryName = "", page = 1, limit = 5 } = req.query;
   const _Categories = await Categories.search({
     Keyword: keyCategoryName,
     Page: page,
@@ -103,7 +104,6 @@ exports.editCategories = async (req, res, next) => {
     }
   }
   if(categoryID == categoryId && categoryName == categoryname){
-    console.log("testttttttttttttttttttt");
     res.render("errorPage", {
       layout: 'admin',
       admin: true,
@@ -111,6 +111,9 @@ exports.editCategories = async (req, res, next) => {
     });
   }
   else if(categoryID !== undefined && categoryName !== undefined) {
+
+    
+
     let query = `UPDATE Categories SET `;
     let checkdot = false;
     if (categoryID != categoryid) {
@@ -135,6 +138,10 @@ exports.editCategories = async (req, res, next) => {
       Query: query
     });
     if (temp) {
+      // Thay đổi CategoryID trong product nếu có sự thay đổi
+      if(categoryID != categoryId){
+        const check = await Products.EditCategoryID(categoryId, categoryID)
+      }
       res.render("truePage", {
         layout: 'admin',
         admin: true,

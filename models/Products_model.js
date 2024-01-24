@@ -101,6 +101,19 @@ module.exports = class Book
             return false; // Chưa tồn tại id có thể thêm vào
         }
     }
+    static async EditCategoryID(categoryid, newCategoryid){
+        let pool = await sql.connect(databaseConnection);
+        let check = await pool.request()
+        .input("categoryid", sql.Int, categoryid)
+        .input("newcategoryid",sql.Int,newCategoryid)
+        .query(`UPDATE Products SET CategoryID = @newcategoryid where CategoryID = @categoryid `);
+        if (check.rowsAffected[0] > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     static async edit(product, newProduct){
         let pool = await sql.connect(databaseConnection);
         let query = `UPDATE Products SET `;
