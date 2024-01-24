@@ -65,13 +65,14 @@ exports.GoogleAuth = async (req, res, next) => {
             user = await UserModel.getUserByGoogleID(decodedToken.sub);
         }
 
-
+        // console.log(userData);
         if (!user) {
             user = {};
             user.GoogleID = decodedToken.sub;
             user.Username = null;
+            user.GoogleName = userData.name;
             user.Password = null;
-            user.Email = null;
+            user.Email = userData.email;
             const PAY_PORT = process.env.PAY_SERVER_PORT;
             const agent = new https.Agent({
                 rejectUnauthorized: false
@@ -91,7 +92,11 @@ exports.GoogleAuth = async (req, res, next) => {
             });
         }
 
-        user.Username = userData.name;
+        if(!user.Username)
+        {
+            user.Username = userData.name;
+        }
+    
         const key = process.env.PRIVATE_KEY;
         const token = jwt.sign(user, key, { expiresIn: '1h' });
         req.session.token = token;
@@ -213,10 +218,21 @@ exports.CheckUsernameExists = async (req, res) => {
     return res.json({ result: 0 });
 }
 
+exports.CheckIDExists = async (req, res) => {
+
+    const result = await UserModel.getUserByUserID(req.query.id);
+    if (result != undefined) {
+        return res.json({ result: 1 });
+    }
+
+    return res.json({ result: 0 });
+}
+
 exports.Signup = async (req, res, next) => {
     try {
         const userSign = (req.body);
         userSign.GoogleID = null;
+        userSign.GoogleName = null;
         userSign.Password = await bcrypt.hash(userSign.Password, saltRounds);
         const PAY_PORT = process.env.PAY_SERVER_PORT;
         const agent = new https.Agent({
@@ -308,3 +324,202 @@ exports.GetProfile = async (req, res, next) => {
         title: 'Thông tin tài khoản'
     });
 }
+
+exports.getSearchAccounts = async (req, res) => {
+    // console.log(req.user);
+    // req.user.UserID
+    // console.log(req);
+
+  const { keyword = "", page = 1, limit = 2 } = req.query;
+
+  const users = await UserModel.searchUser({
+    AdminID: req.user.UserID,
+    Keyword: keyword,
+    Page: page,
+    Limit: limit,
+  });
+
+//   users.forEach((user) => {
+//     if (user.GoogleID !== null) {
+//       doiTuong.B = 1;
+//     } else {
+//       doiTuong.B = 0;
+//     }
+//   });
+
+//   console.log(users);
+
+  const pages = Array.from(
+    { length: Math.ceil(users[0]?.Total / limit || 0) },
+    (_, i) => i + 1
+  );
+
+  res.render("searchAccountAdmin", {
+    layout: 'admin',
+    title: "Quản lý tài khoản",
+    Username: req.Username,
+    admin: true,
+    users,
+    pages,
+    keyword,
+    total: users[0]?.Total ?? 0
+  });
+}
+
+exports.deleteAccount = async (req, res) => {
+    const { userID } = req.params;
+
+    try {
+        await UserModel.deleteUser(userID);
+    } catch (error) {
+        res.render("errorPage",{
+            layout: 'admin',
+            Username: req.Username,
+            admin: true,
+            error: "Có lỗi xảy ra khi xóa dữ liệu.",
+        })
+    } 
+}
+
+
+exports.getEditAccount = async (req, res) => {
+    const { userID } = req.params;
+    const user = await UserModel.getUserByUserID(userID);
+    
+    res.render("editUserAdmin", {
+        layout: 'admin',
+        title: "Chỉnh sửa tài khoản",
+        user
+    });
+
+    // let renderPage;
+    // if(user.GoogleID == null)
+    // {
+    //     renderPage = "editNormalUser";
+    // }
+    // else
+    // {
+    //     renderPage = "editGoogleUser";
+    // }
+
+
+    // const _userID = user.UserID;
+    // const _GoogleID = user.GoogleID;
+    // const _username = user.Username;
+    // const _GoogleName = user.GoogleName;
+    // const _email = user.Email;
+    // const _balance = user.Balance;
+
+    // // Account edit
+    // const { userID, username} = req.query;
+  
+    // // Check UserID
+    // if (categoryID !== undefined && categoryID != categoryId) {
+    //   const checkID = await Categories.checkID(categoryID);
+    //   if (checkID == true) {
+    //     res.render("errorPage", {
+    //       layout: 'admin',
+    //       error: "Đã tồn tại ID",
+    //     });
+    //   }
+    // }
+    // if(categoryID == categoryId && categoryName == categoryname){
+    //   console.log("testttttttttttttttttttt");
+    //   res.render("errorPage", {
+    //     layout: 'admin',
+    //     admin: true,
+    //     error: "Không có sự thay đổi",
+    //   });
+    // }
+    // else if(categoryID !== undefined && categoryName !== undefined) {
+    //   let query = `UPDATE Categories SET `;
+    //   let checkdot = false;
+    //   if (categoryID != categoryid) {
+    //     query = query + `CategoryID = @categoryId `;
+    //     checkdot = true;
+    //   }
+    //   if (categoryName != categoryname) {
+    //     if (checkdot == true) query = query + `,`;
+    //     query = query + `CategoryName = @categoryName `;
+    //     checkdot = true;
+    //   }
+    //   // if (categoryQuantity != categoryquantity) {
+    //   //   if (checkdot == true) query = query + `,`;
+    //   //   query = query + `CategoryQuantity = @categoryQuantity `;
+    //   //   checkdot = true;
+    //   // }
+    //   query = query + `Where CategoryID = ${categoryid}`;
+    //   const temp = await Categories.edit({
+    //     ID: categoryID,
+    //     Name: categoryName,
+    //     //Quantity: categoryQuantity,
+    //     Query: query
+    //   });
+    //   if (temp) {
+    //     res.render("truePage", {
+    //       layout: 'admin',
+    //       admin: true,
+    //       notification: "Chỉnh sửa thành công",
+    //     });
+    //   }
+    //   else {
+    //     res.render("errorPage", {
+    //       layout: 'admin',
+    //       admin: true,
+    //       error: "Chỉnh sửa thất bại",
+    //     });
+    //   }
+    // } else {
+        
+    // }
+}
+
+exports.editAccount = async (req, res) => {
+    // console.log(req.body);
+    const { userID } = req.params;
+    const user = await UserModel.getUserByUserID(userID);
+    // console.log(req.user);
+
+    let _username = req.body.username;
+    if(_username === "")
+    {
+        _username = null;
+    }
+
+    let _password;
+    if (req.body.password !== undefined && req.body.password.length > 0)
+    {
+        _password = await bcrypt.hash(req.body.password, saltRounds);
+    }
+    else
+    {
+        _password = user.Password;
+    }
+
+    const check = await UserModel.editUser({
+        userID,
+        _userID: req.body.userID,
+        _username,
+        _password,
+        _email: req.body.email??user.Email,
+        _balance: req.body.balance
+    });
+
+    if (check) {
+        res.render("truePage", {
+            layout: 'admin',
+            Username: req.Username,
+            admin: true,
+            notification: "Chỉnh sửa thành công",
+        });
+        }
+        else {
+        res.render("errorPage", {
+            layout: 'admin',
+            Username: req.Username,
+            admin: true,
+            error: "Chỉnh sửa thất bại",
+        });
+    }
+}
+  

@@ -11,6 +11,7 @@ exports.getSearchCategories = async (req, res, next) => {
     { length: Math.ceil(_Categories[0]?.Total / limit || 0) },
     (_, i) => i + 1
   );
+ 
   res.render("searchCategoriesAdmin", {
     layout: 'admin',
     title: "Quản lý danh mục",
@@ -91,7 +92,7 @@ exports.editCategories = async (req, res, next) => {
 
   // Category edit
   const { categoryID, categoryName} = req.query;
-
+ 
   // Check CategoryID
   if (categoryID !== undefined && categoryID != categoryId) {
     const checkID = await Categories.checkID(categoryID);
