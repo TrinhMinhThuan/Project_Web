@@ -78,27 +78,37 @@ exports.editBook = async (req, res, next) => {
     const { newProductID = "", productName = "",
         categoryId = "", stockquantity = "", author = "", publishedyear = "", price = ""
     } = req.body;
+
+    console.log("Test", productId, newProductID);
+
     let newImage = "";
     if (req.file !== undefined && req.file.filename !== undefined) {
         newImage = req.file.filename;
+    }
+    else{
+        newImage = _product.Image;
     }
     const newProduct = {
         newImage, newProductID, productName, categoryId, stockquantity, author, publishedyear, price
     }
 
-    if (productId != newProductID) {
+    if(newProductID != "" &&  productId != newProductID) {
+        console.log("2 mã khác nhau");
         const checkID = await Book.checkID(newProductID)
-        if (checkID) {
+        console.log(checkID);
+        if(checkID) {
             res.render("errorPage", {
                 layout: 'admin',
                 error: "Đã tồn tại mã sách",
                 Username: req.Username,
             });
+            return;
         }
     }
-    if (newImage != "" && newProductID != "" && productName != "" &&
+    if(newImage != "" && newProductID != "" && productName != "" &&
         categoryId != "" && stockquantity != "" && author != "" &&
         publishedyear != "" && price != "") {
+        console.log("Test2");
         const checkEdit = await Book.edit(_product, newProduct)
         if (checkEdit == false) {
             res.render("errorPage", {
@@ -111,8 +121,8 @@ exports.editBook = async (req, res, next) => {
         else {
             if(_product.CategoryID != newProductID){
                 // Giảm số lượng sách của thể loại cũ, tăng thêr loại mới
-                await Categories.updateCategoryQuantity(newProductID);
-                await Categories.update_CategoryQuantity(CategoryID);
+                await Categories.updateCategoryQuantity(newProduct.categoryId);
+                await Categories.update_CategoryQuantity(_product.CategoryID);
             }
             res.render("truePage", {
                 layout: 'admin',
@@ -143,7 +153,6 @@ exports.addBook = async (req, res, next) => {
     const newProduct = {
         newImage, newProductID, productName, categoryId, stockquantity, author, publishedyear, price
     }
-    console.log(123);
     const checkID = await Book.checkID(newProductID)
 
     if (checkID) {
@@ -174,6 +183,7 @@ exports.addBook = async (req, res, next) => {
                 Username: req.Username,
                 admin: true,
             });
+            return;
         }
     }
     const _genre = await Categories.getAll()

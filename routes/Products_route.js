@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 productRouter.get('/admin', middle.authenticateAdmin, product_controller.getSearchBook);
 productRouter.get("/admin/searchBook-Admin",  middle.authenticateAdmin, product_controller.getSearchBook);
 productRouter.get("/admin/book/edit/:productId",middle.authenticateAdmin,product_controller.editBook);
-productRouter.post("/admin/book/edit/:productId", middle.authenticateAdmin,upload.single('image'), product_controller.editBook);
+productRouter.post("/admin/book/edit/:productId", upload.single('image'), product_controller.editBook);
 productRouter.get("/admin/addBook-Admin",middle.authenticateAdmin, product_controller.addBook);
 productRouter.post("/admin/addBook-Admin",middle.authenticateAdmin, upload.single('image'),product_controller.addBook);
 
