@@ -1,13 +1,20 @@
 <div class="container d-flex flex-column">
   <form id="searchForm">
     <div class="row gap-3">
-      <input type="text" class="col-7 form-control" placeholder="Nhập từ khóa" name="keyword" value="{{keyword}}" />
-      <select name="type" class="col-2 form-select option">
+      <input type="text" id="inputKey" class="col-5 form-control" placeholder="Nhập từ khóa" name="keyword"
+        value="{{keyword}}" />
+
+      <select name="type" class="col-2 text-center form-select option">
         <option value="ProductName">Tên sách</option>
         <option value="Author">Tác Giả</option>
-        <option value="CategoryName">Thể loại</option>
       </select>
-      <button type="submit" class="col btn btn-success">Tra cứu</button>
+      <select name="category" class="text-center col form-select option-2">
+        <option value="0" selected>Tất cả</option>
+        {{#each categories}}
+        <option value="{{this.CategoryID}}">{{this.CategoryName}}</option>
+        {{/each}}
+      </select>
+      <button type="submit" class="col-2 btn btn-success"><i class="fa-solid fa-magnifying-glass"></i> Tra cứu</button>
     </div>
   </form>
   <form id="filterForm">
@@ -35,9 +42,12 @@
               <p class="card-text text-sm">Giá: {{this.Price}}</p>
             </div>
             <div class="card-footer">
-               <!-- Thêm hai nút Delete và Edit -->
-              <button type="button" data-product-id="{{this.ProductID}}" class="btn btn-danger btn-sm btn-delete">Delete</button>
-              <button type="button" data-product-id="{{this.ProductID}}" class="btn btn-primary btn-sm ml-2 btn-edit" style="width: 60px">Edit</button>
+              <!-- Thêm hai nút Delete và Edit -->
+              <button id="deleteItem" type="button" data-product-id="{{this.ProductID}}"
+                class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i> Delete</button>
+                
+              <button type="button" data-product-id="{{this.ProductID}}" class="btn btn-edit btn-primary btn-sm ml-2 btn-edit"
+                style="width: 60px"> <i class="fas fa-edit"></i>  Edit</button>
             </div>
           </div>
         </div>
@@ -50,11 +60,15 @@
   </div>
   <div class="d-flex justify-content-center mt-4 mb-4">
     {{#if pages}}
-    <select class="col-2 align-self-center paging form-select text-center">
+    <button class="btn-prevStart btn btn-light mr-2"><i class="fa fa-angle-double-left"></i></button>
+    <button class="btn-prev btn btn-light mr-2"><i class="fas fa-chevron-left"></i></button>
+    <select id = "pageSelect" class="col-2 align-self-center text-center paging form-select ">
       {{#each pages}}
       <option value="{{this}}">Page {{this}}</option>
       {{/each}}
     </select>
+    <button  class="btn-next btn btn-light ml-2"><i class="fas fa-chevron-right"></i></button>
+    <button class="btn-nextEnd btn btn-light ml-2"><i class="fa fa-angle-double-right"></i></button>
     {{/if}}
   </div>
   <style>
@@ -67,7 +81,14 @@
   </style>
 </div>
 <script>
+
   // Update Page
+var currentPage;
+// Hàm để cập nhật currentPage khi có sự kiện thay đổi
+function updateCurrentPage() {
+    currentPage = document.getElementById("pageSelect").value;
+}
+
   const selection = document.querySelector(".paging");
   selection?.addEventListener("change", (e) => {
     const url = new URL(window.location.href);
@@ -79,7 +100,8 @@
   const query = new URLSearchParams(window.location.search);
   if (selection) selection.value = query.get("page") || 1;
 
-  document.querySelector(".option").value = query.get("type") || "ProductName"
+  document.querySelector(".option").value = query.get("type") || "ProductName";
+  document.querySelector(".option-2").value = query.get("category") || 0;
 
   document.getElementById("filterForm").addEventListener("submit", function (event) {
     event.preventDefault(); // Ngăn chặn form submit mặc định để xử lý bằng JavaScript
@@ -98,17 +120,84 @@
     location.assign(url.href);
   });
 
+document.querySelectorAll('.btn-prevStart').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    if(currentPage == 1){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-prev').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    //const max = {{pages.length}};
+    if(currentPage == 1){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", currentPage - 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-nextEnd').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    const max = {{pages.length}};
+    if(currentPage == max){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", max);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-next').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    const max = {{pages.length}};
+    if(currentPage == max){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", parseInt(currentPage,10) + 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+
+
   document.getElementById("searchForm").addEventListener("submit", function (event) {
     event.preventDefault(); // Ngăn chặn form submit mặc định để xử lý bằng JavaScript
 
     // Lấy giá trị từ input và select
     var keywordValue = document.getElementsByName("keyword")[0].value;
+    var categoryValue = document.getElementsByName("category")[0].value;
     var typeValue = document.getElementsByName("type")[0].value;
 
     // Tạo URL với tham số
     var url = new URL(window.location.href);
     var query = new URLSearchParams(url.search);
     query.set("keyword", keywordValue);
+    query.set("category", categoryValue);
     query.set("type", typeValue);
     url.search = query.toString();
 
@@ -119,11 +208,44 @@
 
   // Edit
   document.querySelectorAll('.btn-edit').forEach(button => {
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function () {
       event.preventDefault();
       const productID = this.getAttribute('data-product-id');
       window.location.href = `/admin/book/edit/${productID}`;
     });
   });
+
+
+  // Delete vs ajax
+document.querySelectorAll('.btn-delete').forEach(button => {
+  button.addEventListener('click', function() {
+    event.preventDefault();
+    const Id = this.getAttribute('data-product-id');
+    const deleteUrl = `/admin/product/delete?ID=${Id}`;
+    console.log(deleteUrl);
+    // Sử dụng AJAX để gửi yêu cầu DELETE
+    const xhr = new XMLHttpRequest();
+    xhr.open('DELETE', deleteUrl, true);
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          // Xử lý thành công
+          updateUI();
+          console.log('Dữ liệu đã được xóa thành công!');
+        } else {
+          // Xử lý lỗi
+          console.error('Lỗi xóa dữ liệu:', xhr.statusText);
+        }
+      }
+    };
+    xhr.send();
+  });
+});
+//Update giao diện
+function updateUI() {
+    location.reload();
+}
+
 
 </script>

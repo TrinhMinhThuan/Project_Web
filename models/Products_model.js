@@ -22,6 +22,22 @@ module.exports = class Book
         let books = await pool.request().query("SELECT * FROM Users");
         return books.recordset;
     }
+    static async deleteProductByProductID(ID)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let deletee = await pool.request()
+        .input('Id', sql.Int, ID)
+        .query('DELETE FROM Products WHERE ProductID = @Id');
+        return deletee.rowsAffected[0];
+    }
+    static async deleteProductByCategoryID(ID)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let deletee = await pool.request()
+        .input('Id', sql.Int, ID)
+        .query('DELETE FROM Products WHERE CategoryID = @Id');
+        return deletee.rowsAffected[0];
+    }
     static async getByProductID(proID)
     {
         let pool = await sql.connect(databaseConnection);
@@ -33,6 +49,7 @@ module.exports = class Book
     // Search theo key và phân trang
     static async search(options)
     {
+        
         let query = ``;
         if(options.Min != "" && options.Max != ""){
             query += `SELECT * , count(*) over() as Total  FROM Products where Price >= ${options.Min} and Price <= ${options.Max}
@@ -45,7 +62,7 @@ module.exports = class Book
             OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY `
         }
         let pool = await sql.connect(databaseConnection);
-        if(options.Keyword == ""){
+        if(options.Keyword == "" && options.Category == 0){
            let Products = await pool.request()
           .input("Offset", sql.Int, (options.Page - 1) * options.Limit)
           .input("Limit", sql.Int, options.Limit)
@@ -56,13 +73,17 @@ module.exports = class Book
         }
         else{
             let query = ``;
-            if(options.Type == "CategoryName"){
-                query = query + `SELECT * , count(*) over() as Total  FROM Products join Categories on Products.CategoryID = Categories.CategoryID WHERE Categories.${options.Type} LIKE @Keyword 
+            if(options.Category == 0){
+                
+                query = query + `SELECT * , count(*) over() as Total  FROM Products
+                WHERE Products.${options.Type} LIKE @Keyword 
                 ORDER BY Products.ProductId
                 OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`
             }
             else{
-                query = query + `SELECT * , count(*) over() as Total  FROM Products join Categories on Products.CategoryID = Categories.CategoryID WHERE Products.${options.Type} LIKE @Keyword 
+                
+                query = query + `SELECT * , count(*) over() as Total  FROM Products 
+                WHERE Products.${options.Type} LIKE @Keyword AND Products.CategoryID = ${options.Category}
                 ORDER BY Products.ProductId
                 OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`
             }
@@ -88,6 +109,19 @@ module.exports = class Book
             return false; // Chưa tồn tại id có thể thêm vào
         }
     }
+    static async EditCategoryID(categoryid, newCategoryid){
+        let pool = await sql.connect(databaseConnection);
+        let check = await pool.request()
+        .input("categoryid", sql.Int, categoryid)
+        .input("newcategoryid",sql.Int,newCategoryid)
+        .query(`UPDATE Products SET CategoryID = @newcategoryid where CategoryID = @categoryid `);
+        if (check.rowsAffected[0] > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     static async edit(product, newProduct){
         let pool = await sql.connect(databaseConnection);
         let query = `UPDATE Products SET `;
@@ -190,18 +224,5 @@ module.exports = class Book
         }
     }
 
-    static async getStatisticalData_client(month, year){
-        let pool = await sql.connect(databaseConnection);
-        let check = await pool.request()
-        .input("month", sql.Int, month)
-        .input("year", sql.Int, year)
-        .query(`select B.ProductName, A.Total
-                from (
-                select order_detail.ProductID, sum(order_detail.quantity) as total from orders join order_detail on orders.orderID = order_detail.OrderID 
-                where Month(orders.OrderDate) = @month and Year(orders.OrderDate) = @year
-                    GROUP BY order_detail.ProductID
-                )A join Products B on A.productID = B.productID`
-        );
-        return check.recordset;
-    }
+    
 }

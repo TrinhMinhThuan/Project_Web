@@ -1,7 +1,8 @@
 const Categories = require('../models/Categories_model');
+const Products = require('../models/Products_model');
 
 exports.getSearchCategories = async (req, res, next) => {
-  const { keyCategoryName = "", page = 1, limit = 3 } = req.query;
+  const { keyCategoryName = "", page = 1, limit = 5 } = req.query;
   const _Categories = await Categories.search({
     Keyword: keyCategoryName,
     Page: page,
@@ -27,6 +28,7 @@ exports.deleteCategories = async (req, res, next) => {
   const { categoryId } = req.params;
   try {
     await Categories.delete(categoryId)
+    await Products.deleteProductByCategoryID(categoryId)
     res.status(200).json({ message: 'Dữ liệu đã được xóa thành công!' });
   } catch (error) {
     res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });
@@ -46,6 +48,7 @@ exports.addCategories = async (req, res, next) => {
         admin: true,
         error: "Đã tồn tại ID",
       });
+      return;
     }
   }
   if (categoryID !== undefined && importDate !== undefined && categoryName !== undefined) {
@@ -61,6 +64,7 @@ exports.addCategories = async (req, res, next) => {
         admin: true,
         notification: "Thêm danh mục thành công",
       });
+      return;
     }
     else {
       res.render("errorPage", {
@@ -100,18 +104,23 @@ exports.editCategories = async (req, res, next) => {
       res.render("errorPage", {
         layout: 'admin',
         error: "Đã tồn tại ID",
+        Username: req.Username,
+        admin: true,
       });
     }
   }
   if(categoryID == categoryId && categoryName == categoryname){
-    console.log("testttttttttttttttttttt");
     res.render("errorPage", {
       layout: 'admin',
       admin: true,
       error: "Không có sự thay đổi",
+      Username: req.Username,
     });
   }
   else if(categoryID !== undefined && categoryName !== undefined) {
+
+    
+
     let query = `UPDATE Categories SET `;
     let checkdot = false;
     if (categoryID != categoryid) {
@@ -136,10 +145,15 @@ exports.editCategories = async (req, res, next) => {
       Query: query
     });
     if (temp) {
+      // Thay đổi CategoryID trong product nếu có sự thay đổi
+      if(categoryID != categoryId){
+        const check = await Products.EditCategoryID(categoryId, categoryID)
+      }
       res.render("truePage", {
         layout: 'admin',
         admin: true,
         notification: "Chỉnh sửa thành công",
+        Username: req.Username,
       });
     }
     else {
@@ -147,12 +161,15 @@ exports.editCategories = async (req, res, next) => {
         layout: 'admin',
         admin: true,
         error: "Chỉnh sửa thất bại",
+        Username: req.Username,
       });
     }
   } else {
     res.render("editCategoriesAdmin", {
       layout: 'admin',
       title: "Chỉnh sửa danh mục",
+      Username: req.Username,
+      admin: true,
       CategoryID: categoryid,
       CategoryName: categoryname,
       //CategoryQuantity: categoryquantity,

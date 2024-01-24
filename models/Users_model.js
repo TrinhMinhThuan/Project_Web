@@ -133,6 +133,25 @@ module.exports = class Users {
         return update.recordset;
     }
 
+    static async getAdminUser()
+    {
+        let pool = await sql.connect(databaseConnection);
+        let user = await pool
+            .request()
+            .query("SELECT TOP(1) * FROM Users WHERE Role like '%Admin%'");
+        return user.recordset[0];
+    }
+    static async setBalanceByUserID(UserID, Balance)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let user = await pool
+            .request()
+            .input('Balance', sql.Int, Balance)
+            .input('ID', sql.Int, UserID)
+            .query("update Users set Balance = @Balance WHERE UserID = @ID");
+        return user.rowsAffected[0];
+    }
+    
     static async deleteUser(userID){
         let pool = await sql.connect(databaseConnection);
         let row = await pool

@@ -7,21 +7,33 @@ const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
 
 exports.LoadAllItemOfCart = async (req, res, next) => {
-    const cartOfUser = await CartModel.getByUserID(req.user.UserID);
+
+    // page
+    const {page = 1, limit = 5 } = req.query;
+
+    const cartOfUser = await CartModel.getByUserID_Page(req.user.UserID,page,limit);
     let TotalPriceAllItem = 0;
     let product = {};
     for (let cart of cartOfUser) {
         product = await ProductModel.getByProductID(cart.ProductID);
-
-        cart.ProductName = product.ProductName;
-        cart.Price = product.Price;
-        cart.Author = product.Author;
-        cart.TotalPrice = product.Price * cart.Quantity;
-        TotalPriceAllItem += cart.TotalPrice;
+        if (product)
+        {
+            cart.ProductName = product.ProductName;
+            cart.Price = product.Price;
+            cart.Author = product.Author;
+            cart.TotalPrice = product.Price * cart.Quantity;
+            TotalPriceAllItem += cart.TotalPrice;
+        }
     }
+
+    const pages = Array.from(
+        { length: Math.ceil(cartOfUser[0]?.Total / limit || 0) },
+        (_, i) => i + 1
+      );
+
+    //console.log(cartOfUser[0]?.Total);
     const  UserID = req.user.UserID;
     const temp = await UserModel.getUserByUserID(UserID);
-
     const Balance = temp.Balance;
 
     res.render('cartPageClient', {
@@ -30,6 +42,7 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
         UserID: UserID,
         cart: cartOfUser,
         TotalPriceAllItem,
+        pages,
         Balance,
         title: "Danh sách sản phẩm trong giỏ hàng"
     });
@@ -42,6 +55,10 @@ exports.Pay = async (req, res, next) => {
 
     try {
         const user = req.user;
+        const BalanceClient = user.Balance;
+        const admin = await UserModel.getAdminUser();
+        const BalanceAdmin = admin.Balance;
+        
         
         const key = process.env.PRIVATE_KEY;
 
@@ -68,6 +85,8 @@ exports.Pay = async (req, res, next) => {
 
         if (resJson._status == false)
         {
+            await UserModel.setBalanceByUserID(admin.UserID, BalanceAdmin);
+            await UserModel.setBalanceByUserID(user.UserID, BalanceClient);
             res.render('errorPage', {
                 layout: 'customer',
                 Username: req.Username,
@@ -118,4 +137,17 @@ exports.addCart = async (req, res, next) => {
             error: "Thêm giỏ hàng không thành công",
         })
     }
+}
+
+
+exports.Delete = async (req, res, next) => {
+    try {
+        const ID = req.query.ID;
+        const affect = await CartModel.deleteByCartID(ID);
+        res.redirect('/cartBook');
+    } catch (error) {
+        next(error);
+    }
+    
+
 }

@@ -9,11 +9,14 @@ exports.orderDetail = async (req, res, next) => {
     let product = {};
     for (let detail of orderDetail) {
         product = await ProductModel.getByProductID(detail.ProductID);
+        if (product)
+        {
+            detail.ProductName = product.ProductName;
+            detail.PriceOne = product.Price;
+            detail.Author = product.Author;
+            TotalPriceAllItem += detail.Price;
+        }
 
-        detail.ProductName = product.ProductName;
-        detail.PriceOne = product.Price;
-        detail.Author = product.Author;
-        TotalPriceAllItem += detail.Price;
     }
 
 

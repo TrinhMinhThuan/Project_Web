@@ -1,63 +1,152 @@
 <div class="container d-flex flex-column">
-<h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-start mt-5 mb-5">Số dư của bạn: {{Balance}} VNĐ
-        </h3>
-        {{#if cart.length}}
-        <div>
-            <table class="table">
-                <thead>
-                    <tr>
+    <h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-start mt-5 mb-5">Số dư của bạn: {{Balance}} VNĐ
+    </h3>
+    {{#if cart.length}}
+    <div>
+        <table class="table">
+            <thead>
+                <tr class="text-center">
+                    <th scope="col">Sách</th>
+                    <th scope="col">Tác giả</th>
+                    <th scope="col">Giá/ Sản phẩm</th>
+                    <th scope="col">Số lượng</th>
+                    <th scope="col">Đơn giá</th>
+                    <th scope="col">Xóa</th>
+                </tr>
+            </thead>
+            <tbody id="listBook">
+                {{#each cart}}
+                <tr class="text-center">
+                    <th scope="row">{{this.ProductName}}</th>
+                    <td>{{this.Author}}</td>
+                    <td>{{this.Price}} VNĐ</td>
+                    <td>{{this.Quantity}}</td>
+                    <td>{{this.TotalPrice}} VNĐ</td>
+                    <td>
+                        <a href="cartBook/delete?ID={{this.CartID}}" class="btn btn-danger"
+                            data-cart-id="{{this.CartID}}">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {{/each}}
 
-                        <th scope="col">Sách</th>
-                        <th scope="col">Tác giả</th>
-                        <th scope="col">Giá/ Sản phẩm</th>
-                        <th scope="col">Số lượng</th>
-                        <th scope="col">Đơn giá</th>
-                        <th scope="col">Xóa</th>
-                    </tr>
-                </thead>
-                <tbody id="listBook">
-                    {{#each cart}}
-                    <tr>
-                        <th scope="row">{{this.ProductName}}</th>
-                        <td>{{this.Author}}</td>
-                        <td>{{this.Price}} VNĐ</td>
-                        <td>{{this.Quantity}}</td>
-                        <td>{{this.TotalPrice}} VNĐ</td>
-                        <td>
-                            <button class="btn-delete" data-cart-id="{{this.CartID}}" onclick="DeleteCartItem()">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    {{/each}}
 
-
-                </tbody>
-            </table>
-        </div>
-        <h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center mt-5 mb-5">Tổng hóa đơn: {{TotalPriceAllItem}} VNĐ
-        </h3>
-        <a href="/cartBook/pay" class="align-self-center d-block btn btn-success"> Xác nhận thanh toán
-        </a>
-        {{else}}
-        <p class="text-center">Bạn chưa có sản phẩm nào trong giỏ hàng🥲</p>
-        <h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center mt-5 mb-5">Tổng hóa đơn: {{TotalPriceAllItem}} VNĐ
-        </h3>
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-center mt-4 mb-4">
+        {{#if pages}}
+        <button class="btn-prevStart btn btn-light mr-2"><i class="fa fa-angle-double-left"></i></button>
+        <button class="btn-prev btn btn-light mr-2"><i class="fas fa-chevron-left"></i></button>
+        <select id="pageSelect" class="col-2 align-self-center text-center paging form-select ">
+            {{#each pages}}
+            <option value="{{this}}">Page {{this}}</option>
+            {{/each}}
+        </select>
+        <button class="btn-next btn btn-light ml-2"><i class="fas fa-chevron-right"></i></button>
+        <button class="btn-nextEnd btn btn-light ml-2"><i class="fa fa-angle-double-right"></i></button>
         {{/if}}
-        
-        </h3>
+    </div>
+
+    <h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center mt-5 mb-5">Tổng hóa đơn: {{TotalPriceAllItem}} VNĐ
+    </h3>
+    <a href="/cartBook/pay" class="align-self-center d-block btn btn-success"> <i class="fa-solid fa-credit-card"></i> Xác nhận thanh toán
+    </a>
+    {{else}}
+    <p class="text-center">Bạn chưa có sản phẩm nào trong giỏ hàng🥲</p>
+    <h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center mt-5 mb-5">Tổng hóa đơn: {{TotalPriceAllItem}} VNĐ
+    </h3>
+    {{/if}}
+
+    </h3>
 
 
 
 </div>
 
 <script>
-    function DeleteCartItem()
-    {
+    // Update Page
+var currentPage;
+// Hàm để cập nhật currentPage khi có sự kiện thay đổi
+function updateCurrentPage() {
+    currentPage = document.getElementById("pageSelect").value;
+}
 
+const selection = document.querySelector(".paging");
+selection?.addEventListener("change", (e) => {
+  const url = new URL(window.location.href);
+  const query = new URLSearchParams(window.location.search);
+  query.set("page", e.target.value);
+  url.search = query;
+  location.assign(url.href);
+});
+const query = new URLSearchParams(window.location.search);
+if (selection) selection.value = query.get("page") || 1;
+
+
+document.querySelectorAll('.btn-prevStart').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    if(currentPage == 1){
+      return;
     }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
 
+document.querySelectorAll('.btn-prev').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    //const max = {{pages.length}};
+    if(currentPage == 1){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", currentPage - 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
 
+document.querySelectorAll('.btn-nextEnd').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    const max = {{pages.length}};
+    if(currentPage == max){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", max);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-next').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    const max = {{pages.length}};
+    if(currentPage == max){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", parseInt(currentPage,10) + 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
 
 
 </script>
