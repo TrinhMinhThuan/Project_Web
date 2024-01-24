@@ -14,7 +14,7 @@
         <option value="{{this.CategoryID}}">{{this.CategoryName}}</option>
         {{/each}}
       </select>
-      <button type="submit" class="col-2 btn btn-success">Tra cứu</button>
+      <button type="submit" class="col-2 btn btn-success"><i class="fa-solid fa-magnifying-glass"></i> Tra cứu</button>
     </div>
   </form>
   <form id="filterForm">
@@ -46,7 +46,8 @@
               <input type="number" placeholder="Nhập số lượng" name="quantity" id="quantityInput{{this.ProductID}}"
                 min="1" value="1" style="text-align: center;" required />
               <button type="button" data-product-id="{{this.ProductID}}"
-                class="mt-2 btn-addCart btn btn-danger btn-sm">Thêm vào giỏ hàng</button>
+                class="mt-2 btn-addCart btn btn-danger btn-sm">
+                <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng</button>
             </div>
           </div>
         </div>

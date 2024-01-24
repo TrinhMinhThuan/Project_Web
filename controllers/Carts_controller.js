@@ -12,12 +12,15 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
     let product = {};
     for (let cart of cartOfUser) {
         product = await ProductModel.getByProductID(cart.ProductID);
+        if (product)
+        {
+            cart.ProductName = product.ProductName;
+            cart.Price = product.Price;
+            cart.Author = product.Author;
+            cart.TotalPrice = product.Price * cart.Quantity;
+            TotalPriceAllItem += cart.TotalPrice;
+        }
 
-        cart.ProductName = product.ProductName;
-        cart.Price = product.Price;
-        cart.Author = product.Author;
-        cart.TotalPrice = product.Price * cart.Quantity;
-        TotalPriceAllItem += cart.TotalPrice;
     }
     const  UserID = req.user.UserID;
     const temp = await UserModel.getUserByUserID(UserID);
