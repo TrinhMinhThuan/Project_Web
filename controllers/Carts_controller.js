@@ -195,7 +195,13 @@ exports.Delete = async (req, res, next) => {
     try {
         const ID = req.query.ID;
         const affect = await CartModel.deleteByCartID(ID);
-        res.redirect('/cartBook');
+        const totalItem = await CartModel.countCartByUserID(req.query.UserID);
+        let page = req.query.page;
+        if (totalItem % 5 === 0 && page != 1)
+        {
+            page -= 1;
+        }
+        res.redirect(`/cartBook?page=${page}`);
     } catch (error) {
         next(error);
     }
