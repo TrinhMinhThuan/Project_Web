@@ -56,8 +56,18 @@ module.exports = class Orders
         return user.recordset;
     }
 
-    
-
+    static async getByOrderID_Page(orderID, page, limit)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let user = await pool
+            .request()
+            .input("ID", sql.Int, orderID)
+            .input("Offset", sql.Int,page - 1 )
+            .input("Limit", sql.Int,limit )
+            .query(`SELECT * , count(*) over() as Total FROM Order_Detail WHERE OrderID = @ID ORDER BY OrderDetailID
+            OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`);
+        return user.recordset;
+    }
 
     // Dữ liệu thống kê sản phẩm bán ra cho khách hàng
     static async getStatisticalData_client(month, year){

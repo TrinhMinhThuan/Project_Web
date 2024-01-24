@@ -79,7 +79,6 @@ exports.editBook = async (req, res, next) => {
         categoryId = "", stockquantity = "", author = "", publishedyear = "", price = ""
     } = req.body;
 
-    console.log("Test", productId, newProductID);
 
     let newImage = "";
     if (req.file !== undefined && req.file.filename !== undefined) {
@@ -93,7 +92,6 @@ exports.editBook = async (req, res, next) => {
     }
 
     if(newProductID != "" &&  productId != newProductID) {
-        console.log("2 mã khác nhau");
         const checkID = await Book.checkID(newProductID)
         console.log(checkID);
         if(checkID) {
