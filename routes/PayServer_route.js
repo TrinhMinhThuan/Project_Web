@@ -3,8 +3,11 @@ const PayRoute = express.Router();
 const PayController = require('../controllers/PayServer_controller');
 
 
-PayRoute.post('/createUser', PayController.createUser)
-PayRoute.post('/pay', PayController.Pay)
+PayRoute.post('/createUser', PayController.createUser);
+PayRoute.post('/deleteUser', PayController.deleteUser); 
+PayRoute.post('/editUser', PayController.editUser);
+
+PayRoute.post('/pay', PayController.Pay);
 
 
 module.exports = PayRoute;

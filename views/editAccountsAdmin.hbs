@@ -1,0 +1,212 @@
+<div class="container">
+  <form class="d-flex flex-column" method="POST" action="/accounts/edit/{{user.UserID}}">
+    <div class="mb-3 row align-items-center">
+      <label class="form-label col-2 m-0">ID: </label>
+      <input
+        id="ID"
+        type="number"
+        class="form-control col-6"
+        placeholder="Nhập ID"
+        name = "userID"
+        value= "{{user.UserID}}"
+       
+      />
+    </div>
+
+    <div class="mb-3 row align-items-center">
+      <label class="form-label col-2 m-0">Username: </label>
+      <input
+        id="username"
+        type="text"
+        class="form-control col-6"
+        placeholder="Nhập username"
+        name = "username"
+        value = "{{user.Username}}"
+      
+      />
+    </div>
+
+    {{#unless user.GoogleID}}
+    <div class="mb-3 row align-items-center">
+      <label class="form-label col-2 m-0">Password: </label>
+      <input
+        id="password"
+        type="password"
+        class="form-control col-6"
+        placeholder="Nhập password"
+        name = "password"
+      />
+    </div>
+    
+     <div class="mb-3 row align-items-center">
+      <label class="form-label col-2 m-0">Email: </label>
+      <input
+        id="email"
+        type="text"
+        class="form-control col-6"
+        placeholder="Nhập email"
+        name = "email"
+        value= "{{user.Email}}"
+       
+      />
+    </div>
+    {{/unless}}
+
+     <div class="mb-3 row align-items-center">
+      <label class="form-label col-2 m-0">Số dư: </label>
+      <input
+        id="balance"
+        type="number"
+        step="1000"
+        class="form-control col-6"
+        placeholder="Nhập số dư"
+        name = "balance"
+        value= "{{user.Balance}}"
+       
+      />
+    </div>
+
+    <button type="button" class="align-self-center d-block btn btn-success" onclick="submitForm('{{user.UserID}}', '{{user.Username}}', '{{user.GoogleID}}')">
+      <i class="fa-solid fa-floppy-disk"></i>
+      Lưu thay đổi
+    </button>
+  </form>
+</div>
+
+<script>
+  const form = document.querySelector('form');
+  let id = document.getElementById('ID');
+  let username = document.getElementById('username');
+  let email = document.getElementById('email');
+  let password = document.getElementById('password');
+  let balance = document.getElementById('balance');
+  
+ 
+  async function submitForm(uID, uName, ggID)
+  {
+    const isValid = await validateForm(uID, uName, ggID);
+    
+    if(isValid)
+    {
+      form.submit();
+    }
+  }
+
+  function handleInvalidInput(input, errorMessage) { 
+      input.setCustomValidity(errorMessage);
+      input.reportValidity();
+  }
+   
+  async function validateForm(oldID, oldUsername, GoogleID) { 
+      if(oldUsername==null)
+      {
+        oldUsername='';
+      }
+
+      // ID
+      if(id.value != oldID)
+      {
+        const checkIDExsist = await fetch(`https://localhost:3000/checkIDExists?id=${id.value}`);
+        const checkID = await checkIDExsist.json();
+        const resID = checkID.result;
+
+        if (resID == 1)
+        {
+          handleInvalidInput(id, 'ID đã tồn tại, vui lòng nhập ID khác.');
+          return false;
+        }
+        else if (id.value == '') {
+          handleInvalidInput(id, 'Vui lòng nhập ID.');
+          return false;
+        }
+        else
+        {
+          handleInvalidInput(id, '');
+        }
+      }
+      else
+      {
+        handleInvalidInput(id, '');
+      }
+      
+
+      // Username
+      if(username.value.trim() !== oldUsername.trim())
+      {
+        const usernameRegex = /^\S+$/;
+        const checkUNExsist = await fetch(`https://localhost:3000/checkUsernameExists?username=${username.value}`);
+        const checkUN = await checkUNExsist.json();
+        const resUN = checkUN.result;
+
+        if (resUN == 1)
+        {
+            handleInvalidInput(username, 'Username đã tồn tại, vui lòng nhập username khác.');
+            return false;
+        }
+        else if (!GoogleID && username.value === '') {
+            handleInvalidInput(username, 'Vui lòng nhập username.');
+            return false;
+        }
+        else if (username.value!=='' && !usernameRegex.test(username.value)) {
+            handleInvalidInput(username, 'Username không chứa dấu cách.');
+            return false;
+        }
+        else
+        {
+            handleInvalidInput(username, '');
+        }
+      }
+      else
+      {
+          handleInvalidInput(username, '');
+      }
+
+
+      if(!GoogleID)
+      {
+        // Password
+        if (password.value != '' && !usernameRegex.test(password.value)) {
+            handleInvalidInput(password, 'Password không chứa dấu cách.');
+            return false;
+        }
+        else
+        {
+            handleInvalidInput(password, '');
+        }
+
+
+        // Email
+        const emailRegex = /^[a-z][a-z0-9_\.]{0,32}@[a-z0-9]{2,}(\.[a-z0-9]{2,}){1,3}$/;
+       
+        if (email.value == '')
+        {
+            handleInvalidInput(email, 'Vui lòng nhập email.');
+            return false;
+        }
+        else if (!emailRegex.test(email.value))
+        {
+            handleInvalidInput(email, 'Email không hợp lệ.');
+            return false;
+        }
+        else
+        {
+            handleInvalidInput(email, '');
+        }
+      }
+
+
+      // Số dư
+      if (balance.value === '')
+      {
+          handleInvalidInput(balance, 'Vui lòng nhập số dư.');
+          return false;
+      }
+      else
+      {
+          handleInvalidInput(balance, '');
+      }
+      
+      return true;
+  }
+</script>
+

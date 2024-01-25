@@ -50,8 +50,17 @@ module.exports = class Users {
 
     static async createAccount(user) {
         let pool = await sql.connect(databaseConnection);
-        let id = await this.getIDInLastRow();
-        id += 1;
+
+        let id;
+        if(user.UserID == undefined)
+        {
+            id = await this.getIDInLastRow();
+            id += 1;
+        }
+        else
+        {
+            id = user.UserID;
+        }
 
         let User = await pool
         .request()
@@ -66,6 +75,7 @@ module.exports = class Users {
         .query("INSERT INTO Users VALUES (@UserID, @GoogleID, @Username, @GoogleName, @Password, @Email, @Role, @Balance)");
         return User.rowsAffected[0];
     } 
+    
     static async updateBalanceById(ID, Balance) {
         let pool = await sql.connect(databaseConnection);
         let update = await pool
@@ -76,6 +86,26 @@ module.exports = class Users {
                 "UPDATE Users SET Balance = Balance + @Balance WHERE UserID = @ID "
             );
         return update.recordset;
+    }
+
+    static async getAdminUser()
+    {
+        let pool = await sql.connect(databaseConnection);
+        let user = await pool
+            .request()
+            .query("SELECT TOP(1) * FROM Users WHERE Role like '%Admin%'");
+        return user.recordset[0];
+    }
+
+    static async setBalanceByUserID(UserID, Balance)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let user = await pool
+            .request()
+            .input('Balance', sql.Int, Balance)
+            .input('ID', sql.Int, UserID)
+            .query("update Users set Balance = @Balance WHERE UserID = @ID");
+        return user.rowsAffected[0];
     }
 
     static async searchUser(options) {
@@ -106,75 +136,33 @@ module.exports = class Users {
                 .input("Limit", sql.Int, options.Limit)
                 .query(
                     `SELECT * , count(*) over() as Total FROM Users
-                    WHERE (UserID != @AdminID) AND (Username LIKE @KeywordName OR UserID LIKE @KeywordID)
+                    WHERE (UserID != @AdminID) 
+                    AND (Username LIKE @KeywordName OR GoogleName LIKE @KeywordName OR UserID LIKE @KeywordID)
                     ORDER BY UserID
                     OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY `
                 );
 
             return users.recordset;
         }
-
-        // let users = await pool
-        //     .request()
-        //     .input("Role", sql.NVarChar, options.role)
-        //     .query("SELECT * FROM Users WHERE Role = @Role");
-        // return users.recordset;
     }
 
-    static async updateBalanceById(ID, Balance) {
+    static async deleteUser(input){
         let pool = await sql.connect(databaseConnection);
-        let update = await pool
-            .request()
-            .input("ID", sql.Int, ID)
-            .input("Balance", sql.Int, Balance)
-            .query(
-                "UPDATE Users SET Balance = Balance + @Balance WHERE UserID = @ID "
-            );
-        return update.recordset;
-    }
 
-    static async getAdminUser()
-    {
-        let pool = await sql.connect(databaseConnection);
-        let user = await pool
-            .request()
-            .query("SELECT TOP(1) * FROM Users WHERE Role like '%Admin%'");
-        return user.recordset[0];
-    }
-    static async setBalanceByUserID(UserID, Balance)
-    {
-        let pool = await sql.connect(databaseConnection);
-        let user = await pool
-            .request()
-            .input('Balance', sql.Int, Balance)
-            .input('ID', sql.Int, UserID)
-            .query("update Users set Balance = @Balance WHERE UserID = @ID");
-        return user.rowsAffected[0];
-    }
-    
-    static async deleteUser(userID){
-        let pool = await sql.connect(databaseConnection);
         let row = await pool
             .request()
-            .input('UserID', sql.Int, userID)
+            .input('UserID', sql.Int, input.userID)
             .query('DELETE FROM Users WHERE UserID = @UserID');
 
-        return row.recordset;
+        if (row.rowsAffected[0] > 0) 
+        {
+            return true;
+        } 
+        else 
+        {
+            return false;
+        }
     }
-
-    // static async addUser(user){
-    //     let pool = await sql.connect(databaseConnection);
-    //     let add = await pool
-    //         .request()
-    //         .input('UserID', sql.Int, user.ID)
-    //         .input('categoryName', sql.NVarChar, `${Category.Name}`)
-    //         .query('INSERT INTO Categories (CategoryID, CategoryName, CategoryQuantity) VALUES (@categoryId, @categoryName, 0);');
-    //     if (add.rowsAffected[0] > 0) {
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // }
 
     static async editUser(input) {
         let pool = await sql.connect(databaseConnection);

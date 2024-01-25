@@ -15,33 +15,47 @@ const saltRounds = 13;
 const urlGG = 'https://accounts.google.com/o/oauth2/v2/auth';
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
-const redirect_uri = 'https://localhost:3000/google/auth';
+const redirect_uri_client = 'https://localhost:3000/google/client-auth';
+const redirect_uri_admin = 'https://localhost:3000/google/admin-auth';
 const response_type = 'code';
 const grant_type = 'authorization_code';
 const scopes = ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'];
 
 exports.GoogleRedirect = (req, res) => {
+    const { type } = req.params;
+    let redirect_uri;
+
+    if(type=='admin')
+    {
+        redirect_uri = redirect_uri_admin;
+    }
+    else
+    {
+        redirect_uri = redirect_uri_client;
+    }
+
     const queries = new URLSearchParams({
         response_type,
         redirect_uri,
         client_id,
-        scope: scopes.join(' ')
+        scope: scopes.join(' '),
+        prompt: 'select_account'
     });
 
     res.redirect(`${urlGG}?${queries.toString()}`);
 }
 
-exports.GoogleAuth = async (req, res, next) => {
+exports.GoogleClientAuth = async (req, res, next) => {
     try {
         const code = req.query.code;
-
         const options = {
             code,
             grant_type,
             client_id,
             client_secret,
-            redirect_uri,
-            scope: scopes.join(' ')
+            redirect_uri: redirect_uri_client,
+            scope: scopes.join(' '),
+            prompt: 'select_account'
         };
 
         const rs = await fetch('https://accounts.google.com/o/oauth2/token', {
@@ -53,7 +67,6 @@ exports.GoogleAuth = async (req, res, next) => {
         });
 
         const data = await rs.json();
-
         const userInfo = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${data.access_token}`, {
             method: 'GET'
         });
@@ -65,7 +78,6 @@ exports.GoogleAuth = async (req, res, next) => {
             user = await UserModel.getUserByGoogleID(decodedToken.sub);
         }
 
-        // console.log(userData);
         if (!user) {
             user = {};
             user.GoogleID = decodedToken.sub;
@@ -81,7 +93,7 @@ exports.GoogleAuth = async (req, res, next) => {
             const key = process.env.PRIVATE_KEY;
             const _user = jwt.sign(user, key, { expiresIn: '1h' });
             const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
-           
+        
             await fetch(`https://localhost:${PAY_PORT}/createUser`, {
                 agent,
                 method: 'POST',
@@ -112,6 +124,68 @@ exports.GoogleAuth = async (req, res, next) => {
     }
 }
 
+exports.GoogleAdminAuth = async (req, res, next) => {
+    try {
+        const code = req.query.code;
+        const options = {
+            code,
+            grant_type,
+            client_id,
+            client_secret,
+            redirect_uri: redirect_uri_admin,
+            scope: scopes.join(' '),
+            prompt: 'select_account'
+        };
+
+        const rs = await fetch('https://accounts.google.com/o/oauth2/token', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(options)
+        });
+
+        const data = await rs.json();
+
+        const userInfo = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${data.access_token}`, {
+            method: 'GET'
+        });
+        
+        const userData = await userInfo.json();
+        const decodedToken = jwt.decode(data.id_token);
+        let user;
+        if (decodedToken.sub !== null) {
+            user = await UserModel.getUserByGoogleID(decodedToken.sub);
+        }
+
+        if (!user) {
+            let _id = await UserModel.getIDInLastRow();
+
+            res.render("addGGAccountsAdmin", {
+                layout: 'admin',
+                Username: req.Username,
+                admin: true,
+                title: "Thêm tài khoản Google",
+                UserID: _id + 1,
+                GoogleID: decodedToken.sub,
+                GoogleName: userData.name,
+                Email: userData.email
+            });
+        }
+        else
+        {
+            res.render("errorPage", {
+                layout: 'admin',
+                Username: req.Username,
+                admin: true,
+                error: "Tài khoản đã tồn tại",
+            });
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+}
 
 exports.CheckLogin = async (req, res, next) => {
     try {
@@ -326,11 +400,7 @@ exports.GetProfile = async (req, res, next) => {
 }
 
 exports.getSearchAccounts = async (req, res) => {
-    // console.log(req.user);
-    // req.user.UserID
-    // console.log(req);
-
-  const { keyword = "", page = 1, limit = 2 } = req.query;
+  const { keyword = "", page = 1, limit = 10 } = req.query;
 
   const users = await UserModel.searchUser({
     AdminID: req.user.UserID,
@@ -339,22 +409,12 @@ exports.getSearchAccounts = async (req, res) => {
     Limit: limit,
   });
 
-//   users.forEach((user) => {
-//     if (user.GoogleID !== null) {
-//       doiTuong.B = 1;
-//     } else {
-//       doiTuong.B = 0;
-//     }
-//   });
-
-//   console.log(users);
-
   const pages = Array.from(
     { length: Math.ceil(users[0]?.Total / limit || 0) },
     (_, i) => i + 1
   );
 
-  res.render("searchAccountAdmin", {
+  res.render("searchAccountsAdmin", {
     layout: 'admin',
     title: "Quản lý tài khoản",
     Username: req.Username,
@@ -362,124 +422,59 @@ exports.getSearchAccounts = async (req, res) => {
     users,
     pages,
     keyword,
-    total: users[0]?.Total ?? 0
   });
 }
 
 exports.deleteAccount = async (req, res) => {
-    const { userID } = req.params;
+    const userID = req.params;
 
-    try {
-        await UserModel.deleteUser(userID);
-    } catch (error) {
-        res.render("errorPage",{
-            layout: 'admin',
-            Username: req.Username,
-            admin: true,
-            error: "Có lỗi xảy ra khi xóa dữ liệu.",
-        })
-    } 
+    const PAY_PORT = process.env.PAY_SERVER_PORT;
+    const agent = new https.Agent({
+        rejectUnauthorized: false
+    });
+    
+    const key = process.env.PRIVATE_KEY;
+    const _userID = jwt.sign(userID, key, { expiresIn: '1h' });
+    const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' });
+
+    const _fetch = await fetch(`https://localhost:${PAY_PORT}/deleteUser`, {
+        agent,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: _userID, secret }),
+    });
+    
+
+    const resJson = await _fetch.json();
+    const resStatus = resJson._status;
+    
+    if (!resStatus) {
+        res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });
+    }
+    else {
+        res.status(200).json({ message: 'Dữ liệu đã được xóa thành công!' });
+    }
 }
-
 
 exports.getEditAccount = async (req, res) => {
     const { userID } = req.params;
     const user = await UserModel.getUserByUserID(userID);
     
-    res.render("editUserAdmin", {
+    res.render("editAccountsAdmin", {
         layout: 'admin',
+        Username: req.Username,
+        admin: true,
         title: "Chỉnh sửa tài khoản",
         user
     });
-
-    // let renderPage;
-    // if(user.GoogleID == null)
-    // {
-    //     renderPage = "editNormalUser";
-    // }
-    // else
-    // {
-    //     renderPage = "editGoogleUser";
-    // }
-
-
-    // const _userID = user.UserID;
-    // const _GoogleID = user.GoogleID;
-    // const _username = user.Username;
-    // const _GoogleName = user.GoogleName;
-    // const _email = user.Email;
-    // const _balance = user.Balance;
-
-    // // Account edit
-    // const { userID, username} = req.query;
-  
-    // // Check UserID
-    // if (categoryID !== undefined && categoryID != categoryId) {
-    //   const checkID = await Categories.checkID(categoryID);
-    //   if (checkID == true) {
-    //     res.render("errorPage", {
-    //       layout: 'admin',
-    //       error: "Đã tồn tại ID",
-    //     });
-    //   }
-    // }
-    // if(categoryID == categoryId && categoryName == categoryname){
-    //   console.log("testttttttttttttttttttt");
-    //   res.render("errorPage", {
-    //     layout: 'admin',
-    //     admin: true,
-    //     error: "Không có sự thay đổi",
-    //   });
-    // }
-    // else if(categoryID !== undefined && categoryName !== undefined) {
-    //   let query = `UPDATE Categories SET `;
-    //   let checkdot = false;
-    //   if (categoryID != categoryid) {
-    //     query = query + `CategoryID = @categoryId `;
-    //     checkdot = true;
-    //   }
-    //   if (categoryName != categoryname) {
-    //     if (checkdot == true) query = query + `,`;
-    //     query = query + `CategoryName = @categoryName `;
-    //     checkdot = true;
-    //   }
-    //   // if (categoryQuantity != categoryquantity) {
-    //   //   if (checkdot == true) query = query + `,`;
-    //   //   query = query + `CategoryQuantity = @categoryQuantity `;
-    //   //   checkdot = true;
-    //   // }
-    //   query = query + `Where CategoryID = ${categoryid}`;
-    //   const temp = await Categories.edit({
-    //     ID: categoryID,
-    //     Name: categoryName,
-    //     //Quantity: categoryQuantity,
-    //     Query: query
-    //   });
-    //   if (temp) {
-    //     res.render("truePage", {
-    //       layout: 'admin',
-    //       admin: true,
-    //       notification: "Chỉnh sửa thành công",
-    //     });
-    //   }
-    //   else {
-    //     res.render("errorPage", {
-    //       layout: 'admin',
-    //       admin: true,
-    //       error: "Chỉnh sửa thất bại",
-    //     });
-    //   }
-    // } else {
-        
-    // }
 }
 
 exports.editAccount = async (req, res) => {
-    // console.log(req.body);
     const { userID } = req.params;
-    const user = await UserModel.getUserByUserID(userID);
-    // console.log(req.user);
-
+    const user = await UserModel.getUserByUserID(parseInt(userID,10));
+ 
     let _username = req.body.username;
     if(_username === "")
     {
@@ -496,24 +491,38 @@ exports.editAccount = async (req, res) => {
         _password = user.Password;
     }
 
-    const check = await UserModel.editUser({
-        userID,
-        _userID: req.body.userID,
-        _username,
-        _password,
-        _email: req.body.email??user.Email,
-        _balance: req.body.balance
+    let inp = {};
+    inp.userID = userID;
+    inp._userID = req.body.userID;
+    inp._username = _username;
+    inp._password = _password;
+    inp._email = req.body.email??user.Email;
+    inp._balance = req.body.balance;
+
+       
+    const PAY_PORT = process.env.PAY_SERVER_PORT;
+    const agent = new https.Agent({
+        rejectUnauthorized: false
     });
 
-    if (check) {
-        res.render("truePage", {
-            layout: 'admin',
-            Username: req.Username,
-            admin: true,
-            notification: "Chỉnh sửa thành công",
-        });
-        }
-        else {
+    const key = process.env.PRIVATE_KEY;
+    const _input = jwt.sign(inp, key, { expiresIn: '1h' });
+    const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
+
+    const _fetch = await fetch(`https://localhost:${PAY_PORT}/editUser`, {
+        agent,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ input: _input, secret }),
+    });
+    
+
+    const resJson = await _fetch.json();
+    const resStatus = resJson._status;
+    
+    if (!resStatus) {
         res.render("errorPage", {
             layout: 'admin',
             Username: req.Username,
@@ -521,5 +530,89 @@ exports.editAccount = async (req, res) => {
             error: "Chỉnh sửa thất bại",
         });
     }
+    else {
+        res.render("truePage", {
+            layout: 'admin',
+            Username: req.Username,
+            admin: true,
+            notification: "Chỉnh sửa thành công",
+        });
+    }
 }
   
+exports.getAddAccount = async (req, res) => {
+    let _id = await UserModel.getIDInLastRow();
+
+    res.render("addAccountsAdmin", {
+        layout: 'admin',
+        Username: req.Username,
+        admin: true,
+        title: "Thêm tài khoản",
+        id: _id + 1
+    });
+}
+
+exports.addAccount = async (req, res) => {
+    let _username = req.body.username;
+    if(_username === "")
+    {
+        _username = null;
+    }
+
+    let _password;
+    if (req.body.password !== undefined && req.body.password.length > 0)
+    {
+        _password = await bcrypt.hash(req.body.password, saltRounds);
+    }
+    else
+    {
+        _password = null;
+    }
+
+    let user = {};
+    user.UserID = req.body.userID;
+    user.GoogleID = req.body.googleid??null;
+    user.Username = _username;
+    user.GoogleName = req.body.googlename??null;
+    user.Password = _password;
+    user.Email = req.body.email;
+
+    const PAY_PORT = process.env.PAY_SERVER_PORT;
+    const agent = new https.Agent({
+        rejectUnauthorized: false
+    });
+
+    const key = process.env.PRIVATE_KEY;
+    const _user = jwt.sign(user, key, { expiresIn: '1h' });
+    const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
+
+    const _fetch = await fetch(`https://localhost:${PAY_PORT}/createUser`, {
+        agent,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user: _user, secret }),
+    });
+    
+
+    const resJson = await _fetch.json();
+    const resStatus = resJson._status;
+    
+    if (!resStatus) {
+        res.render("errorPage", {
+            layout: 'admin',
+            Username: req.Username,
+            admin: true,
+            error: "Thêm tài khoản thất bại"
+        });
+    }
+    else {
+        res.render("truePage", {
+            layout: 'admin',
+            Username: req.Username,
+            admin: true,
+            notification: "Thêm tài khoản thành công"
+        });
+    }
+}

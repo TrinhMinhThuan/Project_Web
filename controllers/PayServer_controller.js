@@ -55,6 +55,100 @@ exports.createUser = async (req, res, next) => {
     }
 }
 
+exports.deleteUser = async (req, res, next) => {
+    try {
+        const token = req.body;
+        const key = process.env.PRIVATE_KEY;
+        const secret = process.env.SERVER_SECRET;
+        let decoded;
+        jwt.verify(token.secret, key, function (err, _decoded) {
+            if (err) {
+                console.log("error");
+                res.json({ _status: false });
+            }
+            else {
+                decoded = _decoded.secret;
+            }
+        });
+        
+        if (decoded === secret) {
+            jwt.verify(token.userId, key, async function (_err, _decoded) {
+                if (_err) {
+                    console.log(_err);
+                    res.json({ _status: false });
+                }
+                else {
+                    //todo code
+                    let deletee = await UserModel.deleteUser(_decoded);
+                    if (!deletee) {
+                        res.json({ _status: false });
+                    }
+                    else {
+                        res.json({ _status: true });
+                    }
+                }
+            });
+        }
+        else {
+            res.json({ _status: false });
+        }
+
+
+    } catch (error) {
+        next(error);
+        res.json({ _status: false });
+    }
+}
+
+
+exports.editUser = async (req, res, next) => {
+    try {
+        const token = req.body;
+        const key = process.env.PRIVATE_KEY;
+        const secret = process.env.SERVER_SECRET;
+        let decoded;
+        jwt.verify(token.secret, key, function (err, _decoded) {
+            if (err) {
+
+                console.log("error");
+                res.json({ _status: false });
+            }
+            else {
+                decoded = _decoded.secret;
+            }
+        });
+        
+        if (decoded === secret) {
+            jwt.verify(token.input, key, async function (_err, _decoded) {
+                if (_err) {
+                    console.log(_err);
+                    res.json({ _status: false });
+                }
+                else {
+                    //todo code
+                    let edit = await UserModel.editUser(_decoded);
+                    if (!edit) {
+                        res.json({ _status: false });
+                    }
+                    else {
+
+                        res.json({ _status: true });
+                    }
+                }
+            });
+        }
+        else {
+            res.json({ _status: false });
+        }
+
+
+    } catch (error) {
+        next(error);
+        res.json({ _status: false });
+    }
+}
+
+
 exports.Pay = async (req, res, next) => {
     try {
         const token = req.body;
@@ -155,6 +249,4 @@ exports.Pay = async (req, res, next) => {
         res.json({ _status: false, _errorCode: -1, _errorMsg: 'Giao dịch không thành công, do vấn đề liên kết hệ thống, vui lòng đăng nhập lại!' });
     }
 }
-
-
 

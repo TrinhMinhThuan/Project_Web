@@ -1,0 +1,126 @@
+<div class="container">
+  <form class="d-flex flex-column" method="POST" action="/accounts/add">
+    <div class="mb-3 row align-items-center">
+      <label class="form-label col-2 m-0">ID: </label>
+      <input
+        id="ID"
+        type="number"
+        class="form-control col-6"
+        placeholder="Nhập ID"
+        name = "userID"
+        value="{{UserID}}"
+      />
+    </div>
+
+    <div class="mb-3 row align-items-center">
+      <label class="form-label col-2 m-0">Tên tài khoản: </label>
+      <input
+        id="googlename"
+        type="text"
+        class="form-control col-6"
+        name = "googlename"
+        value="{{GoogleName}}"
+        readonly
+      />
+    </div>
+
+    <div class="mb-3 row align-items-center">
+      <label class="form-label col-2 m-0">Username: </label>
+      <input
+        id="username"
+        type="text"
+        class="form-control col-6"
+        placeholder="Nhập username"
+        name = "username"
+      />
+    </div>
+    
+    <div class="mb-3 row align-items-center">
+      <label class="form-label col-2 m-0">Email: </label>
+      <input
+        id="email"
+        type="text"
+        class="form-control col-6"
+        name = "email"
+        value="{{Email}}"
+        readonly
+      />
+    </div>
+    
+    <input type="hidden" name="googleid" value={{GoogleID}}>
+
+    <button type="button" class="align-self-center d-block btn btn-success" onclick="submitForm()">
+      <i class="fa-solid fa-floppy-disk"></i>
+      Lưu tài khoản
+    </button>
+  </form>
+</div>
+
+
+<script>
+    const form = document.querySelector('form');
+    let id = document.getElementById('ID');
+    let username = document.getElementById('username');
+
+    async function submitForm()
+    {
+        const isValid = await validateForm();
+        
+        if(isValid)
+        {
+            form.submit();
+        }
+    }
+
+    function handleInvalidInput(input, errorMessage) { 
+        input.setCustomValidity(errorMessage);
+        input.reportValidity();
+    }
+   
+    async function validateForm() { 
+
+        // ID
+        const checkIDExsist = await fetch(`https://localhost:3000/checkIDExists?id=${id.value}`);
+        const checkID = await checkIDExsist.json();
+        const resID = checkID.result;
+        
+        if (resID == 1)
+        {
+            handleInvalidInput(id, 'ID đã tồn tại, vui lòng nhập ID khác.');
+            return false;
+        }
+        else if (id.value == '') {
+            handleInvalidInput(id, 'Vui lòng nhập ID.');
+            return false;
+        }
+        else
+        {
+            handleInvalidInput(id, '');
+        }
+       
+        
+        // Username
+        const usernameRegex = /^\S+$/;
+        const checkUNExsist = await fetch(`https://localhost:3000/checkUsernameExists?username=${username.value}`);
+        const checkUN = await checkUNExsist.json();
+        const resUN = checkUN.result;
+
+        if (resUN == 1)
+        {
+            handleInvalidInput(username, 'Username đã tồn tại, vui lòng nhập username khác.');
+            return false;
+        }
+        else if (username.value != '' && !usernameRegex.test(username.value)) {
+            handleInvalidInput(username, 'Username không chứa dấu cách.');
+            return false;
+        }
+        else
+        {
+            handleInvalidInput(username, '');
+        }
+       
+
+        return true;
+    }
+
+</script>
