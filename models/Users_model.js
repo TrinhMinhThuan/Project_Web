@@ -55,7 +55,14 @@ module.exports = class Users {
         if(user.UserID == undefined)
         {
             id = await this.getIDInLastRow();
-            id += 1;
+            if (id != undefined)
+            {
+                id += 1;
+            }
+            else
+            {
+                id = 1;
+            }
         }
         else
         {

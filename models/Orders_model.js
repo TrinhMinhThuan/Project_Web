@@ -26,7 +26,7 @@ module.exports = class Orders
         let pool = await sql.connect(databaseConnection);
 
         let id = await this.getIDInLastRow();
-        if (id !== undefined)
+        if (id != undefined)
         {
             id += 1;
         }

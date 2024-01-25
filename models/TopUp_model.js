@@ -34,10 +34,7 @@ module.exports = class TopUp
         let row = await pool
             .request()
             .query("SELECT TOP(1) * FROM TopUp ORDER BY TopUpID DESC");
-
         return row.recordset[0].TopUpID;
-
-
     }
     
     
@@ -47,7 +44,7 @@ module.exports = class TopUp
         let pool = await sql.connect(databaseConnection);
 
         let id = await this.getIDInLastRow();
-        if (id !== undefined)
+        if (id != undefined)
         {
             id += 1;
         }
