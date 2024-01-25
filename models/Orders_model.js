@@ -54,6 +54,17 @@ module.exports = class Orders
         .query(`SELECT * FROM Orders WHERE UserID = @userID ORDER BY OrderDate DESC, OrderID DESC`);
         return Orders.recordset;
     }
+    static async getByUserID_Page (UserID,page,limit)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let Orders = await pool.request()
+        .input('userID', sql.Int, UserID)
+        .input("Offset", sql.Int, (page - 1) * limit)
+        .input("Limit", sql.Int, limit)
+        .query(`SELECT * , count(*) over() as Total  FROM Orders WHERE UserID = @userID ORDER BY OrderDate DESC, OrderID DESC
+                OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`);
+        return Orders.recordset;
+    }
 
     // Dữ liệu Thống kê doanh thu cho admin
     static async getStatisticalData(yearYear, yearMonth) {

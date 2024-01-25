@@ -19,6 +19,16 @@ module.exports = class TopUp
         .query(`SELECT * FROM TopUp WHERE UserID = @userID  ORDER BY TopUpDay DESC, TopUpID DESC`);
         return topup.recordset;
     }
+    static async getByUserID_Page(userID,page,limit){
+        let pool = await sql.connect(databaseConnection);
+        let topup = await pool.request()
+        .input('userID', sql.Int, userID)
+        .input("Offset", sql.Int, (page - 1) * limit)
+        .input("Limit", sql.Int, limit)
+        .query(`SELECT * , count(*) over() as Total FROM TopUp WHERE UserID = @userID  ORDER BY TopUpDay DESC, TopUpID DESC
+                OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`);
+        return topup.recordset;
+    }
     static async getIDInLastRow() {
         let pool = await sql.connect(databaseConnection);
         let row = await pool

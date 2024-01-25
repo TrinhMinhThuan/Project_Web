@@ -1,6 +1,5 @@
-<section >
-    <div class="container py-5">
-
+<section>
+    <div class="container py-3">
 
         <div class="row">
 
@@ -12,7 +11,8 @@
                                 <p class="mb-0">Account ID</p>
                             </div>
                             <div class="col-sm-9">
-                                <input style="border: none; outline: none;" readonly class="text-primary mb-0" value="{{UserID}}">
+                                <input style="border: none; outline: none;" readonly class="text-primary mb-0"
+                                    value="{{UserID}}">
                             </div>
                         </div>
                         <hr>
@@ -21,7 +21,8 @@
                                 <p class="mb-0">User Name</p>
                             </div>
                             <div class="col-sm-9">
-                                <input style="border: none; outline: none;" readonly class="text-primary mb-0" value="{{Username}}">
+                                <input style="border: none; outline: none;" readonly class="text-primary mb-0"
+                                    value="{{Username}}">
                             </div>
                         </div>
                         <hr>
@@ -30,7 +31,8 @@
                                 <p class="mb-0">Google ID</p>
                             </div>
                             <div class="col-sm-9">
-                                <input style="border: none; outline: none;" readonly class="text-primary mb-0" value="{{GoogleID}}">
+                                <input style="border: none; outline: none;" readonly class="text-primary mb-0"
+                                    value="{{GoogleID}}">
 
                             </div>
                         </div>
@@ -40,7 +42,8 @@
                                 <p class="mb-0">Email</p>
                             </div>
                             <div class="col-sm-9">
-                                <input style="border: none; outline: none;" readonly class="text-primary mb-0" value="{{Email}}">
+                                <input style="border: none; outline: none;" readonly class="text-primary mb-0"
+                                    value="{{Email}}">
 
                             </div>
                         </div>
@@ -50,14 +53,15 @@
                                 <p class="mb-0">Số dư tài khoản</p>
                             </div>
                             <div class="col-sm-9">
-                                <input style="border: none; outline: none;" readonly class="text-primary mb-0" value="{{Balance}} VNĐ">
+                                <input style="border: none; outline: none;" readonly class="text-primary mb-0"
+                                    value="{{Balance}} VNĐ">
                             </div>
                         </div>
                         <hr>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-7">
+                    <div class="col-md-6">
                         <div class="card mb-4 mb-md-0">
                             <div class="card-body">
                                 <p class="mb-4 fw-bold" style="text-align: center;"> Lịch sử mua hàng
@@ -72,7 +76,7 @@
                                                 <th scope="col">Ngày giao dịch</th>
                                                 <th scope="col">Số tiền</th>
                                                 <th scope="col">Xem chi tiết</th>
-                                                
+
                                             </tr>
                                         </thead>
                                         <tbody id="listBook">
@@ -82,31 +86,32 @@
                                                 <td>{{this.OrderDateToString}}</td>
                                                 <td>{{this.TotalAmount}} VNĐ</td>
                                                 <td>
-                                                    <a  href="/orderDetail?ID={{this.OrderID}}" type="submit" class="btn btn-success">
+                                                    <a href="/orderDetail?ID={{this.OrderID}}" type="submit"
+                                                        class="btn btn-success">
                                                         <i class="fa-solid fa-eye"></i>
                                                     </a>
                                                 </td>
-                                                
+
                                             </tr>
                                             {{/each}}
 
                                         </tbody>
                                     </table>
                                 </div>
-                               
-                                
+
+
                                 {{else}}
                                 <p class="text-center">Bạn chưa thực hiện giao dịch nào 🥲</p>
-                               
+
                                 {{/if}}
 
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                         <div class="card mb-4 mb-md-0">
                             <div class="card-body">
-                                 <p class="mb-4 fw-bold" style="text-align: center;"> Lịch sử nạp tiền
+                                <p class="mb-4 fw-bold" style="text-align: center;"> Lịch sử nạp tiền
                                 </p>
                                 {{#if Topup.length}}
                                 <div>
@@ -117,7 +122,7 @@
                                                 <th scope="col">Mã giao dịch</th>
                                                 <th scope="col">Ngày giao dịch</th>
                                                 <th scope="col">Số tiền nạp</th>
-                                                
+
                                             </tr>
                                         </thead>
                                         <tbody id="listBook">
@@ -133,11 +138,11 @@
                                         </tbody>
                                     </table>
                                 </div>
-                               
-                                
+
+
                                 {{else}}
                                 <p class="text-center">Bạn chưa thực hiện giao dịch nào 🥲</p>
-                               
+
                                 {{/if}}
                             </div>
                         </div>
@@ -145,5 +150,101 @@
                 </div>
             </div>
         </div>
+        <div class="d-flex justify-content-center mt-3">
+            {{#if pages}}
+            <button class="btn-prevStart btn btn-light mr-2"><i class="fa fa-angle-double-left"></i></button>
+            <button class="btn-prev btn btn-light mr-2"><i class="fas fa-chevron-left"></i></button>
+            <select id="pageSelect" class="col-2 align-self-center text-center paging form-select ">
+                {{#each pages}}
+                <option value="{{this}}">Page {{this}}</option>
+                {{/each}}
+            </select>
+            <button class="btn-next btn btn-light ml-2"><i class="fas fa-chevron-right"></i></button>
+            <button class="btn-nextEnd btn btn-light ml-2"><i class="fa fa-angle-double-right"></i></button>
+            {{/if}}
+        </div>
     </div>
 </section>
+<script>
+    // Update Page
+var currentPage;
+// Hàm để cập nhật currentPage khi có sự kiện thay đổi
+function updateCurrentPage() {
+    currentPage = document.getElementById("pageSelect").value;
+}
+
+const selection = document.querySelector(".paging");
+selection?.addEventListener("change", (e) => {
+  const url = new URL(window.location.href);
+  const query = new URLSearchParams(window.location.search);
+  query.set("page", e.target.value);
+  url.search = query;
+  location.assign(url.href);
+});
+const query = new URLSearchParams(window.location.search);
+if (selection) selection.value = query.get("page") || 1;
+
+
+document.querySelectorAll('.btn-prevStart').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    if(currentPage == 1){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-prev').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    //const max = {{pages.length}};
+    if(currentPage == 1){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", currentPage - 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-nextEnd').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    const max = {{pages.length}};
+    if(currentPage == max){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", max);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+
+document.querySelectorAll('.btn-next').forEach(button => {
+  button.addEventListener('click', function(e) {
+    event.preventDefault();
+    updateCurrentPage();
+    const max = {{pages.length}};
+    if(currentPage == max){
+      return;
+    }
+    const url = new URL(window.location.href);
+    const query = new URLSearchParams(window.location.search);
+    query.set("page", parseInt(currentPage,10) + 1);
+    url.search = query;
+    location.assign(url.href);
+  })
+});
+</script>

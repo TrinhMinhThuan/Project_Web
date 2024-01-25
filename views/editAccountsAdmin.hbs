@@ -80,8 +80,8 @@
   let email = document.getElementById('email');
   let password = document.getElementById('password');
   let balance = document.getElementById('balance');
-  
- 
+  let usernameRegex = /^\S+$/;
+
   async function submitForm(uID, uName, ggID)
   {
     const isValid = await validateForm(uID, uName, ggID);
@@ -133,7 +133,6 @@
       // Username
       if(username.value.trim() !== oldUsername.trim())
       {
-        const usernameRegex = /^\S+$/;
         const checkUNExsist = await fetch(`https://localhost:3000/checkUsernameExists?username=${username.value}`);
         const checkUN = await checkUNExsist.json();
         const resUN = checkUN.result;

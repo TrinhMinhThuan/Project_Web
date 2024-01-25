@@ -368,24 +368,59 @@ exports.Logout = (req, res, next) => {
 }
 
 exports.GetProfile = async (req, res, next) => {
+    const {page = 1, limit = 5} = req.query;
+
+
     let { UserID = '', GoogleID = '', Balance = 0, Email = '' } = req.user;
-    const Orders = await OrdersModel.getByUserID(req.user.UserID);
+    const Orders = await OrdersModel.getByUserID_Page(req.user.UserID,page, limit);
+    const _User = await UserModel.getUserByUserID(req.user.UserID);
+    Balance = _User.Balance;
     let date;
     for (let order of Orders)
     {
         date = new Date(order.OrderDate);
         order.OrderDateToString = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
     }
-    
 
-    const Topup = await TopupModel.getByUserID(req.user.UserID);
+    const Topup = await TopupModel.getByUserID_Page(req.user.UserID,page,limit);
 
+   
     for (let row of Topup)
     {
         date = new Date(row.TopUpDay);
         row.TopUpDayToString = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
     }
-
+    let pages;
+    if(Topup[0]?.Total != undefined &&  Orders[0]?.Total != undefined){
+        if(Topup[0]?.Total > Orders[0]?.Total){
+            pages = Array.from(
+                { length: Math.ceil(Topup[0]?.Total / limit || 0) },
+                (_, i) => i + 1
+              );
+        }
+        else{
+            pages = Array.from(
+                { length: Math.ceil(Orders[0]?.Total / limit || 0) },
+                (_, i) => i + 1
+              );
+        }
+    }
+    else{
+        if(Topup[0]?.Total != undefined){
+            pages = Array.from(
+                { length: Math.ceil(Topup[0]?.Total / limit || 0) },
+                (_, i) => i + 1
+              );
+        }
+        else{
+            pages = Array.from(
+                { length: Math.ceil(Orders[0]?.Total / limit || 0) },
+                (_, i) => i + 1
+              );
+        }
+    }
+    
+    
     res.render('profilePageClient', {
         layout: 'customer',
         Username: req.Username,
@@ -395,12 +430,13 @@ exports.GetProfile = async (req, res, next) => {
         Email,
         Orders,
         Topup,
+        pages,
         title: 'Thông tin tài khoản'
     });
 }
 
 exports.getSearchAccounts = async (req, res) => {
-  const { keyword = "", page = 1, limit = 10 } = req.query;
+  const { keyword = "", page = 1, limit = 5 } = req.query;
 
   const users = await UserModel.searchUser({
     AdminID: req.user.UserID,
