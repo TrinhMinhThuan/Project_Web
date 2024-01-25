@@ -1,29 +1,29 @@
 <div class="container d-flex flex-column">
   <form id="searchForm">
-    <div class="row gap-3">
-      <input type="text" id="inputKey" class="col-5 form-control" placeholder="Nhập từ khóa" name="keyword"
+    <div class="row gap-3 justify-content-center">
+      <input type="text" id="inputKey" class=" col-lg-5 col-md-12 col-sm-12 col-12  form-control" placeholder="Nhập từ khóa" name="keyword"
         value="{{keyword}}" />
 
-      <select name="type" class="col-2 text-center form-select option option-1">
+      <select name="type" class="col-xl-2 col-lg-2  col-md-4 col-sm-4 col-12 text-center form-select option option-1">
         <option value="ProductName">Tên sách</option>
         <option value="Author">Tác Giả</option>
       </select>
-      <select name="category" class="text-center col form-select option option-2">
+      <select name="category" class="col-xl-2 col-lg-2 col-md-4 col-sm-4 col-12 text-center  form-select option option-2">
         <option value="0" selected>Tất cả</option>
         {{#each categories}}
         <option value="{{this.CategoryID}}">{{this.CategoryName}}</option>
         {{/each}}
       </select>
-      <button type="submit" class="col-2 btn btn-success"><i class="fa-solid fa-magnifying-glass"></i> Tra cứu</button>
+      <button type="submit" class="col-xl-2 col btn btn-success"><i class="fa-solid fa-magnifying-glass"></i> Tra cứu</button>
     </div>
   </form>
   <form id="filterForm">
-    <div class="row gap-3">
-      <p class="col fw-bold mt-2" style="align-items: center;">Lọc theo giá (VNĐ): </p>
-      <input type="number" class="col-3 form-control" placeholder="Từ" name="minPrice" value="{{MinPrice}}" required />
-      <input type="number" class="col-3 form-control" placeholder="Đến" name="maxPrice" value="{{MaxPrice}}" required />
-      <button type="submit" class="col btn btn-success h-75 justify-content-end" id="applyFilter">
-        <i class="fa-solid fa-filter"></i> Áp dụng bộ lọc</button>
+    <div class="row gap-3 justify-content-center">
+      <p class="col-xl-3 col-lg-3 col-md-12 fw-bold mt-2 mb-1 " style="align-items: center;">Lọc theo giá (VNĐ): </p>
+      <input type="number" class="col-xl-3 col-lg-3 col-md-4 col-sm-4 form-control" placeholder="Từ" name="minPrice" value="{{MinPrice}}" required />
+      <input type="number" class="col-xl-3 col-lg-3 col-md-4 col-sm-4 form-control" placeholder="Đến" name="maxPrice" value="{{MaxPrice}}" required />
+      <button type="submit" class="col-xl-2 col-lg col-md col-sm btn btn-success " id="applyFilter">
+        <i class="fa-solid fa-filter"></i>  Lọc</button>
     </div>
   </form>
   <div class="query-result mt-3">
