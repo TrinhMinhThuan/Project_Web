@@ -32,22 +32,30 @@
       <div class="row justify-content-center">
         {{#if _books.length}}
         {{#each _books}}
-        <div class="col-md-4 col-lg-3 col-sm-6 mt-4">
-          <div class="card text-center">
-            <img src="/Images/{{this.Image}}" height="190px" class="card-img-top" alt="Ảnh bị hư">
-            <div class="card-body" style="Height: 210px">
-              <p class="card-title font-weight-bold" style="Height: 30px;">{{this.ProductName}}</p>
-              <p class="card-text text-sm mt-4">Số lượng: {{this.StockQuantity}}</p>
-              <p class="card-text text-sm">Tác giả: {{this.Author}}</p>
-              <p class="card-text text-sm">Giá: {{this.Price}}</p>
+        <div class="col-md-10 col-lg-6 col-sm-8 mt-4">
+          <div class="card">
+            <div class="row">
+              <div class="col-md-4 d-flex align-items-center">
+                <img src="/Images/{{this.Image}}" height="200px" class="card-img-top img-fluid" alt="Ảnh sách">
+              </div>
+
+              <div class="col-md-8">
+                <div class="card-body" style="Height: 200px">
+                  <p class="card-title font-weight-bold" style="Height: 30px;">{{this.ProductName}}</p>
+                  <p class="card-text text-sm mt-4">Tác giả: {{this.Author}}</p>
+                  <p class="card-text text-sm">Giá: {{this.Price}}</p>
+                  <p class="card-text text-sm">Số lượng: {{this.StockQuantity}}</p>
+                </div>
+              </div>
             </div>
-            <div class="card-footer">
+
+            <div class="card-footer d-flex align-items-center justify-content-end">
               <!-- Thêm hai nút Delete và Edit -->
               <button id="deleteItem" type="button" data-product-id="{{this.ProductID}}"
-                class="btn btn-danger btn-sm btn-delete"><i class="fas fa-trash"></i> Delete</button>
+                class="btn btn-danger btn-sm btn-delete" style="width: 75px"><i class="fas fa-trash"></i> Xóa</button>
                 
               <button type="button" data-product-id="{{this.ProductID}}" class="btn btn-edit btn-primary btn-sm ml-2 btn-edit"
-                style="width: 60px"> <i class="fas fa-edit"></i>  Edit</button>
+                style="width: 75px"> <i class="fas fa-edit"></i>  Sửa</button>
             </div>
           </div>
         </div>

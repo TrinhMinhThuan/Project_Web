@@ -32,22 +32,32 @@
       <div class="row justify-content-center">
         {{#if _books.length}}
         {{#each _books}}
-        <div class="col-md-4 col-lg-3 col-sm-6 mt-4">
-          <div class="card text-center">
-            <img src="/Images/{{this.Image}}" height="190px" class="card-img-top" alt="Ảnh bị hư">
-            <div class="card-body" style="Height: 210px">
-              <p class="card-title font-weight-bold" style="Height: 30px;">{{this.ProductName}}</p>
-              <p class="card-text text-sm mt-4">Số lượng: {{this.StockQuantity}}</p>
-              <p class="card-text text-sm">Tác giả: {{this.Author}}</p>
-              <p class="card-text text-sm">Giá: {{this.Price}}</p>
+        <div class="col-md-10 col-lg-6 col-sm-8 mt-4">
+          <div class="card">
+            <div class="row">
+              <div class="col-md-4 d-flex align-items-center">
+                <img src="/Images/{{this.Image}}" height="200px" class="card-img-top img-fluid" alt="Ảnh sách">
+              </div>
+
+              <div class="col-md-8">
+                <div class="card-body" style="Height: 200px">
+                  <p class="card-title font-weight-bold" style="Height: 30px;">{{this.ProductName}}</p>
+                  <p class="card-text text-sm mt-4">Tác giả: {{this.Author}}</p>
+                  <p class="card-text text-sm">Giá: <span class="font-weight-bold text-danger">{{this.Price}}</span></p>
+                  <p class="card-text text-sm">Số lượng: {{this.StockQuantity}}</p>
+                </div>
+              </div>
             </div>
-            <div class="card-footer">
-              <!-- Thêm nút thêm vào giỏ hàng -->
-              <input type="number" class="col" name="quantity" id="quantityInput{{this.ProductID}}"
-                min="1" value="1" style="text-align: center;" required />
-              <button type="button" data-product-id="{{this.ProductID}}"
-                class="mt-2 btn-addCart btn btn-danger btn-sm">
-                <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng</button>
+
+            <div class="card-footer d-flex align-items-center mr-2">
+                <!-- Thêm nút thêm vào giỏ hàng -->
+                <input type="number" class="col col-lg-3 pl-3 pr-0" name="quantity" id="quantityInput{{this.ProductID}}"
+                  min="1" value="1" style="text-align: center;" required />
+
+                <button type="button" data-product-id="{{this.ProductID}}"
+                  class="btn-addCart btn btn-danger btn-sm col-lg-9 ml-2">
+                  <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+                </button>
             </div>
           </div>
         </div>

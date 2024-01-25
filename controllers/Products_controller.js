@@ -56,7 +56,7 @@ exports.getSearchBook = async (req, res, next) => {
     {
         res.render("searchBookAdmin", {
             layout: 'admin',
-            title: "Tìm kiếm sản phẩm",
+            title: "Quản lý sản phẩm",
             Username: req.Username,
             _books,
             pages,
