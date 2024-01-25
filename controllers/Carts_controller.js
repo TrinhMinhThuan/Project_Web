@@ -11,8 +11,18 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
     // page
     const { page = 1, limit = 5 } = req.query;
 
-    const cartOfUser = await CartModel.getByUserID_Page(req.user.UserID, page, limit);
+    const _cartOfUser = await CartModel.getByUserID(req.user.UserID);
     let TotalPriceAllItem = 0;
+    let product1 = {};
+    for (let cart of _cartOfUser) {
+        product1 = await ProductModel.getByProductID(cart.ProductID);
+        if(product1){
+            cart.TotalPrice = product1.Price * cart.Quantity;
+            TotalPriceAllItem += cart.TotalPrice;
+        }
+    }
+
+    const cartOfUser = await CartModel.getByUserID_Page(req.user.UserID, page, limit);
     let product = {};
     for (let cart of cartOfUser) {
         product = await ProductModel.getByProductID(cart.ProductID);
@@ -21,7 +31,6 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
             cart.Price = product.Price;
             cart.Author = product.Author;
             cart.TotalPrice = product.Price * cart.Quantity;
-            TotalPriceAllItem += cart.TotalPrice;
         }
     }
 
@@ -186,7 +195,13 @@ exports.Delete = async (req, res, next) => {
     try {
         const ID = req.query.ID;
         const affect = await CartModel.deleteByCartID(ID);
-        res.redirect('/cartBook');
+        const totalItem = await CartModel.countCartByUserID(req.query.UserID);
+        let page = req.query.page;
+        if (totalItem % 5 === 0 && page != 1)
+        {
+            page -= 1;
+        }
+        res.redirect(`/cartBook?page=${page}`);
     } catch (error) {
         next(error);
     }

@@ -47,9 +47,9 @@ exports.getSearchBook = async (req, res, next) => {
         _books[i].Price = _books[i].Price.toLocaleString('vi-VN') + ' đ';
     }
 
-    if (_preview[0]?.Total/4 < req.query.page && _preview[0].Total % 4 === 0)
+    if (_preview[0]?.Total/4 < req.query.page && _preview[0].Total % 4 === 0 && req.query.page != 1)
     {
-        res.redirect(`/admin/?page=1&keyword=${keyword}&type=${type}`);
+        res.redirect(`/admin/?page=${req.query.page-1}&keyword=${keyword}&type=${type}`);
         
     }
     else
@@ -79,7 +79,6 @@ exports.editBook = async (req, res, next) => {
         categoryId = "", stockquantity = "", author = "", publishedyear = "", price = ""
     } = req.body;
 
-    console.log("Test", productId, newProductID);
 
     let newImage = "";
     if (req.file !== undefined && req.file.filename !== undefined) {
@@ -93,7 +92,6 @@ exports.editBook = async (req, res, next) => {
     }
 
     if(newProductID != "" &&  productId != newProductID) {
-        console.log("2 mã khác nhau");
         const checkID = await Book.checkID(newProductID)
         console.log(checkID);
         if(checkID) {

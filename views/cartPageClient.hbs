@@ -31,10 +31,11 @@
                     <td>{{this.Quantity}}</td>
                     <td>{{this.TotalPrice}} VNĐ</td>
                     <td>
-                        <a href="cartBook/delete?ID={{this.CartID}}" class="btn btn-danger"
-                            data-cart-id="{{this.CartID}}">
+                        <button  class="btn btn-delete btn-danger"
+                            data-cart-userId="{{this.UserID}}"
+                            data-cart-delete-id="{{this.CartID}}">
                             <i class="fas fa-trash"></i>
-                        </a>
+                        </button>
                     </td>
                 </tr>
                 {{/each}}
@@ -78,6 +79,19 @@ function updateCurrentPage() {
     currentPage = document.getElementById("pageSelect").value;
 }
 
+ document.querySelectorAll('.btn-delete').forEach(button => {
+    button.addEventListener('click', function (e) {
+      event.preventDefault();
+      updateCurrentPage();
+      const Id = this.getAttribute('data-cart-delete-id');
+      const userId = this.getAttribute('data-cart-userId');
+      
+      const url =  `/cartBook/delete?ID=${Id}&page=${currentPage}&UserID=${userId}`;
+      location.assign(url);
+    })
+  });
+
+
 const selection = document.querySelector(".paging");
 selection?.addEventListener("change", (e) => {
   const url = new URL(window.location.href);
@@ -88,7 +102,7 @@ selection?.addEventListener("change", (e) => {
 });
 const query = new URLSearchParams(window.location.search);
 if (selection) selection.value = query.get("page") || 1;
-
+ 
 
 document.querySelectorAll('.btn-prevStart').forEach(button => {
   button.addEventListener('click', function(e) {

@@ -18,7 +18,14 @@ module.exports = class Carts {
         .query(`SELECT * FROM Carts`);
         return Carts.recordset;
     }
-
+    static async countCartByUserID(UserID)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let Carts = await pool.request()
+        .input('UserID', sql.Int, UserID)
+        .query(`SELECT count(*) as total FROM Carts Where UserID = @UserID`);
+        return Carts.recordset[0].total;
+    }
     static async getByUserID(userID)
     {
         let pool = await sql.connect(databaseConnection);
