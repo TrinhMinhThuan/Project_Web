@@ -26,11 +26,16 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
     let product = {};
     for (let cart of cartOfUser) {
         product = await ProductModel.getByProductID(cart.ProductID);
-        if (product) {
+        if (product != undefined) {
             cart.ProductName = product.ProductName;
             cart.Price = product.Price;
             cart.Author = product.Author;
             cart.TotalPrice = product.Price * cart.Quantity;
+        }
+        else
+        {
+            cart.Price = 0;
+            cart.TotalPrice = 0;
         }
     }
 
@@ -62,7 +67,7 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
 exports.Pay = async (req, res, next) => {
 
     try {
-        const user = req.user;
+        const user = await UserModel.getUserByUserID(req.user.UserID);
         const BalanceClient = user.Balance;
         const admin = await UserModel.getAdminUser();
         const BalanceAdmin = admin.Balance;

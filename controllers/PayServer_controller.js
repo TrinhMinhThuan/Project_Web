@@ -174,9 +174,6 @@ exports.Pay = async (req, res, next) => {
                     res.json({ _status: false, _errorCode: 1, _errorMsg: 'Thông tin tài khoản có sai sót, vui lòng đăng nhập lại!' });
                 }
                 else {
-                    //todo code
-
-       
                     _UserID = _decoded.UserID;
                     
                 }
@@ -190,11 +187,19 @@ exports.Pay = async (req, res, next) => {
 
                     for (let cart of cartOfUser) {
                         product = await ProductModel.getByProductID(cart.ProductID);
+                        if (product == undefined)
+                        {
+                            res.json({ _status: false, _errorCode: 4, 
+                                _errorMsg: `Sản phẩm có ID ${cart.ProductID} không còn đã không còn kinh doanh nữa,
+                                 quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
+                                return;
+                        }
                         if( product.StockQuantity < cart.Quantity)
                         {
                             res.json({ _status: false, _errorCode: 14, 
                                 _errorMsg: `Sản phẩm ${product.ProductName} có số lượng tồn là ${product.StockQuantity}
                                  nên không đủ để thục hiện giao dịch, quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
+                                 return;
                         }
                     }
 
