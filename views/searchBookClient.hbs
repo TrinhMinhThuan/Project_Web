@@ -49,15 +49,18 @@
               </div>
             </div>
 
-            <div class="card-footer d-flex align-items-center mr-2">
-                <!-- Thêm nút thêm vào giỏ hàng -->
-                <input type="number" class="quantityInput col col-lg-3 pl-3 pr-0" name="quantity" id="quantityInput{{this.ProductID}}"
+            <div class="card-footer d-flex align-items-center">
+              <div class="row w-100 pl-2" >
+                <input type="number" class="col-md quantityInput mt-2 ml-2 " name="quantity" id="quantityInput{{this.ProductID}}"
                   min="1" value="1" style="text-align: center;" required />
 
                 <button type="button" data-product-id="{{this.ProductID}}"
-                  class="btn-addCart btn btn-danger btn-sm col-lg-9 ml-2">
+                  class="col-md-8 btn-addCart btn btn-danger btn-sm ml-2 mt-2" style="margin-right: -12px;">
                   <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
-                </button>
+                </button> 
+              </div>
+                <!-- Thêm nút thêm vào giỏ hàng -->
+                
             </div>
           </div>
         </div>
