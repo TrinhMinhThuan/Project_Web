@@ -45,6 +45,14 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <script>
+
+
+    let _id1 = document.getElementById('yearInput1');     // Năm thống kê
+    let _id = document.getElementById('yearInput');      // Năm bắt đầu
+    function handleInvalidInput(input, errorMessage) { 
+      input.setCustomValidity(errorMessage);
+      input.reportValidity();
+    }
     // Cấu hình biểu đồ
     var options = {
         scales: {
@@ -74,13 +82,16 @@
         const currentYear = new Date().getFullYear();
 
         if (selectedYear == "") {
-            alert('Vui lòng nhập năm thống kê');
-            return;
+            handleInvalidInput(_id1, 'Vui lòng nhập năm thống kê.');
+            return ;
+         
         }
         if (selectedYear > currentYear) {
-            alert('Vui lòng nhập năm không vượt quá thời điểm hiện tại.');
-            return;
+            handleInvalidInput(_id1, 'Vui lòng nhập năm không vượt quá thời điểm hiện tại.');
+            return ;
         }
+
+
         // Gửi yêu cầu AJAX để lấy dữ liệu từ máy chủ
         $.ajax({
             url: '/admin/getStatisticalData-Admin',
@@ -109,13 +120,13 @@
         const currentYear = new Date().getFullYear();
 
         if (selectedYear == "") {
-            alert('Vui lòng nhập năm bắt đầu thống kê');
-            return;
+            handleInvalidInput(_id, 'Vui lòng nhập năm bắt đầu.');
+            return ;
+         
         }
-
         if (selectedYear > currentYear) {
-            alert('Vui lòng nhập năm không vượt quá thời điểm hiện tại.');
-            return;
+            handleInvalidInput(_id, 'Vui lòng nhập năm không vượt quá thời điểm hiện tại.');
+            return ;
         }
         // Gửi yêu cầu AJAX để lấy dữ liệu từ máy chủ
         $.ajax({

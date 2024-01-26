@@ -54,6 +54,15 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <script>
+
+
+  let month_Input = document.getElementById('monthInput');
+  let year_Input = document.getElementById('yearInput');
+  
+  function handleInvalidInput(input, errorMessage) { 
+      input.setCustomValidity(errorMessage);
+      input.reportValidity();
+  }
   // Cấu hình biểu đồ
   var options = {
     scales: {
@@ -84,13 +93,18 @@
     const currentMonth = new Date().getMonth() + 1;
 
     if (selectedYear == "") {
-      alert('Vui lòng chọn năm');
-      return;
+      handleInvalidInput(year_Input, 'Vui lòng nhập năm');
+      return ;
+    }
+    if(selectedYear > currentYear){
+      handleInvalidInput(year_Input, 'Vui lòng nhập năm không vượt quá thời điểm hiện tại');
+      return ;
     }
 
-    if (selectedYear > currentYear || (selectedYear == currentYear && selectedMonth > currentMonth)) {
-      alert('Vui lòng chọn tháng và năm không vượt quá thời điểm hiện tại.');
-      return;
+    if (selectedYear == currentYear && selectedMonth > currentMonth) {
+      handleInvalidInput(month_Input, 'Vui lòng chọn tháng không vượt quá thời điểm hiện tại');
+      return ;
+      
     }
     // Gửi yêu cầu AJAX để lấy dữ liệu từ máy chủ
     $.ajax({
@@ -120,14 +134,14 @@
     const currentYear = new Date().getFullYear();
 
     if (selectedYear == "") {
-      alert('Vui lòng chọn năm');
-      return;
+      handleInvalidInput(year_Input, 'Vui lòng nhập năm');
+      return ;
+    }
+    if(selectedYear > currentYear){
+      handleInvalidInput(year_Input, 'Vui lòng nhập năm không vượt quá thời điểm hiện tại');
+      return ;
     }
 
-    if (selectedYear > currentYear ) {
-      alert('Vui lòng chọn Năm không vượt quá thời điểm hiện tại.');
-      return;
-    }
     // Gửi yêu cầu AJAX để lấy dữ liệu từ máy chủ
     $.ajax({
       url: '/getStatisticalData',
