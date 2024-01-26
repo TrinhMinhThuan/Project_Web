@@ -15,7 +15,7 @@ exports.getSearchCategories = async (req, res, next) => {
  
   res.render("searchCategoriesAdmin", {
     layout: 'admin',
-    title: "Quản lý danh mục",
+    title: "Danh sách danh mục",
     Username: req.Username,
     admin: true,
     _Categories,
