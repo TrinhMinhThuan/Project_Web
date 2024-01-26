@@ -33,7 +33,7 @@
         {{#if _books.length}}
         {{#each _books}}
         <div class="col-md-10 col-lg-6 col-sm-8 mt-4">
-          <div class="card">
+          <div class="card" data-card-id="{{this.ProductID}}">
             <div class="row">
               <div class="col-md-4 d-flex align-items-center">
                 <img src="/Images/{{this.Image}}" height="200px" class="card-img-top img-fluid" alt="Ảnh sách">
@@ -44,7 +44,7 @@
                   <p class="card-title font-weight-bold" style="Height: 30px;">{{this.ProductName}}</p>
                   <p class="card-text text-sm mt-4">Tác giả: {{this.Author}}</p>
                   <p class="card-text text-sm">Giá: {{this.Price}}</p>
-                  <p class="card-text text-sm">Số lượng: {{this.StockQuantity}}</p>
+                  <p class="card-text text-sm">Số lượng: <span class="font-weight-bold">{{this.StockQuantity}}</span></p>
                 </div>
               </div>
             </div>
@@ -217,6 +217,7 @@ document.querySelectorAll('.btn-next').forEach(button => {
   // Edit
   document.querySelectorAll('.btn-edit').forEach(button => {
     button.addEventListener('click', function () {
+      event.stopPropagation();
       event.preventDefault();
       const productID = this.getAttribute('data-product-id');
       window.location.href = `/admin/book/edit/${productID}`;
@@ -227,6 +228,7 @@ document.querySelectorAll('.btn-next').forEach(button => {
   // Delete vs ajax
 document.querySelectorAll('.btn-delete').forEach(button => {
   button.addEventListener('click', function() {
+    event.stopPropagation();
     event.preventDefault();
     const Id = this.getAttribute('data-product-id');
     const deleteUrl = `/admin/product/delete?ID=${Id}`;
@@ -255,5 +257,10 @@ function updateUI() {
     location.reload();
 }
 
-
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', function () {
+      const productID = this.getAttribute('data-card-id');
+      window.location.href = `/admin/detailBook/${productID}`;
+    });
+  });
 </script>

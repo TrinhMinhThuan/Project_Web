@@ -19,7 +19,7 @@ module.exports = class Book
     static async getAll()
     {
         let pool = await sql.connect(databaseConnection);
-        let books = await pool.request().query("SELECT * FROM Users");
+        let books = await pool.request().query("SELECT * FROM Products");
         return books.recordset;
     }
     static async deleteProductByProductID(ID)
@@ -56,6 +56,15 @@ module.exports = class Book
         .query(`SELECT * FROM Products WHERE ProductID = @proID`);
         return Products.recordset[0];
     }
+    static async getByCategoryID(catID)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let Products = await pool.request()
+        .input('catID', sql.Int, catID)
+        .query(`SELECT * FROM Products WHERE CategoryID = @catID`);
+        return Products.recordset;
+    }
+
     // Search theo key và phân trang
     static async search(options)
     {

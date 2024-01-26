@@ -1,0 +1,134 @@
+<section>
+    <div class="card p-4 mb-2">
+        <div class="row">
+            <div class="col-md-3">
+                <img src="/Images/{{book.Image}}" height="300px" alt="Ảnh sách">
+            </div>
+    
+            <div class="col col-md-8 mt-2 ml-2">
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">ID</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{book.ProductID}}">
+                    </div>
+                </div>
+        
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Tên sản phẩm</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{book.ProductName}}">
+                    </div>
+                </div> 
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Tác giả</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{book.Author}}">
+                    </div>
+                </div>
+    
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Danh mục</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{categoryName}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Năm xuất bản</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{book.PublishedYear}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Giá</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{book.Price}}">
+                    </div>
+                </div> 
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Số lượng</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{book.StockQuantity}}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-center mt-5">
+            <button id="deleteItem" type="button" data-product-id="{{book.ProductID}}"
+                class="btn btn-danger btn-sm btn-delete" style="width: 90px; height: 40px; font-size: 1.1em;"><i class="fas fa-trash"></i> Xóa</button>
+            
+            <button type="button" data-product-id="{{book.ProductID}}" class="btn btn-edit btn-primary btn-sm ml-3 btn-edit"
+                style="width: 90px; height: 40px; font-size: 1.1em;"> <i class="fas fa-edit"></i>  Sửa</button>
+        </div>
+    </div>
+</section>
+
+<script>
+
+    document.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', function () {
+            event.stopPropagation();
+            event.preventDefault();
+            const productID = this.getAttribute('data-product-id');
+            window.location.href = `/admin/book/edit/${productID}`;
+        });
+    });
+
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', function() {
+            event.stopPropagation();
+            event.preventDefault();
+            const Id = this.getAttribute('data-product-id');
+            const deleteUrl = `/admin/product/delete?ID=${Id}`;
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('DELETE', deleteUrl, true);
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        window.location.href = `/admin?deleteRedirect=true`;
+                        console.log('Dữ liệu đã được xóa thành công!');
+                    } else {
+                        console.error('Lỗi xóa dữ liệu:', xhr.statusText);
+                    }
+                }
+            };
+
+            xhr.send();
+        });
+    });
+
+</script>

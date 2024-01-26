@@ -1,0 +1,185 @@
+<section>
+    <div class="card p-4 mb-2">
+        <div class="row">
+            <div class="col-md-3">
+                <img src="/Images/{{book.Image}}" height="300px" alt="Ảnh sách">
+            </div>
+    
+            <div class="col col-md-8 mt-2 ml-2">
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">ID</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{book.ProductID}}">
+                    </div>
+                </div>
+        
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Tên sản phẩm</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{book.ProductName}}">
+                    </div>
+                </div> 
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Tác giả</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{book.Author}}">
+                    </div>
+                </div>
+    
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Danh mục</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{categoryName}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Năm xuất bản</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{book.PublishedYear}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Giá</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0 font-weight-bold text-danger"
+                            value="{{book.Price}}">
+                    </div>
+                </div> 
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <p class="mb-0 font-weight-bold">Số lượng</p>
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <input style="border: none; outline: none;" readonly class=" w-100 mb-0"
+                            value="{{book.StockQuantity}}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-4">
+            <div class="row mt-5 d-flex justify-content-between">
+                <label class="form-label col-7 m-0">Nhập số lượng: </label>
+                
+                <input type="number" class="pl-3 col-4 mr-2 pr-0" name="quantity" id="quantityInput{{book.ProductID}}"
+                    min="1" value="1" style="text-align: center;" required />
+            </div>
+
+            <div class="row mt-2 mr-1">
+                <button type="button" data-product-id="{{book.ProductID}}"
+                    class="btn-addCart btn btn-danger btn-sm ml-2">
+                    <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+                </button>
+            </div>
+        </div>
+    </div>
+    
+
+    <h5 class="mt-5 fw-bold">Sản phẩm tương tự</h5>
+
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            {{#if relatedBooks.length}}
+            {{#each relatedBooks}}
+                <div class="col-md-10 col-lg-6 col-sm-8 mt-4">
+                    <div class="card related-card" data-card-id="{{this.ProductID}}">
+                        <div class="row">
+                            <div class="col-md-4 d-flex align-items-center" style="max-height:200px; max-width:100%; overflow: hidden; display:flex; justify-content: flex-start;">
+                                <img src="/Images/{{this.Image}}" style="max-height: 100%; max-width:100%; object-fit:contain;" class="card-img-top" alt="Ảnh sách">
+                            </div>
+
+                            <div class="col-md-8">
+                                <div class="card-body" style="max-height:200px;">
+                                <p class="card-title font-weight-bold" style="height: 30px;">{{this.ProductName}}</p>
+                                <p class="card-text text-sm mt-4">Tác giả: {{this.Author}}</p>
+                                <p class="card-text text-sm">Giá: <span class="font-weight-bold text-danger">{{this.Price}}</span></p>
+                                <p class="card-text text-sm">Số lượng: {{this.StockQuantity}}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer d-flex align-items-center mr-2">
+                            <input type="number" class="quantityInput col col-lg-3 pl-3 pr-0" name="quantity" id="quantityInput{{this.ProductID}}"
+                                min="1" value="1" style="text-align: center;" required />
+
+                            <button type="button" data-product-id="{{this.ProductID}}"
+                                class="btn-addCart btn btn-danger btn-sm col-lg-9 ml-2">
+                                <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+                            </button>
+                        </div>
+                    </div>
+                </div>   
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
+
+    <style>
+        .related-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: scale(1.05);
+            cursor: pointer;
+        }
+  </style>
+</section>
+
+<script>
+    document.querySelectorAll('.quantityInput').forEach(inp => {
+        inp.addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+    });
+
+    document.querySelectorAll('.btn-addCart').forEach(button => {
+        button.addEventListener('click', function () {
+            event.stopPropagation();
+            event.preventDefault();
+
+            const productID = this.getAttribute('data-product-id');
+
+            var quantityValue = document.getElementById(`quantityInput${productID}`).value;
+            const url = new URL(`/cartBook/addCart/${productID}`, window.location.href);
+            const query = new URLSearchParams(window.location.search);
+            query.set("quantity", quantityValue);
+            url.search = query;
+            location.assign(url.href);
+        });
+    });
+
+    document.querySelectorAll('.related-card').forEach(card => {
+    card.addEventListener('click', function () {
+      const productID = this.getAttribute('data-card-id');
+      
+      window.location.href = `/detailBook/${productID}`;
+    });
+  });
+
+</script>

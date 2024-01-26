@@ -33,15 +33,15 @@
         {{#if _books.length}}
         {{#each _books}}
         <div class="col-md-10 col-lg-6 col-sm-8 mt-4">
-          <div class="card">
+          <div class="card" data-card-id="{{this.ProductID}}">
             <div class="row">
-              <div class="col-md-4 d-flex align-items-center">
-                <img src="/Images/{{this.Image}}" height="200px" class="card-img-top img-fluid" alt="Ảnh sách">
+              <div class="col-md-4 d-flex align-items-center" style="max-height:200px; max-width:100%; overflow: hidden; display:flex; justify-content: flex-start;">
+                <img src="/Images/{{this.Image}}" style="max-height: 100%; max-width:100%; object-fit:contain;" class="card-img-top" alt="Ảnh sách">
               </div>
-
+             
               <div class="col-md-8">
-                <div class="card-body" style="Height: 200px">
-                  <p class="card-title font-weight-bold" style="Height: 30px;">{{this.ProductName}}</p>
+                <div class="card-body" style="max-height: 200px">
+                  <p class="card-title font-weight-bold" style="height: 30px;">{{this.ProductName}}</p>
                   <p class="card-text text-sm mt-4">Tác giả: {{this.Author}}</p>
                   <p class="card-text text-sm">Giá: <span class="font-weight-bold text-danger">{{this.Price}}</span></p>
                   <p class="card-text text-sm">Số lượng: {{this.StockQuantity}}</p>
@@ -51,7 +51,7 @@
 
             <div class="card-footer d-flex align-items-center mr-2">
                 <!-- Thêm nút thêm vào giỏ hàng -->
-                <input type="number" class="col col-lg-3 pl-3 pr-0" name="quantity" id="quantityInput{{this.ProductID}}"
+                <input type="number" class="quantityInput col col-lg-3 pl-3 pr-0" name="quantity" id="quantityInput{{this.ProductID}}"
                   min="1" value="1" style="text-align: center;" required />
 
                 <button type="button" data-product-id="{{this.ProductID}}"
@@ -113,7 +113,8 @@
   document.querySelector(".option-2").value = query.get("category") || 0;
   // Add cart
   document.querySelectorAll('.btn-addCart').forEach(button => {
-    button.addEventListener('click', function () {
+    button.addEventListener('click', function (event) {
+      event.stopPropagation();
       event.preventDefault();
 
       const productID = this.getAttribute('data-product-id');
@@ -226,5 +227,19 @@ document.querySelectorAll('.btn-next').forEach(button => {
 
     // Chuyển hướng trang
     location.assign(url.href);
+  });
+
+
+  document.querySelectorAll('.quantityInput').forEach(inp => {
+    inp.addEventListener('click', function (event) {
+      event.stopPropagation();
+    });
+  });
+
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', function () {
+      const productID = this.getAttribute('data-card-id');
+      window.location.href = `/detailBook/${productID}`;
+    });
   });
 </script>

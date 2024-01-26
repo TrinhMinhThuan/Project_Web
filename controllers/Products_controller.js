@@ -5,6 +5,14 @@ const Orders = require('../models/Orders_model');
 //admin
 exports.getSearchBook = async (req, res, next) => {
 
+    if(req.query.deleteRedirect == 'true')
+    {
+        res.redirect(req.session.currentLocation);
+        return;
+    }
+
+    req.session.currentLocation = req.originalUrl;
+   
     const { keyword = "", minPrice = "", maxPrice = "", category = 0,type = "ProductName", page = 1, limit = 4 } = req.query;
     const categories = await Categories.getAll();
     const _books = await Book.search({
@@ -297,8 +305,6 @@ exports.gethotBook_client = async (req, res, next) => {
     });
 }
 
-
-
 exports.getSearchBook_client = async (req, res, next) => {
     const { keyword = "", minPrice = "", maxPrice = "", category = 0,type = "ProductName", page = 1, limit = 4 } = req.query;
     const categories = await Categories.getAll();
@@ -366,7 +372,6 @@ exports.getSearchBook_client = async (req, res, next) => {
     
 }
 
-
 exports.deleteProduct = async (req, res, next) => {
     const Id = req.query.ID;
     const book = await Book.getByProductID(Id);
@@ -378,4 +383,61 @@ exports.deleteProduct = async (req, res, next) => {
       res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });
     } finally {
     }
-  }
+}
+
+function randomRelatedBooks(srcRelatedBooks) {
+    if(srcRelatedBooks.length <= 6)
+    {
+        return srcRelatedBooks;
+    }
+    
+    let relatedBooks = srcRelatedBooks.slice();
+    let result = [];
+
+    for (let i = 0; i < 6; i++) {
+        let randomIndex = Math.floor(Math.random() * relatedBooks.length);
+        result.push(relatedBooks[randomIndex]);
+        relatedBooks.splice(randomIndex, 1);
+    }
+  
+    return result;
+}
+
+exports.getDetailBook = async (req, res) => {
+    const {productId} = req.params;
+    const book = await Book.getByProductID(productId);
+    const category = await Categories.searchID(book.CategoryID);
+    book.Price = book.Price.toLocaleString('vi-VN') + ' đ';
+    
+    res.render('productDetailAdmin', {
+        layout: 'admin',
+        admin: true,
+        Username: req.Username,
+        book,
+        categoryName: category.CategoryName,
+        title: 'Chi tiết sản phẩm'
+    });
+}
+
+exports.getDetailBook_client = async (req, res, next) => {
+    const {productId} = req.params;
+    const book = await Book.getByProductID(productId);
+    const category = await Categories.searchID(book.CategoryID);
+    let relatedBooks = await Book.getByCategoryID(book.CategoryID);
+    relatedBooks = relatedBooks.filter(item => item.ProductID != productId);
+    relatedBooks = randomRelatedBooks(relatedBooks);
+
+    book.Price = book.Price.toLocaleString('vi-VN') + ' đ';
+    for (var i = 0; i < relatedBooks.length; i++) {
+        relatedBooks[i].Price = relatedBooks[i].Price.toLocaleString('vi-VN') + ' đ';
+    }
+
+    res.render('productDetailClient', {
+        layout: 'customer',
+        Username: req.Username,
+        book,
+        categoryName: category.CategoryName,
+        relatedBooks,
+        title: 'Chi tiết sản phẩm'
+    });
+}
