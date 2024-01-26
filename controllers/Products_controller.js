@@ -2,6 +2,7 @@ const Book = require('../models/Products_model');
 const Categories = require('../models/Categories_model');
 const Order_Detail = require('../models/Order_Detail_model');
 const Orders = require('../models/Orders_model');
+const Carts = require('../models/Carts_model');
 //admin
 exports.getSearchBook = async (req, res, next) => {
 
@@ -125,10 +126,15 @@ exports.editBook = async (req, res, next) => {
             });
         }
         else {
-            if(_product.CategoryID != newProductID){
+            if(_product.CategoryID != categoryId){
                 // Giảm số lượng sách của thể loại cũ, tăng thêr loại mới
                 await Categories.updateCategoryQuantity(newProduct.categoryId);
                 await Categories.update_CategoryQuantity(_product.CategoryID);
+            }
+            // Chỉnh sửa lại id trong cart vs orderdetail
+            if(productId != newProductID){
+                await Carts.EditCartsByProductID(productId,newProductID);
+                await Order_Detail.EditOrderDetailByProductID(productId,newProductID);
             }
             res.render("truePage", {
                 layout: 'admin',

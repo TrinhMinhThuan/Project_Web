@@ -100,4 +100,19 @@ module.exports = class Orders
         return check.recordset;
     }
 
+    static async EditOrderDetailByProductID(productid, newProductid){
+        let pool = await sql.connect(databaseConnection);
+        let edit = await pool.request()
+        .input('productid', sql.Int, productid)
+        .input('newProductid', sql.Int, newProductid)
+        .query(`UPDATE Order_Detail
+        SET ProductID = @newProductid
+        WHERE ProductID = @productid`);
+        if (edit.rowsAffected[0] > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

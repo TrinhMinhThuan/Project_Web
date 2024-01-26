@@ -34,7 +34,10 @@ module.exports = class TopUp
         let row = await pool
             .request()
             .query("SELECT TOP(1) * FROM TopUp ORDER BY TopUpID DESC");
-        return row.recordset[0].TopUpID;
+        if(row.recordset.length > 0)
+            return row.recordset[0].TopUpID;
+        else
+            return undefined;
     }
     
     

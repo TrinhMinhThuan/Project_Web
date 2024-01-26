@@ -83,6 +83,20 @@ module.exports = class Carts {
         .query('DELETE FROM Carts WHERE CartID = @Id');
         return deletee.rowsAffected[0];
     }
+    static async EditCartsByProductID(productid, newProductid){
+        let pool = await sql.connect(databaseConnection);
+        let edit = await pool.request()
+        .input('productid', sql.Int, productid)
+        .input('newProductid', sql.Int, newProductid)
+        .query(`UPDATE Carts
+        SET ProductID = @newProductid
+        WHERE ProductID = @productid`);
+        if (edit.rowsAffected[0] > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     static async addCart(options){
         let pool = await sql.connect(databaseConnection);
         let add = await pool.request()
