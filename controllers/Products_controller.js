@@ -60,6 +60,10 @@ exports.getSearchBook = async (req, res, next) => {
     {
         res.redirect(`/admin/?page=${req.query.page-1}&keyword=${keyword}&type=${type}`);
     }
+    else if (_preview[0]?.Total/4 < req.query.page - 1 && req.query.page != 1)
+    {
+        res.redirect(`/admin/searchBook-Admin?page=1&keyword=${keyword}&type=${type}`);
+    }  
     else
     {
         res.render("searchBookAdmin", {
