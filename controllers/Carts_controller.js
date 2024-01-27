@@ -157,7 +157,7 @@ exports.addCart = async (req, res, next) => {
             let check = 0;
             for (let cart of _Cart) {
                 if (BookID == cart.ProductID && UserID == cart.UserID) {
-                    if (cart.Quantity + quantity > quantity)
+                    if (cart.Quantity + parseInt(quantity, 10) > product.StockQuantity)
                     {
                         res.render("errorPage", {
                             layout: 'customer',
