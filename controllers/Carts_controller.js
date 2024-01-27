@@ -103,6 +103,10 @@ exports.Pay = async (req, res, next) => {
             product = await ProductModel.getByProductID(cart.ProductID);
             if (product == undefined)
             {
+                const OrderID = await OrderModel.create(req.user.UserID, TotalPriceAllItem, 'Failed'); //Tạo hóa đơn
+                for (let cart of cartOfUser) {
+                    await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
+                }
                 res.render( 'errorPage', { layout: 'customer', 
                 Username: req.Username,
                     error: `Sản phẩm có ID ${cart.ProductID} không còn đã không còn kinh doanh nữa,
@@ -112,7 +116,10 @@ exports.Pay = async (req, res, next) => {
             }
             else if( product.StockQuantity < cart.Quantity)
             {
-                
+                const OrderID = await OrderModel.create(req.user.UserID, TotalPriceAllItem, 'Failed'); //Tạo hóa đơn
+                for (let cart of cartOfUser) {
+                    await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
+                }
                 res.render('errorPage', {layout: 'customer', 
                 Username: req.Username,
 
@@ -194,6 +201,7 @@ exports.Pay = async (req, res, next) => {
         }
 
     } catch (error) {
+        
         next(error);
     }
 
