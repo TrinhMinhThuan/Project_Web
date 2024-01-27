@@ -122,7 +122,7 @@ function updateCurrentPage() {
 
     var minValue = document.getElementsByName("minPrice")[0].value;
     var maxValue = document.getElementsByName("maxPrice")[0].value;
-    if(minValue > maxValue){
+    if(parseInt(minValue) > parseInt(maxValue)){
       handleInvalidInput(min_Price, "Giá trị min không vượt quá giá trị max.");
       return;
     }
@@ -221,7 +221,7 @@ document.querySelectorAll('.btn-next').forEach(button => {
       query.delete("maxPrice");
     }
     else{
-      if(minValue > maxValue){
+      if(parseInt(minValue) > parseInt(maxValue)){
       handleInvalidInput(min_Price, "Giá trị min không vượt quá giá trị max.");
       return;
       }
