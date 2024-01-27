@@ -9,7 +9,7 @@ exports.orderDetail = async (req, res, next) => {
     const _orderDetail = await  OrderDetailModel.getByOrderID(req.query.ID);
     let TotalPriceAllItem = 0;
     for (let detail of _orderDetail) {
-        TotalPriceAllItem += detail.Price;
+        TotalPriceAllItem += detail.Price * detail.Quantity;
     }
     
     const orderDetail = await  OrderDetailModel.getByOrderID_Page(req.query.ID, page, limit);
@@ -17,11 +17,12 @@ exports.orderDetail = async (req, res, next) => {
     let product = {};
     for (let detail of orderDetail) {
         product = await ProductModel.getByProductID(detail.ProductID);
+        detail.PriceOne = detail.Price;
         if (product)
         {
             detail.ProductName = product.ProductName;
-            detail.PriceOne = product.Price;
             detail.Author = product.Author;
+            detail.TotalAmout = detail.PriceOne * detail.Quantity;
         }
     }
 

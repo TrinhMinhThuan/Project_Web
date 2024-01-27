@@ -83,16 +83,11 @@ CREATE TABLE [dbo].[PaymentAccount](
 	[Balance] [int] NULL
 ) ON [PRIMARY]
 GO
+INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (1, 500000)
+INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (2, 500000)
+INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (3, 500000)
+INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (4, 500000)
+INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (5, 500000)
+INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (6, 500000)
 
-
-INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (1, 1139600)
-INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (2, 300000)
-INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (3, 2000000)
-INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (4, 800000)
-INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (5, 0)
-INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (6, 0)
-INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (7, 0)
-INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (8, 0)
-INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (9, 0)
-INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (10, 19754000)
 GO
