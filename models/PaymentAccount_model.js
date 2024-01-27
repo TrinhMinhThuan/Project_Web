@@ -1,6 +1,6 @@
 const sql = require("mssql");
 
-const databaseConnection = require('../utils/database');
+const databaseConnection = require('../utils/database_payment');
 
 module.exports = class PaymentAccount {
     constructor(UserID, Balance)

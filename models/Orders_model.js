@@ -18,7 +18,7 @@ module.exports = class Orders {
     }
 
 
-    static async create(UserID, TotalAmount) {
+    static async create(UserID, TotalAmount, Status) {
 
         const currentDate = new Date();
        
@@ -39,7 +39,8 @@ module.exports = class Orders {
             .input("UserID", sql.Int, UserID)
             .input("OrderDate", sql.DateTime, currentDate)
             .input("TotalAmount", sql.Int, TotalAmount)
-            .query("INSERT INTO Orders VALUES (@OrderID, @UserID, @OrderDate, @TotalAmount)");
+            .input("Status", sql.NVarChar, Status)
+            .query("INSERT INTO Orders VALUES (@OrderID, @UserID, @OrderDate, @TotalAmount, @Status)");
         return id;
 
     }

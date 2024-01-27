@@ -1,6 +1,9 @@
 
 const CartModel = require('../models/Carts_model');
 const ProductModel = require('../models/Products_model');
+const UserModel = require('../models/Users_model');
+const OrderModel = require('../models/Orders_model');
+const OrderDetailModel = require('../models/Order_Detail_model');
 const https = require('https');
 const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
@@ -92,12 +95,53 @@ exports.Pay = async (req, res, next) => {
     try {
 
 
+        const cartOfUser = await CartModel.getByUserID(req.user.UserID);
+        let TotalPriceAllItem = 0;
+        let product = {};
 
+        for (let cart of cartOfUser) {
+            product = await ProductModel.getByProductID(cart.ProductID);
+            if (product == undefined)
+            {
+                res.render( 'errorPage', { layout: 'customer', 
+                Username: req.Username,
+                    error: `Sản phẩm có ID ${cart.ProductID} không còn đã không còn kinh doanh nữa,
+                     quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
+                     
+                    return;
+            }
+            else if( product.StockQuantity < cart.Quantity)
+            {
+                
+                res.render('errorPage', {layout: 'customer', 
+                Username: req.Username,
 
+                    error: `Sản phẩm ${product.ProductName} có số lượng tồn là ${product.StockQuantity}
+                     nên không đủ để thục hiện giao dịch, quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
+                     return;
+            }
+        }
 
+        for (let cart of cartOfUser) {
+            product = await ProductModel.getByProductID(cart.ProductID);
+            cart.ProductName = product.ProductName;
+            cart.Price = product.Price;
+            cart.Author = product.Author;
+            cart.TotalPrice = product.Price * cart.Quantity;
+            TotalPriceAllItem += cart.TotalPrice;
+        }
+
+        let Infor = {};
         const key = process.env.PRIVATE_KEY;
 
-        const UserID = jwt.sign({ UserID: req.user.UserID }, key, { expiresIn: '1h' });
+        Infor.UserID = req.user.UserID;
+        const AdminAccount = await UserModel.getAdminUser();
+        
+        Infor.AdminID = AdminAccount.UserID;
+        
+        Infor.TotalPriceAllItem = TotalPriceAllItem;
+
+        const Info = jwt.sign({ Infor }, key, { expiresIn: '1h' });
 
         const PAY_PORT = process.env.PAY_SERVER_PORT;
         const agent = new https.Agent({
@@ -112,20 +156,36 @@ exports.Pay = async (req, res, next) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ UserID, secret }),
+            body: JSON.stringify({ Info, secret }),
         });
 
 
         const resJson = await _fetch.json();
 
         if (resJson._status == false) {
+
+            const OrderID = await OrderModel.create(req.user.UserID, TotalPriceAllItem, 'Failed'); //Tạo hóa đơn
+            for (let cart of cartOfUser) {
+                await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
+            }
+
+
             res.render('errorPage', {
                 layout: 'customer',
                 Username: req.Username,
                 error: resJson._errorMsg
             });
         }
-        else {
+        else { // Trường hợp đã thành công
+
+            await CartModel.deleteByUserID(req.user.UserID); // Xóa khỏi cart
+            const OrderID = await OrderModel.create(req.user.UserID, TotalPriceAllItem, 'Success'); //Tạo hóa đơn
+            for (let cart of cartOfUser) {
+                await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
+                await ProductModel.updateStockQuantityByProductID(cart.ProductID, -cart.Quantity); // Update số lượng sản phẩm
+
+            }
+
             res.render('truePage', {
                 Username: req.Username,
                 layout: 'customer',
@@ -153,7 +213,7 @@ exports.addCart = async (req, res, next) => {
         
         const quantity = req.query.quantity;
         if (quantity <= product.StockQuantity) {
-            let check = 0;
+            let check = 0; 
             for (let cart of _Cart) {
                 if (BookID == cart.ProductID && UserID == cart.UserID) {
                     if (cart.Quantity + parseInt(quantity) > product.StockQuantity)
