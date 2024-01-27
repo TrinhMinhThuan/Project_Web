@@ -1,10 +1,8 @@
 
 const jwt = require("jsonwebtoken");
 const UserModel = require('../models/Users_model');
-const CartModel = require('../models/Carts_model');
-const ProductModel = require('../models/Products_model');
-const OrderModel = require('../models/Orders_model');
-const OrderDetailModel = require('../models/Order_Detail_model');
+
+const PaymentAccountModel = require('../models/PaymentAccount_model');
 
 exports.createUser = async (req, res, next) => {
     try {
@@ -22,17 +20,17 @@ exports.createUser = async (req, res, next) => {
                 decoded = _decoded.secret;
             }
         });
-        
+
         if (decoded === secret) {
-            jwt.verify(token.user, key, async function (_err, _decoded) {
+            jwt.verify(token.UserID, key, async function (_err, _decoded) {
                 if (_err) {
                     console.log(_err);
                     res.json({ _status: false });
                 }
                 else {
                     //todo code
-                    let create = await UserModel.createAccount(_decoded);
-                    if (!create) {
+                    let createPay = await PaymentAccountModel.createPaymentAccountByUserID(_decoded.UserID);
+                    if (!createPay) {
                         res.json({ _status: false });
                     }
                     else {
@@ -70,7 +68,7 @@ exports.deleteUser = async (req, res, next) => {
                 decoded = _decoded.secret;
             }
         });
-        
+
         if (decoded === secret) {
             jwt.verify(token.userId, key, async function (_err, _decoded) {
                 if (_err) {
@@ -117,7 +115,7 @@ exports.editUser = async (req, res, next) => {
                 decoded = _decoded.secret;
             }
         });
-        
+
         if (decoded === secret) {
             jwt.verify(token.input, key, async function (_err, _decoded) {
                 if (_err) {
@@ -156,11 +154,17 @@ exports.Pay = async (req, res, next) => {
         const secret = process.env.SERVER_SECRET;
         let decoded;
         let _UserID = -1;
+        let _AdminID = -1;
+        let TotalPriceAllItem = 0;
+        let PaymentAdmin = {}; 
+        let BalanceAdmin = 0;
+        let PaymentClient = {};   
+        let BalanceClient = 0;
         jwt.verify(token.secret, key, function (err, _decoded) {
             if (err) {
 
                 console.log("error");
-                res.json({ _status: false, _errorCode: 0,_errorMsg: 'Token không hợp lệ!' });
+                res.json({ _status: false, _errorCode: 0, _errorMsg: 'Token không hợp lệ!' });
             }
             else {
                 decoded = _decoded.secret;
@@ -168,82 +172,56 @@ exports.Pay = async (req, res, next) => {
         });
 
         if (decoded === secret) {
-            jwt.verify(token.UserID, key, function (_err, _decoded) {
+            jwt.verify(token.Info, key, function (_err, _decoded) {
                 if (_err) {
                     console.log(_err);
+
                     res.json({ _status: false, _errorCode: 1, _errorMsg: 'Thông tin tài khoản có sai sót, vui lòng đăng nhập lại!' });
                 }
                 else {
-                    _UserID = _decoded.UserID;
                     
+                    _UserID = _decoded.Infor.UserID;
+                    _AdminID = _decoded.Infor.AdminID;
+                    TotalPriceAllItem = _decoded.Infor.TotalPriceAllItem;
+                  
                 }
             });
-            if (_UserID > 0)
-            {
-                const cartOfUser = await CartModel.getByUserID(_UserID);
+            
+            if (_UserID > 0 && _AdminID > 0) {
 
-                    let TotalPriceAllItem = 0;
-                    let product = {};
+                PaymentAdmin =  await PaymentAccountModel.getAccountByUserID(_AdminID);
+                BalanceAdmin =  PaymentAdmin.Balance;
+                PaymentClient = await PaymentAccountModel.getAccountByUserID(_UserID);
+                BalanceClient = PaymentClient.Balance;
 
-                    for (let cart of cartOfUser) {
-                        product = await ProductModel.getByProductID(cart.ProductID);
-                        if (product == undefined)
-                        {
-                            res.json({ _status: false, _errorCode: 4, 
-                                _errorMsg: `Sản phẩm có ID ${cart.ProductID} không còn đã không còn kinh doanh nữa,
-                                 quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
-                                return;
-                        }
-                        if( product.StockQuantity < cart.Quantity)
-                        {
-                            res.json({ _status: false, _errorCode: 14, 
-                                _errorMsg: `Sản phẩm ${product.ProductName} có số lượng tồn là ${product.StockQuantity}
-                                 nên không đủ để thực hiện giao dịch, quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
-                                 return;
-                        }
-                    }
-
-                    for (let cart of cartOfUser) {
-                        product = await ProductModel.getByProductID(cart.ProductID);
-                        cart.ProductName = product.ProductName;
-                        cart.Price = product.Price;
-                        cart.Author = product.Author;
-                        cart.TotalPrice = product.Price * cart.Quantity;
-                        TotalPriceAllItem += cart.TotalPrice;
-                    }
-                    const user = await UserModel.getUserByUserID(_UserID);
-                    if (user.Balance < TotalPriceAllItem)
-                    {
-                        res.json({ _status: false, _errorCode: 3,_errorMsg: 'Tài khoản quý khách không đủ để thanh toán, vui lòng nạp thêm để thực hiện thanh toán' });
-
-                    }
-                    else
-                    {
-                        //Updete số tiền
-                        await UserModel.updateBalanceById(_UserID, -TotalPriceAllItem);
-                        const adminAccount = await UserModel.getAdminUser();
-                        await UserModel.updateBalanceById(adminAccount.UserID, TotalPriceAllItem);
-
-                        //Xóa khỏi giỏ hàng
-                        await CartModel.deleteByUserID(_UserID);
-                        const OrderID = await OrderModel.create(_UserID, TotalPriceAllItem);
-                        for (let cart of cartOfUser)
-                        {
-                            await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
-                            await ProductModel.updateStockQuantityByProductID(cart.ProductID, -cart.Quantity);                           
-                            
-                        }
-                        res.json({_status: true});
-                    }
-            }
-            else
-            {
-                res.json({ _status: false, _errorCode: 1, _errorMsg: 'Thông tin tài khoản có sai sót, vui lòng đăng nhập lại!' });
                 
+                if (PaymentClient.Balance < TotalPriceAllItem) {
+                    await PaymentAccountModel.setBalanceByUserID(PaymentAdmin.UserID, BalanceAdmin);
+                    await PaymentAccountModel.setBalanceByUserID(PaymentClient.UserID, BalanceClient);
+                    res.json({ _status: false, _errorCode: 3, _errorMsg: 'Tài khoản quý khách không đủ để thanh toán, vui lòng nạp thêm để thực hiện thanh toán' });
+
+                }
+                else {
+                    //Updete số tiền
+                    await PaymentAccountModel.updateBalanceById(_UserID, -TotalPriceAllItem);
+                    await PaymentAccountModel.updateBalanceById(_AdminID, TotalPriceAllItem);
+
+                    //Xóa khỏi gỏ hàng
+                   
+                    res.json({ _status: true });
+                }
+            }
+            else {
+                await PaymentAccountModel.setBalanceByUserID(PaymentAdmin.UserID, BalanceAdmin);
+                await PaymentAccountModel.setBalanceByUserID(PaymentClient.UserID, BalanceClient);
+                res.json({ _status: false, _errorCode: 1, _errorMsg: 'Thông tin tài khoản có sai sót, vui lòng đăng nhập lại!' });
+
             }
         }
         else {
-            res.json({ _status: false, _errorCode: 2, _errorMsg: 'Lỗi kết nối xác thực hệ thống!'  });
+            await PaymentAccountModel.setBalanceByUserID(PaymentAdmin.UserID, BalanceAdmin);
+            await PaymentAccountModel.setBalanceByUserID(PaymentClient.UserID, BalanceClient);
+            res.json({ _status: false, _errorCode: 2, _errorMsg: 'Lỗi kết nối xác thực hệ thống!' });
         }
 
 
@@ -255,3 +233,108 @@ exports.Pay = async (req, res, next) => {
     }
 }
 
+
+
+
+
+exports.GetBalance = async (req, res, next) => {
+    try {
+        const token = req.body;
+        const key = process.env.PRIVATE_KEY;
+        const secret = process.env.SERVER_SECRET;
+        let decoded;
+        jwt.verify(token.secret, key, function (err, _decoded) {
+            if (err) {
+
+                console.log("error");
+                res.json({ _status: false });
+            }
+            else {
+                decoded = _decoded.secret;
+            }
+        });
+
+        if (decoded === secret) {
+            jwt.verify(token.UserID, key, async function (_err, _decoded) {
+                if (_err) {
+                    console.log(_err);
+                    res.json({ _status: false });
+                }
+                else {
+                    //todo code
+
+                    let Account = await PaymentAccountModel.getAccountByUserID(_decoded.UserID);
+                    if (Account && Account.Balance) {
+                        res.json({ _status: true, _Balance: Account.Balance });
+
+                    }
+                    else {
+                        res.json({ _status: false });
+                    }
+                }
+            });
+        }
+        else {
+            res.json({ _status: false });
+        }
+
+
+
+
+    } catch (error) {
+        next(error);
+        res.json({ _status: false });
+    }
+}
+
+exports.Topup = async (req, res, next) => {
+    try {
+        const token = req.body;
+
+        const key = process.env.PRIVATE_KEY;
+        const secret = process.env.SERVER_SECRET;
+        let decoded;
+        jwt.verify(token.secret, key, function (err, _decoded) {
+            if (err) {
+
+                console.log("error");
+                res.json({ _status: false });
+            }
+            else {
+                decoded = _decoded.secret;
+            }
+        });
+
+        if (decoded === secret) {
+            jwt.verify(token.user, key, async function (_err, _decoded) {
+                if (_err) {
+                    console.log(_err);
+                    res.json({ _status: false });
+                }
+                else {
+                    //todo 
+
+                    const result = await PaymentAccountModel.updateBalanceById(_decoded.UserID, _decoded.Amount);
+
+                    if (result) {
+                        res.json({ _status: true });
+                    }
+                    else {
+
+                        res.json({ _status: false });
+                    }
+                }
+            });
+        }
+        else {
+            res.json({ _status: false });
+        }
+
+
+
+
+    } catch (error) {
+        next(error);
+        res.json({ _status: false });
+    }
+}

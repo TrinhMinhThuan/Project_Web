@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-7">
                         <div class="card mb-4 mb-md-0">
                             <div class="card-body">
                                 <p class="mb-4 fw-bold" style="text-align: center;"> Lịch sử mua hàng
@@ -75,6 +75,7 @@
                                                 <th scope="col">Mã hóa đơn</th>
                                                 <th scope="col">Ngày giao dịch</th>
                                                 <th scope="col">Số tiền</th>
+                                                <th scope="col">Kết quả giao dịch</th>
                                                 <th scope="col">Xem chi tiết</th>
 
                                             </tr>
@@ -85,6 +86,7 @@
                                                 <th scope="row">{{this.OrderID}}</th>
                                                 <td>{{this.OrderDateToString}}</td>
                                                 <td>{{this.TotalAmount}} VNĐ</td>
+                                                <td>{{this.Status}}</td>
                                                 <td>
                                                     <a href="/orderDetail?ID={{this.OrderID}}" type="submit"
                                                         class="btn btn-success">
@@ -108,7 +110,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md">
                         <div class="card mb-4 mb-md-0">
                             <div class="card-body">
                                 <p class="mb-4 fw-bold" style="text-align: center;"> Lịch sử nạp tiền

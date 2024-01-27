@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/Users_model');
-const OrdersModel = require ('../models/Orders_model');
+const OrdersModel = require('../models/Orders_model');
 const OrderDetailModel = require('../models/Order_Detail_model');
-const TopupModel = require('../models/TopUp_model'); 
+const TopupModel = require('../models/TopUp_model');
 const fetch = require('node-fetch');
 
 const https = require('https');
@@ -25,12 +25,10 @@ exports.GoogleRedirect = (req, res) => {
     const { type } = req.params;
     let redirect_uri;
 
-    if(type=='admin')
-    {
+    if (type == 'admin') {
         redirect_uri = redirect_uri_admin;
     }
-    else
-    {
+    else {
         redirect_uri = redirect_uri_client;
     }
 
@@ -70,11 +68,11 @@ exports.GoogleClientAuth = async (req, res, next) => {
         const userInfo = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${data.access_token}`, {
             method: 'GET'
         });
-        
+
         const userData = await userInfo.json();
         const decodedToken = jwt.decode(data.id_token);
         let user;
-        if (decodedToken.sub !== null) {
+        if (decodedToken.sub != null) {
             user = await UserModel.getUserByGoogleID(decodedToken.sub);
         }
 
@@ -85,30 +83,37 @@ exports.GoogleClientAuth = async (req, res, next) => {
             user.GoogleName = userData.name;
             user.Password = null;
             user.Email = userData.email;
-            const PAY_PORT = process.env.PAY_SERVER_PORT;
-            const agent = new https.Agent({
-                rejectUnauthorized: false
-            });
+            const result = await UserModel.createAccount(user);
+            if (result > 0) {
+               
+                user = await UserModel.getUserByUserID(result);
+                const PAY_PORT = process.env.PAY_SERVER_PORT;
+                const agent = new https.Agent({
+                    rejectUnauthorized: false
+                });
 
-            const key = process.env.PRIVATE_KEY;
-            const _user = jwt.sign(user, key, { expiresIn: '1h' });
-            const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
-        
-            await fetch(`https://localhost:${PAY_PORT}/createUser`, {
-                agent,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user: _user, secret }),
-            });
+                const key = process.env.PRIVATE_KEY;
+                const UserID = jwt.sign({ UserID: result }, key, { expiresIn: '1h' });
+                const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
+
+                await fetch(`https://localhost:${PAY_PORT}/createUser`, {
+                    agent,
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ UserID, secret }),
+                });
+            }
+
         }
 
-        if(!user.Username)
-        {
+        if (!user.Username) {
             user.Username = userData.name;
         }
-    
+
+
+
         const key = process.env.PRIVATE_KEY;
         const token = jwt.sign(user, key, { expiresIn: '1h' });
         req.session.token = token;
@@ -117,7 +122,9 @@ exports.GoogleClientAuth = async (req, res, next) => {
             layout: 'account-form',
             Username: user.Username,
             notification: 'Đăng nhập thành công'
-        })
+        });
+
+
     }
     catch (error) {
         next(error);
@@ -150,7 +157,7 @@ exports.GoogleAdminAuth = async (req, res, next) => {
         const userInfo = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${data.access_token}`, {
             method: 'GET'
         });
-        
+
         const userData = await userInfo.json();
         const decodedToken = jwt.decode(data.id_token);
         let user;
@@ -172,8 +179,7 @@ exports.GoogleAdminAuth = async (req, res, next) => {
                 Email: userData.email
             });
         }
-        else
-        {
+        else {
             res.render("errorPage", {
                 layout: 'admin',
                 Username: req.Username,
@@ -308,28 +314,50 @@ exports.Signup = async (req, res, next) => {
         userSign.GoogleID = null;
         userSign.GoogleName = null;
         userSign.Password = await bcrypt.hash(userSign.Password, saltRounds);
-        const PAY_PORT = process.env.PAY_SERVER_PORT;
-        const agent = new https.Agent({
-            rejectUnauthorized: false
-        });
+        const createUserID = await UserModel.createAccount(userSign);
+        if (createUserID > 0) {
+            const PAY_PORT = process.env.PAY_SERVER_PORT;
+            const agent = new https.Agent({
+                rejectUnauthorized: false
+            });
 
-        const key = process.env.PRIVATE_KEY;
-        const user = jwt.sign(userSign, key, { expiresIn: '1h' });
+            const key = process.env.PRIVATE_KEY;
+            const UserID = jwt.sign({ UserID: createUserID }, key, { expiresIn: '1h' });
 
-        const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
-        const _fetch = await fetch(`https://localhost:${PAY_PORT}/createUser`, {
-            agent,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ user, secret }),
-        });
+            const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
+            const _fetch = await fetch(`https://localhost:${PAY_PORT}/createUser`, {
+                agent,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ UserID, secret }),
+            });
 
 
-        const resJson = await _fetch.json();
-        const resStatus = resJson._status;
-        if (!resStatus) {
+            const resJson = await _fetch.json();
+            const resStatus = resJson._status;
+            if (!resStatus) {
+                await UserModel.deleteUser({ UserID: createUserID });
+                res.render('errorPage', {
+
+                    layout: 'account-form',
+                    Username: req.Username,
+
+                    error: 'Đăng ký không thành công'
+                });
+            }
+            else {
+                res.render('truePage', {
+                    layout: 'account-form',
+                    Username: req.Username,
+
+                    notification: 'Đăng ký thành công'
+                });
+            }
+
+        }
+        else {
             res.render('errorPage', {
                 layout: 'account-form',
                 Username: req.Username,
@@ -337,14 +365,7 @@ exports.Signup = async (req, res, next) => {
                 error: 'Đăng ký không thành công'
             });
         }
-        else {
-            res.render('truePage', {
-                layout: 'account-form',
-                Username: req.Username,
 
-                notification: 'Đăng ký thành công'
-            });
-        }
 
     } catch (error) {
         next(error);
@@ -368,63 +389,84 @@ exports.Logout = (req, res, next) => {
 }
 
 exports.GetProfile = async (req, res, next) => {
-    const {page = 1, limit = 5} = req.query;
+    const { page = 1, limit = 5 } = req.query;
 
 
     let { UserID = '', GoogleID = '', Balance = 0, Email = '' } = req.user;
-    const Orders = await OrdersModel.getByUserID_Page(req.user.UserID,page, limit);
-    const _User = await UserModel.getUserByUserID(req.user.UserID);
-    Balance = _User.Balance;
+    const Orders = await OrdersModel.getByUserID_Page(req.user.UserID, page, limit);
+    const key = process.env.PRIVATE_KEY;
     let date;
-    for (let order of Orders)
-    {
+    for (let order of Orders) {
         date = new Date(order.OrderDate);
-        order.OrderDateToString = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
+        order.OrderDateToString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     }
 
-    const Topup = await TopupModel.getByUserID_Page(req.user.UserID,page,limit);
+    const Topup = await TopupModel.getByUserID_Page(req.user.UserID, page, limit);
 
-   
-    for (let row of Topup)
-    {
+
+    for (let row of Topup) {
         date = new Date(row.TopUpDay);
-        row.TopUpDayToString = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
+        row.TopUpDayToString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     }
     let pages;
-    if(Topup[0]?.Total != undefined &&  Orders[0]?.Total != undefined){
-        if(Topup[0]?.Total > Orders[0]?.Total){
+    if (Topup[0]?.Total != undefined && Orders[0]?.Total != undefined) {
+        if (Topup[0]?.Total > Orders[0]?.Total) {
             pages = Array.from(
                 { length: Math.ceil(Topup[0]?.Total / limit || 0) },
                 (_, i) => i + 1
-              );
+            );
         }
-        else{
+        else {
             pages = Array.from(
                 { length: Math.ceil(Orders[0]?.Total / limit || 0) },
                 (_, i) => i + 1
-              );
+            );
         }
     }
-    else{
-        if(Topup[0]?.Total != undefined){
+    else {
+        if (Topup[0]?.Total != undefined) {
             pages = Array.from(
                 { length: Math.ceil(Topup[0]?.Total / limit || 0) },
                 (_, i) => i + 1
-              );
+            );
         }
-        else{
+        else {
             pages = Array.from(
                 { length: Math.ceil(Orders[0]?.Total / limit || 0) },
                 (_, i) => i + 1
-              );
+            );
         }
     }
-    
-    
+
+
+    UserID = jwt.sign({ UserID: req.user.UserID }, key, { expiresIn: '1h' });
+
+    const PAY_PORT = process.env.PAY_SERVER_PORT;
+    const agent = new https.Agent({
+        //ca: process.env.KEY,
+        rejectUnauthorized: false
+    });
+
+    const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
+    const _fetch = await fetch(`https://localhost:${PAY_PORT}/getBalance`, {
+        agent,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ UserID, secret }),
+    });
+
+
+    const resJson = await _fetch.json();
+    if (resJson._status) {
+        Balance = resJson._Balance;
+    }
+
     res.render('profilePageClient', {
         layout: 'customer',
         Username: req.Username,
-        UserID,
+        UserID: req.user.UserID,
         GoogleID,
         Balance,
         Email,
@@ -436,29 +478,29 @@ exports.GetProfile = async (req, res, next) => {
 }
 
 exports.getSearchAccounts = async (req, res) => {
-  const { keyword = "", page = 1, limit = 5 } = req.query;
+    const { keyword = "", page = 1, limit = 5 } = req.query;
 
-  const users = await UserModel.searchUser({
-    AdminID: req.user.UserID,
-    Keyword: keyword,
-    Page: page,
-    Limit: limit,
-  });
+    const users = await UserModel.searchUser({
+        AdminID: req.user.UserID,
+        Keyword: keyword,
+        Page: page,
+        Limit: limit,
+    });
 
-  const pages = Array.from(
-    { length: Math.ceil(users[0]?.Total / limit || 0) },
-    (_, i) => i + 1
-  );
+    const pages = Array.from(
+        { length: Math.ceil(users[0]?.Total / limit || 0) },
+        (_, i) => i + 1
+    );
 
-  res.render("searchAccountsAdmin", {
-    layout: 'admin',
-    title: "Danh sách tài khoản",
-    Username: req.Username,
-    admin: true,
-    users,
-    pages,
-    keyword,
-  });
+    res.render("searchAccountsAdmin", {
+        layout: 'admin',
+        title: "Quản lý tài khoản",
+        Username: req.Username,
+        admin: true,
+        users,
+        pages,
+        keyword,
+    });
 }
 
 exports.deleteAccount = async (req, res) => {
@@ -468,7 +510,7 @@ exports.deleteAccount = async (req, res) => {
     const agent = new https.Agent({
         rejectUnauthorized: false
     });
-    
+
     const key = process.env.PRIVATE_KEY;
     const _userID = jwt.sign(userID, key, { expiresIn: '1h' });
     const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' });
@@ -481,11 +523,11 @@ exports.deleteAccount = async (req, res) => {
         },
         body: JSON.stringify({ userId: _userID, secret }),
     });
-    
+
 
     const resJson = await _fetch.json();
     const resStatus = resJson._status;
-    
+
     if (!resStatus) {
         res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });
     }
@@ -497,7 +539,7 @@ exports.deleteAccount = async (req, res) => {
 exports.getEditAccount = async (req, res) => {
     const { userID } = req.params;
     const user = await UserModel.getUserByUserID(userID);
-    
+
     res.render("editAccountsAdmin", {
         layout: 'admin',
         Username: req.Username,
@@ -509,21 +551,18 @@ exports.getEditAccount = async (req, res) => {
 
 exports.editAccount = async (req, res) => {
     const { userID } = req.params;
-    const user = await UserModel.getUserByUserID(parseInt(userID,10));
- 
+    const user = await UserModel.getUserByUserID(parseInt(userID, 10));
+
     let _username = req.body.username;
-    if(_username === "")
-    {
+    if (_username === "") {
         _username = null;
     }
 
     let _password;
-    if (req.body.password !== undefined && req.body.password.length > 0)
-    {
+    if (req.body.password !== undefined && req.body.password.length > 0) {
         _password = await bcrypt.hash(req.body.password, saltRounds);
     }
-    else
-    {
+    else {
         _password = user.Password;
     }
 
@@ -532,10 +571,10 @@ exports.editAccount = async (req, res) => {
     inp._userID = req.body.userID;
     inp._username = _username;
     inp._password = _password;
-    inp._email = req.body.email??user.Email;
+    inp._email = req.body.email ?? user.Email;
     inp._balance = req.body.balance;
 
-       
+
     const PAY_PORT = process.env.PAY_SERVER_PORT;
     const agent = new https.Agent({
         rejectUnauthorized: false
@@ -553,11 +592,11 @@ exports.editAccount = async (req, res) => {
         },
         body: JSON.stringify({ input: _input, secret }),
     });
-    
+
 
     const resJson = await _fetch.json();
     const resStatus = resJson._status;
-    
+
     if (!resStatus) {
         res.render("errorPage", {
             layout: 'admin',
@@ -575,7 +614,7 @@ exports.editAccount = async (req, res) => {
         });
     }
 }
-  
+
 exports.getAddAccount = async (req, res) => {
     let _id = await UserModel.getIDInLastRow();
 
@@ -590,26 +629,23 @@ exports.getAddAccount = async (req, res) => {
 
 exports.addAccount = async (req, res) => {
     let _username = req.body.username;
-    if(_username === "")
-    {
+    if (_username === "") {
         _username = null;
     }
 
     let _password;
-    if (req.body.password !== undefined && req.body.password.length > 0)
-    {
+    if (req.body.password !== undefined && req.body.password.length > 0) {
         _password = await bcrypt.hash(req.body.password, saltRounds);
     }
-    else
-    {
+    else {
         _password = null;
     }
 
     let user = {};
     user.UserID = req.body.userID;
-    user.GoogleID = req.body.googleid??null;
+    user.GoogleID = req.body.googleid ?? null;
     user.Username = _username;
-    user.GoogleName = req.body.googlename??null;
+    user.GoogleName = req.body.googlename ?? null;
     user.Password = _password;
     user.Email = req.body.email;
 
@@ -630,11 +666,11 @@ exports.addAccount = async (req, res) => {
         },
         body: JSON.stringify({ user: _user, secret }),
     });
-    
+
 
     const resJson = await _fetch.json();
     const resStatus = resJson._status;
-    
+
     if (!resStatus) {
         res.render("errorPage", {
             layout: 'admin',

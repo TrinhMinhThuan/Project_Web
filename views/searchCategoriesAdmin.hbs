@@ -41,7 +41,7 @@
             </td>
           </tr>
         {{else}}
-          <td colspan="6" class="text-center">Không Tìm Thấy Thể Loại Theo Yêu Cầu🥲</td>
+          <td colspan="6" class="text-center">Không Tìm Thấy Thể Loại Theo Yêu Cầu.</td>
         {{/each}}
       </tbody>
     </table>
@@ -61,6 +61,7 @@
   </div>
 </div>
 <script>
+
 // Update Page
 var currentPage;
 // Hàm để cập nhật currentPage khi có sự kiện thay đổi
@@ -149,6 +150,8 @@ document.querySelectorAll('.btn-next').forEach(button => {
 document.querySelectorAll('.btn-delete').forEach(button => {
   button.addEventListener('click', function() {
     event.preventDefault();
+    var userConfirmed = confirm("Bạn có chắc chắn muốn xóa thể loại này? Tất cả sản phẩm thuộc thể loại này cũng sẽ bị xóa.");
+    if(!userConfirmed) return;
     const categoryId = this.getAttribute('data-category-id');
     const deleteUrl = `/admin/categories/delete/${categoryId}`;
     // Sử dụng AJAX để gửi yêu cầu DELETE

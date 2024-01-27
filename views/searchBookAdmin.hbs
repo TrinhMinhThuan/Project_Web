@@ -20,8 +20,8 @@
   <form id="filterForm">
     <div class="row gap-3 justify-content-center">
       <p class="col-xl-3 col-lg-3 col-md-12 fw-bold mt-2 mb-1" style="align-items: center;">Lọc theo giá (VNĐ): </p>
-      <input type="number" class="col-xl-3 col-lg-3 col-md-4 col-sm-4 form-control" placeholder="Từ" name="minPrice" value="{{MinPrice}}" required />
-      <input type="number" class="col-xl-3 col-lg-3 col-md-4 col-sm-4 form-control" placeholder="Đến" name="maxPrice" value="{{MaxPrice}}" required />
+      <input type="number" class="col-xl-3 col-lg-3 col-md-4 col-sm-4 form-control" id = "min" placeholder="Từ" name="minPrice" value="{{MinPrice}}" required />
+      <input type="number" class="col-xl-3 col-lg-3 col-md-4 col-sm-4 form-control" id = "max" placeholder="Đến" name="maxPrice" value="{{MaxPrice}}" required />
       <button type="submit" class="col-xl-2 col-lg col-md col-sm btn btn-success justify-content-end" id="applyFilter">
         <i class="fa-solid fa-filter"></i> Lọc</button>
     </div>
@@ -89,7 +89,13 @@
   </style>
 </div>
 <script>
-
+let min_Price = document.getElementById('min');
+let max_Price = document.getElementById('max');
+  
+  function handleInvalidInput(input, errorMessage) { 
+      input.setCustomValidity(errorMessage);
+      input.reportValidity();
+  }
   // Update Page
 var currentPage;
 // Hàm để cập nhật currentPage khi có sự kiện thay đổi
@@ -116,7 +122,10 @@ function updateCurrentPage() {
 
     var minValue = document.getElementsByName("minPrice")[0].value;
     var maxValue = document.getElementsByName("maxPrice")[0].value;
-
+    if(parseInt(minValue) > parseInt(maxValue)){
+      handleInvalidInput(min_Price, "Giá trị min không vượt quá giá trị max.");
+      return;
+    }
     // Tạo URL với tham số
     var url = new URL(window.location.href);
     var query = new URLSearchParams(url.search);
@@ -191,8 +200,6 @@ document.querySelectorAll('.btn-next').forEach(button => {
   })
 });
 
-
-
   document.getElementById("searchForm").addEventListener("submit", function (event) {
     event.preventDefault(); // Ngăn chặn form submit mặc định để xử lý bằng JavaScript
 
@@ -200,6 +207,8 @@ document.querySelectorAll('.btn-next').forEach(button => {
     var keywordValue = document.getElementsByName("keyword")[0].value;
     var categoryValue = document.getElementsByName("category")[0].value;
     var typeValue = document.getElementsByName("type")[0].value;
+    var minValue = document.getElementsByName("minPrice")[0].value;
+    var maxValue = document.getElementsByName("maxPrice")[0].value;
 
     // Tạo URL với tham số
     var url = new URL(window.location.href);
@@ -207,6 +216,18 @@ document.querySelectorAll('.btn-next').forEach(button => {
     query.set("keyword", keywordValue);
     query.set("category", categoryValue);
     query.set("type", typeValue);
+    if(minValue == "" && maxValue == ""){
+      query.delete("minPrice");
+      query.delete("maxPrice");
+    }
+    else{
+      if(parseInt(minValue) > parseInt(maxValue)){
+      handleInvalidInput(min_Price, "Giá trị min không vượt quá giá trị max.");
+      return;
+      }
+      query.set("minPrice", minValue);
+      query.set("maxPrice", maxValue);
+    }
     url.search = query.toString();
 
     // Chuyển hướng trang
@@ -230,9 +251,10 @@ document.querySelectorAll('.btn-delete').forEach(button => {
   button.addEventListener('click', function() {
     event.stopPropagation();
     event.preventDefault();
+    var userConfirmed = confirm("Bạn có chắc chắn muốn xóa sản phẩm này?");
+    if(!userConfirmed) return;
     const Id = this.getAttribute('data-product-id');
     const deleteUrl = `/admin/product/delete?ID=${Id}`;
-    console.log(deleteUrl);
     // Sử dụng AJAX để gửi yêu cầu DELETE
     const xhr = new XMLHttpRequest();
     xhr.open('DELETE', deleteUrl, true);

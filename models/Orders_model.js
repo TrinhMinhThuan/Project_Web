@@ -2,13 +2,11 @@ const sql = require("mssql");
 
 const databaseConnection = require('../utils/database');
 
-module.exports = class Orders
-{
-    constructor(OrderID, UserID, OrderDate, TotalAmount)
-    {
+module.exports = class Orders {
+    constructor(OrderID, UserID, OrderDate, TotalAmount) {
         this.OrderID = OrderID;
         this.UserID = UserID;
-        this.OrderDate = OrderDate;
+        this.OrderDate = OrderDate; 
         this.TotalAmount = TotalAmount;
     }
     static async getIDInLastRow() {
@@ -18,50 +16,48 @@ module.exports = class Orders
             .query("SELECT TOP(1) * FROM Orders ORDER BY OrderID DESC");
         return row.recordset[0].OrderID;
     }
-    
-    
-    static async create(UserID, TotalAmount)
-    {
+
+
+    static async create(UserID, TotalAmount, Status) {
+
         const currentDate = new Date();
+       
         let pool = await sql.connect(databaseConnection);
 
         let id = await this.getIDInLastRow();
-        if (id != undefined)
-        {
+        if (id != undefined) {
             id += 1;
         }
-        else
-        {
+        else {
             id = 1;
         }
-        
+
 
         let Order = await pool
             .request()
             .input("OrderId", sql.Int, id)
             .input("UserID", sql.Int, UserID)
-            .input("OrderDate", sql.Date, currentDate)
+            .input("OrderDate", sql.DateTime, currentDate)
             .input("TotalAmount", sql.Int, TotalAmount)
-            .query("INSERT INTO Orders VALUES (@OrderID, @UserID, @OrderDate, @TotalAmount)");
+            .input("Status", sql.NVarChar, Status)
+            .query("INSERT INTO Orders VALUES (@OrderID, @UserID, @OrderDate, @TotalAmount, @Status)");
         return id;
 
     }
-    static async getByUserID (UserID)
-    {
+    static async getByUserID(UserID) {
         let pool = await sql.connect(databaseConnection);
         let Orders = await pool.request()
-        .input('userID', sql.Int, UserID)
-        .query(`SELECT * FROM Orders WHERE UserID = @userID ORDER BY OrderDate DESC, OrderID DESC`);
+            .input('userID', sql.Int, UserID)
+            .query(`SELECT * FROM Orders WHERE UserID = @userID ORDER BY OrderDate DESC, OrderID DESC`);
         return Orders.recordset;
     }
-    static async getByUserID_Page (UserID,page,limit)
-    {
+    static async getByUserID_Page(UserID, page, limit) {
         let pool = await sql.connect(databaseConnection);
         let Orders = await pool.request()
-        .input('userID', sql.Int, UserID)
-        .input("Offset", sql.Int, (page - 1) * limit)
-        .input("Limit", sql.Int, limit)
-        .query(`SELECT * , count(*) over() as Total  FROM Orders WHERE UserID = @userID ORDER BY OrderDate DESC, OrderID DESC
+            .input('userID', sql.Int, UserID)
+            .input("Offset", sql.Int, (page - 1) * limit)
+            .input("Limit", sql.Int, limit)
+            .query(`SELECT * , count(*) over() as Total  FROM Orders WHERE UserID = @userID ORDER BY OrderDate DESC, OrderID DESC
                 OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`);
         return Orders.recordset;
     }
@@ -73,8 +69,8 @@ module.exports = class Orders
         // Thống kê theo các tháng
         if (yearYear == undefined) {
             check = await pool.request()
-            .input("year", sql.Int, yearMonth)
-            .query(`SELECT
+                .input("year", sql.Int, yearMonth)
+                .query(`SELECT
             MONTH(OrderDate) AS Month,
             SUM(TotalAmount) AS TotalPrice
                 FROM
