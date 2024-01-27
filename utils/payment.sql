@@ -89,5 +89,4 @@ INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (3, 500000)
 INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (4, 500000)
 INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (5, 500000)
 INSERT [dbo].[PaymentAccount] ([UserID], [Balance]) VALUES (6, 500000)
-
 GO

@@ -61,10 +61,10 @@ exports.getSearchBook = async (req, res, next) => {
     for (var i = 0; i < _books.length; i++) {
         _books[i].Price = _books[i].Price.toLocaleString('vi-VN') + ' đ';
     }
-    if (_preview[0]?.Total/4 < req.query.page - 1)
+    if (_preview[0]?.Total/4 < req.query.page && _preview[0].Total % 4 === 0 && req.query.page != 1)
     {
-        res.redirect(`/admin/searchBook-Admin?page=1&keyword=${keyword}&type=${type}`);
-    }  
+        res.redirect(`/admin/?page=${req.query.page-1}&keyword=${keyword}&type=${type}`);
+    }
     else{
         res.render("searchBookAdmin", {
             layout: 'admin',

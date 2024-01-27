@@ -12,5 +12,4 @@ PayRoute.post('/getBalance', PayController.GetBalance);
 PayRoute.post('/topup', PayController.Topup)
 
 
-
 module.exports = PayRoute;
