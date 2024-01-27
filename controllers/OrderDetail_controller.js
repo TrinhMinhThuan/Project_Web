@@ -36,7 +36,7 @@ exports.orderDetail = async (req, res, next) => {
         orderDetail,
         TotalPriceAllItem,
         pages,
-        title: "Thông tin chi tiết hóa đơn"
+        title: "Chi tiết hóa đơn"
     });
 
 

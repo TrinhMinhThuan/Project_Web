@@ -198,7 +198,7 @@ exports.Pay = async (req, res, next) => {
                         {
                             res.json({ _status: false, _errorCode: 14, 
                                 _errorMsg: `Sản phẩm ${product.ProductName} có số lượng tồn là ${product.StockQuantity}
-                                 nên không đủ để thục hiện giao dịch, quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
+                                 nên không đủ để thực hiện giao dịch, quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
                                  return;
                         }
                     }
@@ -224,7 +224,7 @@ exports.Pay = async (req, res, next) => {
                         const adminAccount = await UserModel.getAdminUser();
                         await UserModel.updateBalanceById(adminAccount.UserID, TotalPriceAllItem);
 
-                        //Xóa khỏi gỏ hàng
+                        //Xóa khỏi giỏ hàng
                         await CartModel.deleteByUserID(_UserID);
                         const OrderID = await OrderModel.create(_UserID, TotalPriceAllItem);
                         for (let cart of cartOfUser)
