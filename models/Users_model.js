@@ -3,13 +3,12 @@ const sql = require("mssql");
 const databaseConnection = require('../utils/database');
 
 module.exports = class Users {
-    constructor(UserID, Username, Password, Email, Role, Balance) {
+    constructor(UserID, Username, Password, Email, Role) {
         this.UserID = UserID;
         this.Username = Username;
         this.Password = Password;
         this.Email = Email;
         this.Role = Role;
-        this.Balance = Balance;
     }
     static async getAll() {
         let pool = await sql.connect(databaseConnection);
@@ -78,22 +77,12 @@ module.exports = class Users {
         .input("Password", sql.NVarChar, user.Password)
         .input("Email", sql.NVarChar, user.Email)
         .input("Role", sql.NVarChar, 'Client')
-        .input("Balance", sql.Int, 0)
-        .query("INSERT INTO Users VALUES (@UserID, @GoogleID, @Username, @GoogleName, @Password, @Email, @Role, @Balance)");
-        return User.rowsAffected[0];
+        
+        .query("INSERT INTO Users VALUES (@UserID, @GoogleID, @Username, @GoogleName, @Password, @Email, @Role)");
+        return id;
     } 
     
-    static async updateBalanceById(ID, Balance) {
-        let pool = await sql.connect(databaseConnection);
-        let update = await pool
-            .request()
-            .input("ID", sql.Int, ID)
-            .input("Balance", sql.Int, Balance)
-            .query(
-                "UPDATE Users SET Balance = Balance + @Balance WHERE UserID = @ID "
-            );
-        return update.recordset;
-    }
+   
 
     static async getAdminUser()
     {
@@ -104,16 +93,7 @@ module.exports = class Users {
         return user.recordset[0];
     }
 
-    static async setBalanceByUserID(UserID, Balance)
-    {
-        let pool = await sql.connect(databaseConnection);
-        let user = await pool
-            .request()
-            .input('Balance', sql.Int, Balance)
-            .input('ID', sql.Int, UserID)
-            .query("update Users set Balance = @Balance WHERE UserID = @ID");
-        return user.rowsAffected[0];
-    }
+    
 
     static async searchUser(options) {
         let pool = await sql.connect(databaseConnection);
@@ -181,12 +161,10 @@ module.exports = class Users {
             .input('Username', sql.NVarChar, input._username)
             .input('Password', sql.NVarChar, input._password)
             .input('Email', sql.NVarChar, input._email)
-            .input('Balance', sql.Int, input._balance)
             .query(`UPDATE Users SET UserID=@UserID,
                                      Username=@Username,
                                      Password=@Password,
                                      Email=@Email,
-                                     Balance=@Balance
                             WHERE UserID = @oldID`);
 
         return update.rowsAffected[0];
