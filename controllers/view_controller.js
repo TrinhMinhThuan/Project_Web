@@ -52,6 +52,6 @@ exports.Topup = async (req, res, next) =>
   res.render('topupPageClient', {
     layout: 'customer',
     Username: req.Username,
-    title: 'Thông tin nạp tiền'
+    title: 'Nạp tiền'
   })
 }

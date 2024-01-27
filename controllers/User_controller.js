@@ -452,7 +452,7 @@ exports.getSearchAccounts = async (req, res) => {
 
   res.render("searchAccountsAdmin", {
     layout: 'admin',
-    title: "Quản lý tài khoản",
+    title: "Danh sách tài khoản",
     Username: req.Username,
     admin: true,
     users,

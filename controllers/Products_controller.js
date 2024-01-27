@@ -65,7 +65,7 @@ exports.getSearchBook = async (req, res, next) => {
     {
         res.render("searchBookAdmin", {
             layout: 'admin',
-            title: "Quản lý sản phẩm",
+            title: "Danh sách sản phẩm",
             Username: req.Username,
             _books,
             pages,
@@ -210,7 +210,7 @@ exports.salesRevenue = async(req,res,next) =>{
     res.render("salesRevenuePageAdmin", {
         layout: 'admin',
         admin: true,
-        title: "Doanh thu sản phẩm",
+        title: "Doanh thu bán hàng",
         Username: req.Username,
     });
 }
@@ -363,7 +363,7 @@ exports.getSearchBook_client = async (req, res, next) => {
     {
         res.render("searchBookClient", {
             layout: 'customer',
-            title: "Tìm kiếm sản phẩm",
+            title: "Danh sách sản phẩm",
             Username: req.Username,
             _books,
             pages,

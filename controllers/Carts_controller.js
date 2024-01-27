@@ -57,7 +57,7 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
         TotalPriceAllItem,
         pages,
         Balance,
-        title: "Danh sách sản phẩm trong giỏ hàng"
+        title: "Giỏ hàng"
     });
 }
 
