@@ -34,7 +34,7 @@ exports.createUser = async (req, res, next) => {
                     //todo code
                     let createID = await UserModel.createAccount(_decoded);
                     let createPay = await PaymentAccountModel.createPaymentAccountByUserID(createID);
-                    if (!createID || createPay) {
+                    if (!createPay || !createID) {
                         res.json({ _status: false });
                     }
                     else {
@@ -173,6 +173,7 @@ exports.Pay = async (req, res, next) => {
             jwt.verify(token.UserID, key, function (_err, _decoded) {
                 if (_err) {
                     console.log(_err);
+                    
                     res.json({ _status: false, _errorCode: 1, _errorMsg: 'Thông tin tài khoản có sai sót, vui lòng đăng nhập lại!' });
                 }
                 else {
@@ -182,6 +183,12 @@ exports.Pay = async (req, res, next) => {
             });
             if (_UserID > 0)
             {
+                const AdminAccount = await UserModel.getAdminUser();
+                const PaymentAdmin = await PaymentAccountModel.getAccountByUserID(AdminAccount.UserID);
+                const BalanceAdmin = PaymentAdmin.Balance;
+                const PaymentClient = await PaymentAccountModel.getAccountByUserID(_UserID);
+                const BalanceClient = PaymentClient.Balance;
+
                 const cartOfUser = await CartModel.getByUserID(_UserID);
 
                     let TotalPriceAllItem = 0;
@@ -191,13 +198,18 @@ exports.Pay = async (req, res, next) => {
                         product = await ProductModel.getByProductID(cart.ProductID);
                         if (product == undefined)
                         {
+                            await PaymentAccountModel.setBalanceByUserID(PaymentAdmin.UserID, BalanceAdmin);
+                            await PaymentAccountModel.setBalanceByUserID(PaymentClient.UserID, BalanceClient);
                             res.json({ _status: false, _errorCode: 4, 
                                 _errorMsg: `Sản phẩm có ID ${cart.ProductID} không còn đã không còn kinh doanh nữa,
                                  quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
+                                 
                                 return;
                         }
                         if( product.StockQuantity < cart.Quantity)
                         {
+                            await PaymentAccountModel.setBalanceByUserID(PaymentAdmin.UserID, BalanceAdmin);
+                            await PaymentAccountModel.setBalanceByUserID(PaymentClient.UserID, BalanceClient);
                             res.json({ _status: false, _errorCode: 14, 
                                 _errorMsg: `Sản phẩm ${product.ProductName} có số lượng tồn là ${product.StockQuantity}
                                  nên không đủ để thục hiện giao dịch, quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
@@ -216,15 +228,16 @@ exports.Pay = async (req, res, next) => {
                     const user = await UserModel.getUserByUserID(_UserID);
                     if (user.Balance < TotalPriceAllItem)
                     {
+                        await PaymentAccountModel.setBalanceByUserID(PaymentAdmin.UserID, BalanceAdmin);
+                        await PaymentAccountModel.setBalanceByUserID(PaymentClient.UserID, BalanceClient);
                         res.json({ _status: false, _errorCode: 3,_errorMsg: 'Tài khoản quý khách không đủ để thanh toán, vui lòng nạp thêm để thực hiện thanh toán' });
 
                     }
                     else
                     {
                         //Updete số tiền
-                        await UserModel.updateBalanceById(_UserID, -TotalPriceAllItem);
-                        const adminAccount = await UserModel.getAdminUser();
-                        await UserModel.updateBalanceById(adminAccount.UserID, TotalPriceAllItem);
+                        await PaymentAccountModel.updateBalanceById(_UserID, -TotalPriceAllItem);
+                        await PaymentAccountModel.updateBalanceById(AdminAccount.UserID, TotalPriceAllItem);
 
                         //Xóa khỏi gỏ hàng
                         await CartModel.deleteByUserID(_UserID);
@@ -240,11 +253,15 @@ exports.Pay = async (req, res, next) => {
             }
             else
             {
+                await PaymentAccountModel.setBalanceByUserID(PaymentAdmin.UserID, BalanceAdmin);
+                await PaymentAccountModel.setBalanceByUserID(PaymentClient.UserID, BalanceClient);
                 res.json({ _status: false, _errorCode: 1, _errorMsg: 'Thông tin tài khoản có sai sót, vui lòng đăng nhập lại!' });
                 
             }
         }
         else {
+            await PaymentAccountModel.setBalanceByUserID(PaymentAdmin.UserID, BalanceAdmin);
+            await PaymentAccountModel.setBalanceByUserID(PaymentClient.UserID, BalanceClient);
             res.json({ _status: false, _errorCode: 2, _errorMsg: 'Lỗi kết nối xác thực hệ thống!'  });
         }
 
@@ -256,6 +273,8 @@ exports.Pay = async (req, res, next) => {
         res.json({ _status: false, _errorCode: -1, _errorMsg: 'Giao dịch không thành công, do vấn đề liên kết hệ thống, vui lòng đăng nhập lại!' });
     }
 }
+
+
 
 
 
@@ -277,23 +296,23 @@ exports.GetBalance = async (req, res, next) => {
         });
         
         if (decoded === secret) {
-            jwt.verify(token.user, key, async function (_err, _decoded) {
+            jwt.verify(token.UserID, key, async function (_err, _decoded) {
                 if (_err) {
                     console.log(_err);
                     res.json({ _status: false });
                 }
                 else {
                     //todo code
-                    let Account = await Account.grt
 
-                    let createID = await UserModel.createAccount(_decoded);
-                    let createPay = await PaymentAccountModel.createPaymentAccountByUserID(createID);
-                    if (!createID || createPay) {
-                        res.json({ _status: false });
+                    let Account = await PaymentAccountModel.getAccountByUserID(_decoded.UserID);
+                    if (Account.Balance) 
+                    {
+                        res.json({ _status: true, _Balance: Account.Balance });
+
                     }
-                    else {
-
-                        res.json({ _status: true });
+                    else
+                    {
+                        res.json({ _status: false });
                     }
                 }
             });

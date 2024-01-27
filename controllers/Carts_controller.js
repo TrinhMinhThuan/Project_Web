@@ -45,9 +45,33 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
     );
 
     //console.log(cartOfUser[0]?.Total);
-    const UserID = req.user.UserID;
-    const temp = await UserModel.getUserByUserID(UserID);
-    const Balance = temp.Balance;
+    const key = process.env.PRIVATE_KEY;
+
+    const UserID = jwt.sign({ UserID: req.user.UserID }, key, { expiresIn: '1h' });
+
+    const PAY_PORT = process.env.PAY_SERVER_PORT;
+    const agent = new https.Agent({
+        //ca: process.env.KEY,
+        rejectUnauthorized: false
+    });
+
+    const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
+    const _fetch = await fetch(`https://localhost:${PAY_PORT}/getBalance`, {
+        agent,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ UserID, secret }),
+    });
+
+
+    const resJson = await _fetch.json();
+    let Balance = 0;
+    if (resJson._status)
+    {
+        Balance = resJson._Balance;
+    }
 
     res.render('cartPageClient', {
         layout: 'customer',
@@ -57,7 +81,7 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
         TotalPriceAllItem,
         pages,
         Balance,
-        title: "Giỏ hàng"
+        title: "Danh sách sản phẩm trong giỏ hàng"
     });
 }
 
@@ -67,17 +91,14 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
 exports.Pay = async (req, res, next) => {
 
     try {
-        const user = await UserModel.getUserByUserID(req.user.UserID);
-        const BalanceClient = user.Balance;
-        const admin = await UserModel.getAdminUser();
-        const BalanceAdmin = admin.Balance;
+
 
 
 
 
         const key = process.env.PRIVATE_KEY;
 
-        const UserID = jwt.sign({ UserID: user.UserID }, key, { expiresIn: '1h' });
+        const UserID = jwt.sign({ UserID: req.user.UserID }, key, { expiresIn: '1h' });
 
         const PAY_PORT = process.env.PAY_SERVER_PORT;
         const agent = new https.Agent({
@@ -99,8 +120,6 @@ exports.Pay = async (req, res, next) => {
         const resJson = await _fetch.json();
 
         if (resJson._status == false) {
-            await UserModel.setBalanceByUserID(admin.UserID, BalanceAdmin);
-            await UserModel.setBalanceByUserID(user.UserID, BalanceClient);
             res.render('errorPage', {
                 layout: 'customer',
                 Username: req.Username,

@@ -373,8 +373,7 @@ exports.GetProfile = async (req, res, next) => {
 
     let { UserID = '', GoogleID = '', Balance = 0, Email = '' } = req.user;
     const Orders = await OrdersModel.getByUserID_Page(req.user.UserID,page, limit);
-    const _User = await UserModel.getUserByUserID(req.user.UserID);
-    Balance = _User.Balance;
+    const key = process.env.PRIVATE_KEY;
     let date;
     for (let order of Orders)
     {
@@ -420,11 +419,36 @@ exports.GetProfile = async (req, res, next) => {
         }
     }
     
+
+    UserID = jwt.sign({ UserID: req.user.UserID }, key, { expiresIn: '1h' });
+
+    const PAY_PORT = process.env.PAY_SERVER_PORT;
+    const agent = new https.Agent({
+        //ca: process.env.KEY,
+        rejectUnauthorized: false
+    });
+
+    const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
+    const _fetch = await fetch(`https://localhost:${PAY_PORT}/getBalance`, {
+        agent,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ UserID, secret }),
+    });
+
+
+    const resJson = await _fetch.json();
+    if (resJson._status)
+    {
+        Balance = resJson._Balance;
+    }
     
     res.render('profilePageClient', {
         layout: 'customer',
         Username: req.Username,
-        UserID,
+        UserID: req.user.UserID,
         GoogleID,
         Balance,
         Email,
@@ -452,7 +476,7 @@ exports.getSearchAccounts = async (req, res) => {
 
   res.render("searchAccountsAdmin", {
     layout: 'admin',
-    title: "Danh sách tài khoản",
+    title: "Quản lý tài khoản",
     Username: req.Username,
     admin: true,
     users,
