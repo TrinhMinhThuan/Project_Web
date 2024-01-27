@@ -225,7 +225,7 @@ exports.Pay = async (req, res, next) => {
                         cart.TotalPrice = product.Price * cart.Quantity;
                         TotalPriceAllItem += cart.TotalPrice;
                     }
-                    const user = await UserModel.getUserByUserID(_UserID);
+                    const user = await PaymentAccountModel.getAccountByUserID(_UserID);
                     if (user.Balance < TotalPriceAllItem)
                     {
                         await PaymentAccountModel.setBalanceByUserID(PaymentAdmin.UserID, BalanceAdmin);

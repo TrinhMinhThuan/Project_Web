@@ -40,7 +40,7 @@ module.exports = class TopUp {
 
     static async create(UserID, Amount) {
         const currentDate = new Date();
-        currentDate.setHours(currentDate.getHours()+7);
+        
         let pool = await sql.connect(databaseConnection);
 
         let id = await this.getIDInLastRow();

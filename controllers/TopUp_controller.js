@@ -23,7 +23,6 @@ exports.Topup = async (req, res, next) => {
         });
 
         const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' });
-        console.log(JSON.stringify({ user, secret }));
 
         const _fetch = await fetch(`https://localhost:${PAY_PORT}/topup`, {
             agent,
@@ -36,7 +35,6 @@ exports.Topup = async (req, res, next) => {
 
 
         const resJson = await _fetch.json();
-        console.log(resJson);
 
         if (resJson._status)
         {

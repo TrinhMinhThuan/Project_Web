@@ -6,7 +6,7 @@ module.exports = class Orders {
     constructor(OrderID, UserID, OrderDate, TotalAmount) {
         this.OrderID = OrderID;
         this.UserID = UserID;
-        this.OrderDate = OrderDate;
+        this.OrderDate = OrderDate; 
         this.TotalAmount = TotalAmount;
     }
     static async getIDInLastRow() {
@@ -21,7 +21,7 @@ module.exports = class Orders {
     static async create(UserID, TotalAmount) {
 
         const currentDate = new Date();
-        currentDate.setHours(currentDate.getHours()+7);
+       
         let pool = await sql.connect(databaseConnection);
 
         let id = await this.getIDInLastRow();

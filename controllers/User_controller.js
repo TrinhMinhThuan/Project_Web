@@ -378,7 +378,7 @@ exports.GetProfile = async (req, res, next) => {
     for (let order of Orders)
     {
         date = new Date(order.OrderDate);
-        order.OrderDateToString = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
+        order.OrderDateToString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}-${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
     }
 
     const Topup = await TopupModel.getByUserID_Page(req.user.UserID,page,limit);
@@ -387,7 +387,8 @@ exports.GetProfile = async (req, res, next) => {
     for (let row of Topup)
     {
         date = new Date(row.TopUpDay);
-        row.TopUpDayToString = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
+        row.TopUpDayToString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}-${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
+       
     }
     let pages;
     if(Topup[0]?.Total != undefined &&  Orders[0]?.Total != undefined){
