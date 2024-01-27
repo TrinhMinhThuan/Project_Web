@@ -59,7 +59,6 @@ exports.getSearchBook = async (req, res, next) => {
     if (_preview[0]?.Total/4 < req.query.page && _preview[0].Total % 4 === 0 && req.query.page != 1)
     {
         res.redirect(`/admin/?page=${req.query.page-1}&keyword=${keyword}&type=${type}`);
-        
     }
     else
     {

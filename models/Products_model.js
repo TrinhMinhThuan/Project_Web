@@ -93,18 +93,33 @@ module.exports = class Book
         else{
             let query = ``;
             if(options.Category == 0){
-                
-                query = query + `SELECT * , count(*) over() as Total  FROM Products
-                WHERE Products.${options.Type} LIKE @Keyword 
-                ORDER BY Products.ProductId
-                OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`
+                if(options.Min != "" && options.Max != ""){
+                    query = query + `SELECT * , count(*) over() as Total  FROM Products 
+                    WHERE Price >= ${options.Min} and Price <= ${options.Max} and Products.${options.Type} LIKE @Keyword 
+                    ORDER BY Products.ProductId
+                    OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`
+                }
+                else{
+                    query = query + `SELECT * , count(*) over() as Total  FROM Products
+                    WHERE Products.${options.Type} LIKE @Keyword 
+                    ORDER BY Products.ProductId
+                    OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`
+                }
             }
             else{
+                if(options.Min != "" && options.Max != ""){
+                    query = query + `SELECT * , count(*) over() as Total  FROM Products 
+                    WHERE Price >= ${options.Min} and Price <= ${options.Max} and Products.${options.Type} LIKE @Keyword AND Products.CategoryID = ${options.Category}
+                    ORDER BY Products.ProductId
+                    OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`
+                }
+                else{
+                    query = query + `SELECT * , count(*) over() as Total  FROM Products 
+                    WHERE Products.${options.Type} LIKE @Keyword AND Products.CategoryID = ${options.Category}
+                    ORDER BY Products.ProductId
+                    OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`
+                }
                 
-                query = query + `SELECT * , count(*) over() as Total  FROM Products 
-                WHERE Products.${options.Type} LIKE @Keyword AND Products.CategoryID = ${options.Category}
-                ORDER BY Products.ProductId
-                OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY`
             }
             let Products = await pool.request()
             .input("Keyword", sql.NVarChar, `%${options.Keyword}%`)
