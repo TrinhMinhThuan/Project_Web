@@ -1,5 +1,4 @@
 
-const UserModel = require('../models/Users_model');
 const CartModel = require('../models/Carts_model');
 const ProductModel = require('../models/Products_model');
 const https = require('https');
@@ -157,7 +156,7 @@ exports.addCart = async (req, res, next) => {
             let check = 0;
             for (let cart of _Cart) {
                 if (BookID == cart.ProductID && UserID == cart.UserID) {
-                    if (cart.Quantity + quantity > quantity)
+                    if (cart.Quantity + parseInt(quantity) > product.StockQuantity)
                     {
                         res.render("errorPage", {
                             layout: 'customer',

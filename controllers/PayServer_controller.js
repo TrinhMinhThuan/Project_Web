@@ -330,3 +330,54 @@ exports.GetBalance = async (req, res, next) => {
     }
 }
 
+exports.Topup = async (req, res, next) => {
+    try {
+        const token = req.body;
+         
+        const key = process.env.PRIVATE_KEY;
+        const secret = process.env.SERVER_SECRET;
+        let decoded;
+        jwt.verify(token.secret, key, function (err, _decoded) {
+            if (err) {
+
+                console.log("error");
+                res.json({ _status: false });
+            }
+            else {
+                decoded = _decoded.secret;
+            }
+        });
+
+        if (decoded === secret) {
+            jwt.verify(token.user, key, async function (_err, _decoded) {
+                if (_err) {
+                    console.log(_err);
+                    res.json({ _status: false });
+                }
+                else {
+                    //todo 
+
+                    const result = await PaymentAccountModel.updateBalanceById(_decoded.UserID, _decoded.Amount);
+
+                    if (result) {
+                        res.json({ _status: true });
+                    }
+                    else {
+
+                        res.json({ _status: false });
+                    }
+                }
+            });
+        }
+        else {
+            res.json({ _status: false });
+        }
+
+
+
+
+    } catch (error) {
+        next(error);
+        res.json({ _status: false });
+    }
+}

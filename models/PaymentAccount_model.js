@@ -38,7 +38,7 @@ module.exports = class PaymentAccount {
             .query(
                 "UPDATE PaymentAccount SET Balance = Balance + @Balance WHERE UserID = @ID "
             );
-        return update.recordset;
+        return update.rowsAffected[0];
     }
     static async setBalanceByUserID(UserID, Balance)
     {
