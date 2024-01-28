@@ -166,14 +166,24 @@ exports.GoogleAdminAuth = async (req, res, next) => {
         }
 
         if (!user) {
-            let _id = await UserModel.getIDInLastRow();
+            const _id = await UserModel.getIDInLastRow();
+            let id;
+
+            if (_id != undefined)
+            {
+                id = _id + 1;
+            }
+            else
+            {
+                id = 1;
+            }
 
             res.render("addGGAccountsAdmin", {
                 layout: 'admin',
                 Username: req.Username,
                 admin: true,
                 title: "Thêm tài khoản Google",
-                UserID: _id + 1,
+                UserID: id,
                 GoogleID: decodedToken.sub,
                 GoogleName: userData.name,
                 Email: userData.email
@@ -532,14 +542,49 @@ exports.deleteAccount = async (req, res) => {
         res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });
     }
     else {
-        res.status(200).json({ message: 'Dữ liệu đã được xóa thành công!' });
+        const result = await UserModel.deleteUser(userID);
+        if (result == true) 
+        {
+            res.status(200).json({ message: 'Dữ liệu đã được xóa thành công!' });
+        }
+        else
+        {
+            res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });
+        }
     }
 }
 
 exports.getEditAccount = async (req, res) => {
-    const { userID } = req.params;
-    const user = await UserModel.getUserByUserID(userID);
+    const userID = req.params;
+    userID.UserID = userID.userID;
+    const user = await UserModel.getUserByUserID(userID.UserID);
+    
+    const PAY_PORT = process.env.PAY_SERVER_PORT;
+    const agent = new https.Agent({
+        rejectUnauthorized: false
+    });
 
+    const key = process.env.PRIVATE_KEY;
+    const UserID = jwt.sign(userID, key, { expiresIn: '1h' });
+    const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' });
+
+    const _fetch = await fetch(`https://localhost:${PAY_PORT}/getBalance`, {
+        agent,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ UserID, secret }),
+    });
+
+
+    const resJson = await _fetch.json();
+    const resStatus = resJson._status;
+
+    if (resStatus) {
+        user.Balance = resJson._Balance;
+    }
+    
     res.render("editAccountsAdmin", {
         layout: 'admin',
         Username: req.Username,
@@ -552,50 +597,41 @@ exports.getEditAccount = async (req, res) => {
 exports.editAccount = async (req, res) => {
     const { userID } = req.params;
     const user = await UserModel.getUserByUserID(parseInt(userID, 10));
-
-    let _username = req.body.username;
-    if (_username === "") {
-        _username = null;
-    }
-
-    let _password;
-    if (req.body.password !== undefined && req.body.password.length > 0) {
-        _password = await bcrypt.hash(req.body.password, saltRounds);
-    }
-    else {
-        _password = user.Password;
-    }
-
     let inp = {};
     inp.userID = userID;
     inp._userID = req.body.userID;
-    inp._username = _username;
-    inp._password = _password;
-    inp._email = req.body.email ?? user.Email;
     inp._balance = req.body.balance;
 
+    let resStatus;
+    if((req.body.balance != user.Balance)||(req.body.userID != user.UserID))
+    {
+        const PAY_PORT = process.env.PAY_SERVER_PORT;
+        const agent = new https.Agent({
+            rejectUnauthorized: false
+        });
 
-    const PAY_PORT = process.env.PAY_SERVER_PORT;
-    const agent = new https.Agent({
-        rejectUnauthorized: false
-    });
+        const key = process.env.PRIVATE_KEY;
+        const _input = jwt.sign(inp, key, { expiresIn: '1h' });
+        const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
+        
+        const _fetch = await fetch(`https://localhost:${PAY_PORT}/editUser`, {
+            agent,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ input: _input, secret }),
+        });
 
-    const key = process.env.PRIVATE_KEY;
-    const _input = jwt.sign(inp, key, { expiresIn: '1h' });
-    const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
-
-    const _fetch = await fetch(`https://localhost:${PAY_PORT}/editUser`, {
-        agent,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ input: _input, secret }),
-    });
-
-
-    const resJson = await _fetch.json();
-    const resStatus = resJson._status;
+        
+        const resJson = await _fetch.json();
+        resStatus = resJson._status;
+    }
+    else
+    {
+        resStatus = true;
+    }
+    
 
     if (!resStatus) {
         res.render("errorPage", {
@@ -606,49 +642,73 @@ exports.editAccount = async (req, res) => {
         });
     }
     else {
-        res.render("truePage", {
-            layout: 'admin',
-            Username: req.Username,
-            admin: true,
-            notification: "Chỉnh sửa thành công",
-        });
+        let _username = req.body.username;
+        if (_username === "") {
+            _username = null;
+        }
+        
+        let _password;
+        if (req.body.password !== undefined && req.body.password.length > 0) {
+            _password = await bcrypt.hash(req.body.password, saltRounds);
+        }
+        else {
+            _password = user.Password;
+        }
+
+        inp._username = _username;
+        inp._password = _password;
+        inp._email = req.body.email ?? user.Email;
+
+        const result = await UserModel.editUser(inp);
+ 
+        if(result > 0)
+        {
+            res.render("truePage", {
+                layout: 'admin',
+                Username: req.Username,
+                admin: true,
+                notification: "Chỉnh sửa thành công",
+            });
+        }
+        else
+        {
+            res.render("errorPage", {
+                layout: 'admin',
+                Username: req.Username,
+                admin: true,
+                error: "Chỉnh sửa thất bại",
+            });
+        }  
     }
 }
 
 exports.getAddAccount = async (req, res) => {
-    let _id = await UserModel.getIDInLastRow();
+    const _id = await UserModel.getIDInLastRow();
+    let id;
+
+    if (_id != undefined)
+    {
+        id = _id + 1;
+    }
+    else
+    {
+        id = 1;
+    }
 
     res.render("addAccountsAdmin", {
         layout: 'admin',
         Username: req.Username,
         admin: true,
         title: "Thêm tài khoản",
-        id: _id + 1
+        id
     });
 }
 
 exports.addAccount = async (req, res) => {
-    let _username = req.body.username;
-    if (_username === "") {
-        _username = null;
-    }
-
-    let _password;
-    if (req.body.password !== undefined && req.body.password.length > 0) {
-        _password = await bcrypt.hash(req.body.password, saltRounds);
-    }
-    else {
-        _password = null;
-    }
 
     let user = {};
     user.UserID = req.body.userID;
-    user.GoogleID = req.body.googleid ?? null;
-    user.Username = _username;
-    user.GoogleName = req.body.googlename ?? null;
-    user.Password = _password;
-    user.Email = req.body.email;
-
+    
     const PAY_PORT = process.env.PAY_SERVER_PORT;
     const agent = new https.Agent({
         rejectUnauthorized: false
@@ -664,7 +724,7 @@ exports.addAccount = async (req, res) => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ user: _user, secret }),
+        body: JSON.stringify({ UserID: _user, secret }),
     });
 
 
@@ -680,11 +740,44 @@ exports.addAccount = async (req, res) => {
         });
     }
     else {
-        res.render("truePage", {
-            layout: 'admin',
-            Username: req.Username,
-            admin: true,
-            notification: "Thêm tài khoản thành công"
-        });
+        let _username = req.body.username;
+        if (_username === "") {
+            _username = null;
+        }
+
+        let _password;
+        if (req.body.password !== undefined && req.body.password.length > 0) {
+            _password = await bcrypt.hash(req.body.password, saltRounds);
+        }
+        else {
+            _password = null;
+        }
+
+        user.GoogleID = req.body.googleid ?? null;
+        user.Username = _username;
+        user.GoogleName = req.body.googlename ?? null;
+        user.Password = _password;
+        user.Email = req.body.email;
+
+        const result = await UserModel.createAccount(user);
+
+        if(result > 0)
+        {
+            res.render("truePage", {
+                layout: 'admin',
+                Username: req.Username,
+                admin: true,
+                notification: "Thêm tài khoản thành công"
+            });
+        }
+        else
+        {
+            res.render("errorPage", {
+                layout: 'admin',
+                Username: req.Username,
+                admin: true,
+                error: "Thêm tài khoản thất bại"
+            });
+        }
     }
 }

@@ -110,6 +110,10 @@
         button.addEventListener('click', function() {
             event.stopPropagation();
             event.preventDefault();
+
+             var userConfirmed = confirm("Bạn có chắc chắn muốn xóa sản phẩm này?");
+            if(!userConfirmed) return;
+            
             const Id = this.getAttribute('data-product-id');
             const deleteUrl = `/admin/product/delete?ID=${Id}`;
 

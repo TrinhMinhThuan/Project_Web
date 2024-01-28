@@ -166,6 +166,7 @@
         button.addEventListener('click', function() {
             var userConfirmed = confirm("Bạn có chắc chắn muốn xóa tài khoản này?");
             if(!userConfirmed) return;
+            
             const userID = this.getAttribute('data-user-id');
             const deleteUrl = `/accounts/delete/${userID}`;
             

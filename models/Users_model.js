@@ -164,7 +164,7 @@ module.exports = class Users {
             .query(`UPDATE Users SET UserID=@UserID,
                                      Username=@Username,
                                      Password=@Password,
-                                     Email=@Email,
+                                     Email=@Email
                             WHERE UserID = @oldID`);
 
         return update.rowsAffected[0];

@@ -50,4 +50,30 @@ module.exports = class PaymentAccount {
             .query("update PaymentAccount set Balance = @Balance WHERE UserID = @ID");
         return user.rowsAffected[0];
     }
+    
+    static async deleteAccountByUserID(input)
+    {
+        let pool = await sql.connect(databaseConnection);
+        let user = await pool
+            .request()
+            .input("ID", sql.Int, input.userID)
+            .query("DELETE FROM PaymentAccount WHERE UserID = @ID");
+        return user.rowsAffected[0];
+    }
+
+    static async editAccount(input)
+    {
+        let pool = await sql.connect(databaseConnection);
+
+        let update = await pool
+            .request()
+            .input('oldID', sql.Int, input.userID)
+            .input('UserID', sql.Int, input._userID)
+            .input('Balance', sql.Int, input._balance)
+            .query(`UPDATE PaymentAccount SET UserID=@UserID,
+                                              Balance = @Balance
+                                          WHERE UserID = @oldID`);
+
+        return update.rowsAffected[0];
+    }
 }

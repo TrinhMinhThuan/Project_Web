@@ -77,8 +77,8 @@ exports.deleteUser = async (req, res, next) => {
                 }
                 else {
                     //todo code
-                    let deletee = await UserModel.deleteUser(_decoded);
-                    if (!deletee) {
+                    let deletePay = await PaymentAccountModel.deleteAccountByUserID(_decoded);
+                    if (!deletePay) {
                         res.json({ _status: false });
                     }
                     else {
@@ -124,7 +124,7 @@ exports.editUser = async (req, res, next) => {
                 }
                 else {
                     //todo code
-                    let edit = await UserModel.editUser(_decoded);
+                    let edit = await PaymentAccountModel.editAccount(_decoded);
                     if (!edit) {
                         res.json({ _status: false });
                     }
@@ -264,9 +264,9 @@ exports.GetBalance = async (req, res, next) => {
                     //todo code
 
                     let Account = await PaymentAccountModel.getAccountByUserID(_decoded.UserID);
-                    if (Account && Account.Balance) {
+                    if (Account && (Account.Balance !== undefined)) {
                         res.json({ _status: true, _Balance: Account.Balance });
-
+                        
                     }
                     else {
                         res.json({ _status: false });
