@@ -403,7 +403,7 @@ exports.GetProfile = async (req, res, next) => {
 
 
     let { UserID = '', GoogleID = '', Balance = 0, Email = '' } = req.user;
-    const Orders = await OrdersModel.getByUserID_Page(req.user.UserID, page, limit);
+    const Orders = await OrdersModel.getByUserID(req.user.UserID);
     const key = process.env.PRIVATE_KEY;
     let date;
     for (let order of Orders) {
@@ -411,41 +411,12 @@ exports.GetProfile = async (req, res, next) => {
         order.OrderDateToString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     }
 
-    const Topup = await TopupModel.getByUserID_Page(req.user.UserID, page, limit);
+    const Topup = await TopupModel.getByUserID(req.user.UserID);
 
 
     for (let row of Topup) {
         date = new Date(row.TopUpDay);
         row.TopUpDayToString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-    }
-    let pages;
-    if (Topup[0]?.Total != undefined && Orders[0]?.Total != undefined) {
-        if (Topup[0]?.Total > Orders[0]?.Total) {
-            pages = Array.from(
-                { length: Math.ceil(Topup[0]?.Total / limit || 0) },
-                (_, i) => i + 1
-            );
-        }
-        else {
-            pages = Array.from(
-                { length: Math.ceil(Orders[0]?.Total / limit || 0) },
-                (_, i) => i + 1
-            );
-        }
-    }
-    else {
-        if (Topup[0]?.Total != undefined) {
-            pages = Array.from(
-                { length: Math.ceil(Topup[0]?.Total / limit || 0) },
-                (_, i) => i + 1
-            );
-        }
-        else {
-            pages = Array.from(
-                { length: Math.ceil(Orders[0]?.Total / limit || 0) },
-                (_, i) => i + 1
-            );
-        }
     }
 
 
@@ -473,6 +444,7 @@ exports.GetProfile = async (req, res, next) => {
         Balance = resJson._Balance;
     }
 
+  
     res.render('profilePageClient', {
         layout: 'customer',
         Username: req.Username,
@@ -482,7 +454,6 @@ exports.GetProfile = async (req, res, next) => {
         Email,
         Orders,
         Topup,
-        pages,
         title: 'Thông tin tài khoản'
     });
 }

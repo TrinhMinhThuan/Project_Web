@@ -33,7 +33,6 @@
                             <div class="col-sm-9">
                                 <input style="border: none; outline: none;" readonly class="text-primary w-100 mb-0"
                                     value="{{GoogleID}}">
-
                             </div>
                         </div>
                         <hr>
@@ -61,23 +60,22 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-7">
+                    <div class="col-md">
+
                         <div class="card mb-4 mb-md-0">
                             <div class="card-body">
                                 <p class="mb-4 fw-bold" style="text-align: center;"> Lịch sử mua hàng
                                 </p>
                                 {{#if Orders.length}}
-                                <div>
+                                <div class="table-wrapper">
                                     <table class="table">
-                                        <thead>
+                                        <thead class="sticky-thead">
                                             <tr class="text-center">
-
                                                 <th scope="col">Mã hóa đơn</th>
                                                 <th scope="col">Ngày giao dịch</th>
                                                 <th scope="col">Số tiền</th>
                                                 <th scope="col">Kết quả giao dịch</th>
                                                 <th scope="col">Xem chi tiết</th>
-
                                             </tr>
                                         </thead>
                                         <tbody id="listBook">
@@ -93,38 +91,33 @@
                                                         <i class="fa-solid fa-eye"></i>
                                                     </a>
                                                 </td>
-
                                             </tr>
                                             {{/each}}
-
                                         </tbody>
                                     </table>
                                 </div>
 
-
                                 {{else}}
                                 <p class="text-center">Bạn chưa thực hiện giao dịch nào.</p>
-
                                 {{/if}}
-
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="row mt-4">
                     <div class="col-md">
                         <div class="card mb-4 mb-md-0">
                             <div class="card-body">
                                 <p class="mb-4 fw-bold" style="text-align: center;"> Lịch sử nạp tiền
                                 </p>
                                 {{#if Topup.length}}
-                                <div>
+                                <div class="table-wrapper">
                                     <table class="table">
-                                        <thead>
+                                        <thead class="sticky-thead">
                                             <tr class="text-center">
-
                                                 <th scope="col">Mã giao dịch</th>
                                                 <th scope="col">Ngày giao dịch</th>
                                                 <th scope="col">Số tiền nạp</th>
-
                                             </tr>
                                         </thead>
                                         <tbody id="listBook">
@@ -152,101 +145,26 @@
                 </div>
             </div>
         </div>
-        <div class="d-flex justify-content-center mt-3">
-            {{#if pages}}
-            <button class="btn-prevStart btn btn-light mr-2"><i class="fa fa-angle-double-left"></i></button>
-            <button class="btn-prev btn btn-light mr-2"><i class="fas fa-chevron-left"></i></button>
-            <select id="pageSelect" class="col-2 align-self-center text-center paging form-select ">
-                {{#each pages}}
-                <option value="{{this}}">Page {{this}}</option>
-                {{/each}}
-            </select>
-            <button class="btn-next btn btn-light ml-2"><i class="fas fa-chevron-right"></i></button>
-            <button class="btn-nextEnd btn btn-light ml-2"><i class="fa fa-angle-double-right"></i></button>
-            {{/if}}
-        </div>
     </div>
 </section>
-<script>
-    // Update Page
-var currentPage;
-// Hàm để cập nhật currentPage khi có sự kiện thay đổi
-function updateCurrentPage() {
-    currentPage = document.getElementById("pageSelect").value;
-}
-
-const selection = document.querySelector(".paging");
-selection?.addEventListener("change", (e) => {
-  const url = new URL(window.location.href);
-  const query = new URLSearchParams(window.location.search);
-  query.set("page", e.target.value);
-  url.search = query;
-  location.assign(url.href);
-});
-const query = new URLSearchParams(window.location.search);
-if (selection) selection.value = query.get("page") || 1;
-
-
-document.querySelectorAll('.btn-prevStart').forEach(button => {
-  button.addEventListener('click', function(e) {
-    event.preventDefault();
-    updateCurrentPage();
-    if(currentPage == 1){
-      return;
+<style>
+    /* Thiết lập kích thước cố định và overflow cho phần tử bao bọc nội dung */
+    /* Thiết lập kích thước cố định cho phần tử bao bọc */
+    .table-wrapper {
+        max-height: 300px;
+        /* Điều chỉnh kích thước tùy ý */
+        overflow-y: auto;
+        position: relative;
     }
-    const url = new URL(window.location.href);
-    const query = new URLSearchParams(window.location.search);
-    query.set("page", 1);
-    url.search = query;
-    location.assign(url.href);
-  })
-});
 
-document.querySelectorAll('.btn-prev').forEach(button => {
-  button.addEventListener('click', function(e) {
-    event.preventDefault();
-    updateCurrentPage();
-    //const max = {{pages.length}};
-    if(currentPage == 1){
-      return;
+    .table-wrapper table tbody {
+        overflow-y: auto;
     }
-    const url = new URL(window.location.href);
-    const query = new URLSearchParams(window.location.search);
-    query.set("page", currentPage - 1);
-    url.search = query;
-    location.assign(url.href);
-  })
-});
 
-document.querySelectorAll('.btn-nextEnd').forEach(button => {
-  button.addEventListener('click', function(e) {
-    event.preventDefault();
-    updateCurrentPage();
-    const max = {{pages.length}};
-    if(currentPage == max){
-      return;
+    .sticky-thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: white;
     }
-    const url = new URL(window.location.href);
-    const query = new URLSearchParams(window.location.search);
-    query.set("page", max);
-    url.search = query;
-    location.assign(url.href);
-  })
-});
-
-document.querySelectorAll('.btn-next').forEach(button => {
-  button.addEventListener('click', function(e) {
-    event.preventDefault();
-    updateCurrentPage();
-    const max = {{pages.length}};
-    if(currentPage == max){
-      return;
-    }
-    const url = new URL(window.location.href);
-    const query = new URLSearchParams(window.location.search);
-    query.set("page", parseInt(currentPage,10) + 1);
-    url.search = query;
-    location.assign(url.href);
-  })
-});
-</script>
+</style>
