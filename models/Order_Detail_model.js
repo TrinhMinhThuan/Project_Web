@@ -114,5 +114,23 @@ module.exports = class Orders
             return false;
         }
     }
+    static async deleteOrderDetailByOrderID(orderID)
+    {
+        let pool = await sql.connect(databaseConnection);
+
+        let row = await pool
+            .request()
+            .input('OrderID', sql.Int, orderID)
+            .query('DELETE FROM Order_Detail WHERE OrderID = @OrderID');
+
+        if (row.rowsAffected[0] > 0) 
+        {
+            return true;
+        } 
+        else 
+        {
+            return false;
+        }
+    }
 
 }

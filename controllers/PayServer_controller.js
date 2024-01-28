@@ -1,7 +1,5 @@
 
 const jwt = require("jsonwebtoken");
-const UserModel = require('../models/Users_model');
-
 const PaymentAccountModel = require('../models/PaymentAccount_model');
 
 exports.createUser = async (req, res, next) => {

@@ -523,7 +523,15 @@ exports.deleteAccount = async (req, res) => {
         res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });
     }
     else {
+        const orders = await OrdersModel.getByUserID(userID.userID);
+        for (let order of orders)
+        {
+            await OrderDetailModel.deleteOrderDetailByOrderID(order.OrderID);
+        }
+        await OrdersModel.deleteOrderByUserID(userID.userID);
+        await TopupModel.deleteTopupByUserID(userID.userID);
         const result = await UserModel.deleteUser(userID);
+
         if (result == true) 
         {
             res.status(200).json({ message: 'Dữ liệu đã được xóa thành công!' });

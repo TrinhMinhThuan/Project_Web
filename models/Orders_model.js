@@ -101,5 +101,23 @@ module.exports = class Orders {
         }
         return check.recordset;
     }
+    static async deleteOrderByUserID(userID)
+    {
+        let pool = await sql.connect(databaseConnection);
+
+        let row = await pool
+            .request()
+            .input('UserID', sql.Int, userID)
+            .query('DELETE FROM Orders WHERE UserID = @UserID');
+
+        if (row.rowsAffected[0] > 0) 
+        {
+            return true;
+        } 
+        else 
+        {
+            return false;
+        }
+    }
 
 }

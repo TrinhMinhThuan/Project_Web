@@ -62,5 +62,23 @@ module.exports = class TopUp {
 
         return topup.rowsAffected[0];
 
+    } 
+    static async deleteTopupByUserID(userID)
+    {
+        let pool = await sql.connect(databaseConnection);
+
+        let row = await pool
+            .request()
+            .input('UserID', sql.Int, userID)
+            .query('DELETE FROM TopUp WHERE UserID = @UserID');
+
+        if (row.rowsAffected[0] > 0) 
+        {
+            return true;
+        } 
+        else 
+        {
+            return false;
+        }
     }
 }

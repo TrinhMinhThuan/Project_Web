@@ -74,5 +74,25 @@ exports.getError = (req, res, next ) => {
   });
 }
 
-
+exports.checkAdmin = (req, res, next) => {
+  const token = req.session.token;
+  const key = process.env.PRIVATE_KEY;
+  jwt.verify(token, key, function (err, decoded) {
+    if (err) {
+      req.Username = 'Bạn chưa đăng nhập'
+      next();
+    }
+    else {
+      const role = decoded.Role;
+      if (role === 'Admin') {
+        req.Username = decoded.Username;
+        req.user = decoded;
+        next();
+      }
+      else {
+        next();
+      }
+    }
+  });
+}
 
