@@ -30,9 +30,9 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
         product = await ProductModel.getByProductID(cart.ProductID);
         if (product != undefined) {
             cart.ProductName = product.ProductName;
-            cart.Price = product.Price;
+            cart.Price = product.Price.toLocaleString('vi-VN');
             cart.Author = product.Author;
-            cart.TotalPrice = product.Price * cart.Quantity;
+            cart.TotalPrice = (product.Price * cart.Quantity).toLocaleString('vi-VN');
         }
         else
         {
@@ -80,10 +80,10 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
         Username: req.Username,
         UserID: UserID,
         cart: cartOfUser,
-        TotalPriceAllItem,
+        TotalPriceAllItem: TotalPriceAllItem.toLocaleString('vi-VN'),
         pages,
-        Balance,
-        title: "Giỏ hàng"
+        Balance: Balance.toLocaleString('vi-VN'),
+        title: "Danh sách sản phẩm trong giỏ hàng"
     });
 }
 

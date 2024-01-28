@@ -16,11 +16,13 @@ exports.orderDetail = async (req, res, next) => {
 
     let product = {};
     for (let detail of orderDetail) {
+        detail.Price = detail.Price.toLocaleString('vi-VN');
+        
         product = await ProductModel.getByProductID(detail.ProductID);
         if (product)
         {
             detail.ProductName = product.ProductName;
-            detail.PriceOne = product.Price;
+            detail.PriceOne = product.Price.toLocaleString('vi-VN');
             detail.Author = product.Author;
         }
     }
@@ -34,7 +36,7 @@ exports.orderDetail = async (req, res, next) => {
         layout: 'customer',
         Username: req.Username,
         orderDetail,
-        TotalPriceAllItem,
+        TotalPriceAllItem: TotalPriceAllItem.toLocaleString('vi-VN'),
         pages,
         title: "Chi tiết hóa đơn"
     });

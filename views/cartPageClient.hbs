@@ -1,10 +1,11 @@
 <div class="container d-flex flex-column">
   
-    <h3 class="h5 col-4 w-100 fw-bold mb-0 text-gray-800 text-start mt-2 mb-4">Số dư của bạn: {{Balance}} VNĐ
+    <h3 class="h5 col-4 w-100 fw-bold mb-0 text-gray-800 text-start mt-2 mb-4">Số dư của bạn: {{Balance}} đ
     </h3>
     <div class="row">
-       <h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center mt-3 mb-4">Tổng hóa đơn: {{TotalPriceAllItem}} VNĐ
-    </h3>
+       <h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center mt-3 mb-4">Tổng hóa đơn: 
+        <span class="text-danger">{{TotalPriceAllItem}} đ</span>
+      </h3>
     </div>
     
   
@@ -29,9 +30,9 @@
                     <th scope="row">{{this.ProductID}}</th>
                     <td>{{this.ProductName}}</td>
                     <td>{{this.Author}}</td>
-                    <td>{{this.Price}} VNĐ</td>
+                    <td>{{this.Price}} đ</td>
                     <td>{{this.Quantity}}</td>
-                    <td>{{this.TotalPrice}} VNĐ</td>
+                    <td>{{this.TotalPrice}} đ</td>
                     <td>
                         <button  class="btn btn-delete btn-danger"
                             data-cart-userId="{{this.UserID}}"
@@ -52,7 +53,7 @@
         <button class="btn-prev btn btn-light mr-2"><i class="fas fa-chevron-left"></i></button>
         <select id="pageSelect" class="col-2 align-self-center text-center paging form-select ">
             {{#each pages}}
-            <option value="{{this}}">Page {{this}}</option>
+            <option value="{{this}}">Trang {{this}}</option>
             {{/each}}
         </select>
         <button class="btn-next btn btn-light ml-2"><i class="fas fa-chevron-right"></i></button>
@@ -61,7 +62,7 @@
     </div>
 
     
-    <a href="/cartBook/pay" class="align-self-center d-block btn btn-success"> <i class="fa-solid fa-credit-card"></i> Xác nhận thanh toán
+    <a href="/cartBook/pay" class="align-self-center d-block btn btn-success mb-4"> <i class="fa-solid fa-credit-card"></i> Xác nhận thanh toán
     </a>
     {{else}}
     <p class="text-center">Bạn chưa có sản phẩm nào trong giỏ hàng.</p>

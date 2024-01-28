@@ -2,7 +2,7 @@
   <form id="searchForm" action="/admin/addBook-Admin" enctype="multipart/form-data" method="Post" class="d-flex  flex-column">
     <div>
       <div class="mb-3 d-flex justify-content-center col-8 align-items-center">
-        <img id = "imagePreview" height="190px" width="190px" src="/Images/{{_product.Image}}" alt="Bìa sách">
+        <img id = "imagePreview" height="300px" width="190px" src="/Images/{{_product.Image}}" alt="Bìa sách">
       </div>
       <div class="mb-3 align-items-center">
         <label class="form-label">Ảnh minh họa: </label>
@@ -12,17 +12,17 @@
       </div>
       
       <div class="mb-3 row align-items-center">
-        <label class="form-label col-2 m-0">Mã sách: </label>
-        <input type="text" class="form-control col-6" placeholder="Nhập id sách" name="newProductID"
+        <label class="form-label col-2 m-0">ID: </label>
+        <input type="text" class="form-control col-6" placeholder="Nhập ID sách" name="newProductID"
            required />
       </div>
       <div class="mb-3 row align-items-center">
-        <label class="form-label col-2 m-0">Tên: </label>
+        <label class="form-label col-2 m-0">Tên sản phẩm: </label>
         <input type="text" class="form-control col-6" placeholder="Nhập tên sách" name="productName"
            required />
       </div>
       <div class="mb-3 row align-items-center">
-        <label class="form-label col-2 m-0">Thể loại: </label>
+        <label class="form-label col-2 m-0">Danh mục: </label>
         <select name="categoryId" class="col-6 form-select option">
           {{#each _genre}}
           <option value="{{this.CategoryID}}">{{this.CategoryName}}</option>
@@ -45,7 +45,7 @@
            required />
       </div>
       <div class="mb-3 row align-items-center">
-        <label class="form-label col-2 m-0">Giá sản phẩm: </label>
+        <label class="form-label col-2 m-0">Giá: </label>
         <input type="number" class="form-control col-6" placeholder="Nhập giá sản phẩm" name="price"
            required />
       </div>
@@ -64,6 +64,7 @@ document.getElementById('imageInput').addEventListener('change', function () {
     var reader = new FileReader();
     reader.onload = function (e) {
       preview.src = e.target.result;
+      preview.style.width = "auto";
     };
     reader.readAsDataURL(input.files[0]);
   }

@@ -407,16 +407,26 @@ exports.GetProfile = async (req, res, next) => {
     const key = process.env.PRIVATE_KEY;
     let date;
     for (let order of Orders) {
+        order.TotalAmount = order.TotalAmount.toLocaleString('vi-VN');
+
         date = new Date(order.OrderDate);
-        order.OrderDateToString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        let hours = date.getHours().toString().padStart(2, '0');
+        let minutes = date.getMinutes().toString().padStart(2, '0');
+        let seconds = date.getSeconds().toString().padStart(2, '0');
+        order.OrderDateToString = `${hours}:${minutes}:${seconds}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     }
 
     const Topup = await TopupModel.getByUserID(req.user.UserID);
 
 
     for (let row of Topup) {
+        row.Amount = row.Amount.toLocaleString('vi-VN');
+
         date = new Date(row.TopUpDay);
-        row.TopUpDayToString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        let hours = date.getHours().toString().padStart(2, '0');
+        let minutes = date.getMinutes().toString().padStart(2, '0');
+        let seconds = date.getSeconds().toString().padStart(2, '0');
+        row.TopUpDayToString = `${hours}:${minutes}:${seconds}-${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     }
 
 
@@ -450,7 +460,7 @@ exports.GetProfile = async (req, res, next) => {
         Username: req.Username,
         UserID: req.user.UserID,
         GoogleID,
-        Balance,
+        Balance: Balance.toLocaleString('vi-VN'),
         Email,
         Orders,
         Topup,

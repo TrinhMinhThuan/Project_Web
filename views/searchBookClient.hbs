@@ -51,7 +51,7 @@
 
             <div class="card-footer d-flex align-items-center">
               <div class="row w-100 pl-2" >
-                <input type="number" class="col-md quantityInput mt-2 ml-2 " name="quantity" id="quantityInput{{this.ProductID}}"
+                <input type="number" class="col-md quantityInput mt-2 ml-2 pl-3 pr-0" name="quantity" id="quantityInput{{this.ProductID}}"
                   min="1" value="1" style="text-align: center;" required />
 
                 <button type="button" data-product-id="{{this.ProductID}}"
@@ -65,10 +65,10 @@
           </div>
         </div>
         {{/each}}
+        {{else}}
+        <p class="text-center">Không Tìm Thấy Sách Theo Yêu Cầu.</p>
+        {{/if}}
       </div>
-      {{else}}
-      <p class="text-center">Không Tìm Thấy Sách Theo Yêu Cầu🥲</p>
-      {{/if}}
     </div>
     <div class="d-flex justify-content-center mt-4 mb-4">
        {{#if pages}}
@@ -76,7 +76,7 @@
     <button class="btn-prev btn btn-light mr-2"><i class="fas fa-chevron-left"></i></button>
     <select id = "pageSelect" class="col-2 align-self-center text-center paging form-select ">
       {{#each pages}}
-      <option value="{{this}}">Page {{this}}</option>
+      <option value="{{this}}">Trang {{this}}</option>
       {{/each}}
     </select>
     <button  class="btn-next btn btn-light ml-2"><i class="fas fa-chevron-right"></i></button>

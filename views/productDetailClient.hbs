@@ -5,7 +5,7 @@
                 <img src="/Images/{{book.Image}}" height="300px" alt="Bìa sách">
             </div>
 
-            <div class="col-xl-5 col-lg-6 col-md-10 mt-3 ml-5">
+            <div class="col-xl-7 col-lg-6 col-md-10 mt-3 ml-5">
                 <div class="row mb-3">
                     <div class="col-sm-4">
                         <p class="mb-0 font-weight-bold">ID</p>
@@ -89,10 +89,8 @@
 
             <label class="col-xl-3 col-lg-4 col-md-11 col-sm-11 col-11 form-label fw-bold  mt-2">Nhập số lượng: </label>
 
-            <input type="number" class="col-xl-2 col-lg-7 col-md-11 col-sm-11 col-11 mr-3 mt-2" name="quantity" id="quantityInput{{book.ProductID}}" min="1"
+            <input type="number" class="col-xl-2 col-lg-7 col-md-11 col-sm-11 col-11 mr-3 mt-2 pl-3 pr-0" name="quantity" id="quantityInput{{book.ProductID}}" min="1"
                 value="1" style="text-align: center;" required />
-
-
 
             <button type="button" data-product-id="{{book.ProductID}}"
              class="col-xl-5 col-lg-11 col-md-11 col-sm-11 col-11 btn-addCart btn btn-danger btn-sm  mt-2">
@@ -132,7 +130,7 @@
 
                     <div class="card-footer d-flex align-items-center">
                         <div class="row w-100 pl-2">
-                            <input type="number" class="col-md quantityInput mt-2 ml-2 " name="quantity"
+                            <input type="number" class="col-md quantityInput mt-2 ml-2 pl-3 pr-0" name="quantity"
                                 id="quantityInput{{this.ProductID}}" min="1" value="1" style="text-align: center;"
                                 required />
 

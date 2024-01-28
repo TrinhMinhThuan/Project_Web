@@ -3,14 +3,14 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="yearInput1">Nhập năm thống kê</label>
+                    <label for="yearInput1">Nhập năm thống kê:</label>
                     <input type="number" id="yearInput1" class="form-control" name="year" min="1900" max="2100"
                         placeholder="" required>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="yearInput">Nhập năm bắt đầu</label>
+                    <label for="yearInput">Nhập năm bắt đầu:</label>
                     <input type="number" id="yearInput" class="form-control" name="year1" min="1900" max="2100"
                         placeholder="" required>
                 </div>
@@ -26,14 +26,14 @@
         <div class="d-none d-flex justify-content-center chart-header">
             <h2 id="chartHeader1" class="d-none mt-3">Biểu đồ cột</h2>
         </div>
-        <canvas id="myChart" width="400" height="200">
+        <canvas id="myChart" class="mb-5" width="400" height="200">
 
         </canvas>
         {{!-- Tròn--}}
         <div class="d-none d-flex justify-content-center chart-header">
             <h2 id="chartHeader2" class="d-none mt-3">Biểu đồ tròn</h2>
         </div>
-        <canvas style="margin-top: 25px" id="myColorfulPieChart" width="400" height="200">
+        <canvas style="margin-top: 25px" class="mb-5" id="myColorfulPieChart" width="400" height="200">
         </canvas>
     </div>
 </div>
@@ -54,16 +54,26 @@
       input.reportValidity();
     }
     // Cấu hình biểu đồ
-    var options = {
+     var options = {
         scales: {
-            y: {
-                beginAtZero: true,
+            yAxes: [{
                 ticks: {
-                    stepSize: 1,  // Chỉ hiển thị số nguyên
-                    precision: 0  // Không hiển thị số thập phân
+                    beginAtZero:true,
+                    callback: function(value, index, values) {
+                        return value.toLocaleString('vi-VN');
+                    }
+                }
+            }]
+        },
+
+        tooltips: {
+            callbacks: {
+                label: function(tooltipItem, data) {
+                    const yValue = Math.floor(tooltipItem.yLabel);
+                    return yValue.toLocaleString('vi-VN') + ' VNĐ';
                 }
             }
-        }
+        }   
     };
 
     // Tạo biểu đồ
@@ -161,7 +171,7 @@
             data: {
                 labels: dataFromServer.labels,
                 datasets: [{
-                    label: 'Doanh thu',
+                    label: 'Doanh thu (VNĐ)',
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1,
@@ -214,7 +224,7 @@
                             var value = data.datasets[0].data[tooltipItem.index];
                             var total = data.datasets[0].data.reduce((acc, val) => acc + val, 0);
                             var percentage = ((value / total) * 100).toFixed(2) + '%';
-                            return label + ': ' + value + ' (' + percentage + ')';
+                            return label + ': ' + value.toLocaleString('vi-VN') + ' VNĐ (' + percentage + ')';
                         }
                     }
                 }

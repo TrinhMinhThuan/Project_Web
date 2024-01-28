@@ -3,7 +3,7 @@
     class="d-flex  flex-column">
     <div>
       <div class="mb-3 d-flex justify-content-center col-8 align-items-center">
-        <img id="imagePreview" height="190px" width="190px" src="/Images/{{_product.Image}}" alt="Image Preview">
+        <img id="imagePreview" height="300px" src="/Images/{{_product.Image}}" alt="Image Preview">
       </div>
       <div class="mb-3 align-items-center">
         <label class="form-label">Ảnh minh họa: </label>
@@ -13,17 +13,17 @@
         </form>
       </div>
       <div class="mb-3 row align-items-center">
-        <label class="form-label col-2 m-0">Mã sách: </label>
-        <input type="text" class="form-control col-6" placeholder="Nhập id sách" name="newProductID"
+        <label class="form-label col-2 m-0">ID: </label>
+        <input type="text" class="form-control col-6" placeholder="Nhập ID sách" name="newProductID"
           value="{{_product.ProductID}}" required />
       </div>
       <div class="mb-3 row align-items-center">
-        <label class="form-label col-2 m-0">Tên: </label>
+        <label class="form-label col-2 m-0">Tên sản phẩm: </label>
         <input type="text" class="form-control col-6" placeholder="Nhập tên sách" name="productName"
           value="{{_product.ProductName}}" required />
       </div>
       <div class="mb-3 row align-items-center">
-        <label class="form-label col-2 m-0">Thể loại: </label>
+        <label class="form-label col-2 m-0">Danh mục: </label>
         <select name="categoryId" class="col-6 form-select option">
           {{#each _genre}}
           <option value="{{this.CategoryID}}">{{this.CategoryName}}</option>
@@ -46,7 +46,7 @@
           value="{{_product.PublishedYear}}" required />
       </div>
       <div class="mb-3 row align-items-center">
-        <label class="form-label col-2 m-0">Giá sản phẩm: </label>
+        <label class="form-label col-2 m-0">Giá: </label>
         <input type="number" class="form-control col-6" placeholder="Nhập giá sản phẩm" name="price"
           value="{{_product.Price}}" required />
       </div>

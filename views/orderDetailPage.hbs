@@ -1,5 +1,6 @@
 {{#if orderDetail.length}}
-<h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center mt-5 mb-5">Tổng hóa đơn: {{TotalPriceAllItem}} VNĐ
+<h3 class="h5 w-100 fw-bold mb-0 text-gray-800 text-center mt-5 mb-5">Tổng hóa đơn: 
+  <span class="text-danger">{{TotalPriceAllItem}} đ</span>
 </h3>
 <div>
     <table class="table">
@@ -18,9 +19,9 @@
             <tr class="text-center">
                 <th scope="row">{{this.ProductName}}</th>
                 <td>{{this.Author}}</td>
-                <td>{{this.PriceOne}} VNĐ</td>
+                <td>{{this.PriceOne}} đ</td>
                 <td>{{this.Quantity}}</td>
-                <td>{{this.Price}} VNĐ</td>
+                <td>{{this.Price}} đ</td>
 
             </tr>
             {{/each}}
@@ -35,7 +36,7 @@
     <button class="btn-prev btn btn-light mr-2"><i class="fas fa-chevron-left"></i></button>
     <select id="pageSelect" class="col-2 align-self-center text-center paging form-select ">
         {{#each pages}}
-        <option value="{{this}}">Page {{this}}</option>
+        <option value="{{this}}">Trang {{this}}</option>
         {{/each}}
     </select>
     <button class="btn-next btn btn-light ml-2"><i class="fas fa-chevron-right"></i></button>
@@ -46,8 +47,8 @@
 <p class="text-center">Bạn chưa có sản phẩm nào trong giỏ hàng🥲</p>
 {{/if}}
 
-<div class="w-100 row ">
-    <a href="/profile" class="btn btn-success" style="margin: auto; width:10%;"> <i class="fa-solid fa-arrow-left"></i>
+<div class="w-100 row">
+    <a href="/profile" class="btn btn-success" style="margin: auto; width:12%; height:40px;"> <i class="fa-solid fa-arrow-left"></i>
         Quay lại
     </a>
 </div>

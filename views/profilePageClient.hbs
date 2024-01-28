@@ -53,7 +53,7 @@
                             </div>
                             <div class="col-sm-9">
                                 <input style="border: none; outline: none;" readonly class="text-primary w-100 mb-0"
-                                    value="{{Balance}} VNĐ">
+                                    value="{{Balance}} đ">
                             </div>
                         </div>
                         <hr>
@@ -64,7 +64,7 @@
 
                         <div class="card mb-4 mb-md-0">
                             <div class="card-body">
-                                <p class="mb-4 fw-bold" style="text-align: center;"> Lịch sử mua hàng
+                                <p class="mb-4 fw-bold h5 text-gray-800" style="text-align: center;"> Lịch sử mua hàng
                                 </p>
                                 {{#if Orders.length}}
                                 <div class="table-wrapper">
@@ -83,7 +83,7 @@
                                             <tr class="text-center">
                                                 <th scope="row">{{this.OrderID}}</th>
                                                 <td>{{this.OrderDateToString}}</td>
-                                                <td>{{this.TotalAmount}} VNĐ</td>
+                                                <td>{{this.TotalAmount}} đ</td>
                                                 <td>{{this.Status}}</td>
                                                 <td>
                                                     <a href="/orderDetail?ID={{this.OrderID}}" type="submit"
@@ -108,7 +108,7 @@
                     <div class="col-md">
                         <div class="card mb-4 mb-md-0">
                             <div class="card-body">
-                                <p class="mb-4 fw-bold" style="text-align: center;"> Lịch sử nạp tiền
+                                <p class="mb-4 fw-bold h5 text-gray-800" style="text-align: center;"> Lịch sử nạp tiền
                                 </p>
                                 {{#if Topup.length}}
                                 <div class="table-wrapper">
@@ -125,7 +125,7 @@
                                             <tr class="text-center">
                                                 <th scope="row">{{this.TopUpID}}</th>
                                                 <td>{{this.TopUpDayToString}}</td>
-                                                <td>{{this.Amount}} VNĐ</td>
+                                                <td>{{this.Amount}} đ</td>
                                             </tr>
                                             {{/each}}
 

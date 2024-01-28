@@ -42,7 +42,7 @@ exports.Topup = async (req, res, next) => {
             res.render('truePage', {
                 layout: 'customer',
                 Username: req.Username,
-                error: 'Nạp tiền thành công',
+                notification: 'Nạp tiền thành công',
                 //title: 'Trạng thái'
             });
         }
@@ -51,7 +51,6 @@ exports.Topup = async (req, res, next) => {
             res.render('errorPage', {
                 layout: 'customer',
                 Username: req.Username,
-    
                 error: 'Nạp tiền không thành công, vui lòng thử lại'
             });
         }
@@ -60,7 +59,6 @@ exports.Topup = async (req, res, next) => {
         res.render('errorPage', {
             layout: 'customer',
             Username: req.Username,
-
             error: 'Nạp tiền không thành công, vui lòng thử lại'
         });
     }
