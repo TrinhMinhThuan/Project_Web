@@ -70,13 +70,13 @@
   // Cấu hình biểu đồ
   var options = {
     scales: {
-      yAxes: [{
+      y: {
+        beginAtZero: true,
         ticks: {
-          beginAtZero:true,
           stepSize: 1,  // Chỉ hiển thị số nguyên
           precision: 0  // Không hiển thị số thập phân
         }
-      }]
+      }
     }
   };
 
