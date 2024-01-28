@@ -41,8 +41,11 @@
     <div class="d-none d-flex justify-content-center chart-header">
       <h2 id = "chartHeader2" class = "d-none mt-3" >Biểu đồ tròn</h2>
     </div>
-    <canvas style="margin-top: 25px" id="myColorfulPieChart" width="400" height="200">
+    <div class="mb-4 row justify-content-center">
+ <canvas style="margin-top: 25px" class="col" id="myColorfulPieChart" width="1000" height="500">
     </canvas>
+    </div>
+   
 
   </div>
 </div>
@@ -51,8 +54,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <!-- Bao gồm Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 
 
@@ -212,6 +216,8 @@
       type: 'pie',
       data: data2,
       options: {
+        //maintainAspectRatio: false, 
+        responsive: false,
         tooltips: {
           callbacks: {
             label: function (tooltipItem, data) {
@@ -223,6 +229,8 @@
             }
           }
         }
+                
+      
       }
     });
   }

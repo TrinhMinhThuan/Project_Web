@@ -4,7 +4,7 @@ const viewController = require('../controllers/view_controller');
 const middle = require('../middleware/middleware');
 
 viewRoute.get('/login', viewController.Login);
-viewRoute.get('/login-admin', viewController.LoginAdmin);
+viewRoute.get('/login-admin',  middle.checkAdmin, viewController.LoginAdmin);
 viewRoute.get('/signup', viewController.Sigup);
 
 viewRoute.get('/topUp', middle.authenticate, viewController.Topup)

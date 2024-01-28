@@ -1,4 +1,3 @@
-const Product = require('../models/Users_model');
 
 exports.Login = (req, res, next) => {
   res.render("loginPage", {
@@ -9,13 +8,18 @@ exports.Login = (req, res, next) => {
 }
 
 exports.LoginAdmin = (req, res, next) => {
+  if (req.user) {
+    res.redirect('/admin');
+  }
+  else {
+    res.render("loginPage", {
+      layout: 'account-form',
+      Username: req.Username,
+      admin: true,
+      title: "Đăng nhập vào tài khoản admin",
+    });
+  }
 
-  res.render("loginPage", {
-    layout: 'account-form',
-    Username: req.Username,
-    admin: true,
-    title: "Đăng nhập vào tài khoản admin",
-  });
 }
 
 
@@ -29,7 +33,6 @@ exports.Sigup = (req, res, next) => {
 }
 
 exports.BookStore = async (req, res, next) => {
-  const result = await Product.getAll();
   res.render("tempPage", {
     layout: 'customer',
     Username: req.Username,
@@ -47,8 +50,7 @@ exports.clientHome = (req, res, next) => {
 
 
 
-exports.Topup = async (req, res, next) => 
-{
+exports.Topup = async (req, res, next) => {
   res.render('topupPageClient', {
     layout: 'customer',
     Username: req.Username,

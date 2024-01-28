@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/Users_model');
 const OrdersModel = require('../models/Orders_model');
-const OrderDetailModel = require('../models/Order_Detail_model');
 const TopupModel = require('../models/TopUp_model');
 const fetch = require('node-fetch');
 
