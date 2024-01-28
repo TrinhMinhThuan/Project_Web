@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/Users_model');
 const OrdersModel = require('../models/Orders_model');
+const OrderDetailModel = require('../models/Order_Detail_model');
 const TopupModel = require('../models/TopUp_model');
 const fetch = require('node-fetch');
 
@@ -512,7 +513,15 @@ exports.deleteAccount = async (req, res) => {
         res.status(500).json({ message: 'Có lỗi xảy ra khi xóa dữ liệu.' });
     }
     else {
+        const orders = await OrdersModel.getByUserID(userID.userID);
+        for (let order of orders)
+        {
+            await OrderDetailModel.deleteOrderDetailByOrderID(order.OrderID);
+        }
+        await OrdersModel.deleteOrderByUserID(userID.userID);
+        await TopupModel.deleteTopupByUserID(userID.userID);
         const result = await UserModel.deleteUser(userID);
+
         if (result == true) 
         {
             res.status(200).json({ message: 'Dữ liệu đã được xóa thành công!' });
