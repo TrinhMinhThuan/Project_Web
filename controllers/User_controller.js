@@ -529,7 +529,7 @@ exports.deleteAccount = async (req, res) => {
             await OrderDetailModel.deleteOrderDetailByOrderID(order.OrderID);
         }
         await OrdersModel.deleteOrderByUserID(userID.userID);
-        await TopupModel.deleteTopupByUserID(userID.userID);
+        await TopupModel.deleteTopupByUserID(userID.userID); 
         const result = await UserModel.deleteUser(userID);
 
         if (result == true) 

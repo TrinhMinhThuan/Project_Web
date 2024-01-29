@@ -56,6 +56,15 @@
   </form>
 </div>
 <script>
+// Lấy năm hiện tại
+    var today = new Date();
+    var currentYear = today.getFullYear();
+    // Đặt giá trị tối đa của trường nhập liệu là năm hiện tại
+    document.addEventListener("DOMContentLoaded", function() {
+        var inputField = document.querySelector('input[name="publishedyear"]');
+        inputField.max = currentYear;
+    });
+
   // Thêm sự kiện lắng nghe cho sự kiện change trên input file
 document.getElementById('imageInput').addEventListener('change', function () {
  var input = document.getElementById('imageInput');

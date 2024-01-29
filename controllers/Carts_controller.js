@@ -18,7 +18,7 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
     let product1 = {};
     for (let cart of _cartOfUser) {
         product1 = await ProductModel.getByProductID(cart.ProductID);
-        if(product1){
+        if (product1) {
             cart.TotalPrice = product1.Price * cart.Quantity;
             TotalPriceAllItem += cart.TotalPrice;
         }
@@ -34,8 +34,7 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
             cart.Author = product.Author;
             cart.TotalPrice = (product.Price * cart.Quantity).toLocaleString('vi-VN');
         }
-        else
-        {
+        else {
             cart.Price = 0;
             cart.TotalPrice = 0;
         }
@@ -70,8 +69,7 @@ exports.LoadAllItemOfCart = async (req, res, next) => {
 
     const resJson = await _fetch.json();
     let Balance = 0;
-    if (resJson._status)
-    {
+    if (resJson._status) {
         Balance = resJson._Balance;
     }
 
@@ -94,114 +92,122 @@ exports.Pay = async (req, res, next) => {
 
     try {
 
+        const _user = await UserModel.getUserByUserID(req.user.UserID);
+        if (_user) {
+            const cartOfUser = await CartModel.getByUserID(req.user.UserID);
+            let TotalPriceAllItem = 0;
+            let product = {};
 
-        const cartOfUser = await CartModel.getByUserID(req.user.UserID);
-        let TotalPriceAllItem = 0;
-        let product = {};
-
-        for (let cart of cartOfUser) {
-            product = await ProductModel.getByProductID(cart.ProductID);
-            if (product == undefined)
-            {
-                const OrderID = await OrderModel.create(req.user.UserID, TotalPriceAllItem, 'Failed'); //Tạo hóa đơn
-                for (let cart of cartOfUser) {
-                    await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
-                }
-                res.render( 'errorPage', { layout: 'customer', 
-                Username: req.Username,
-                    error: `Sản phẩm có ID ${cart.ProductID} không còn đã không còn kinh doanh nữa,
+            for (let cart of cartOfUser) {
+                product = await ProductModel.getByProductID(cart.ProductID);
+                if (product == undefined) {
+                    const OrderID = await OrderModel.create(req.user.UserID, TotalPriceAllItem, 'Failed'); //Tạo hóa đơn
+                    for (let cart of cartOfUser) {
+                        await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
+                    }
+                    res.render('errorPage', {
+                        layout: 'customer',
+                        Username: req.Username,
+                        error: `Sản phẩm có ID ${cart.ProductID} không còn đã không còn kinh doanh nữa,
                      quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
-                     
+
                     return;
+                }
+                else if (product.StockQuantity < cart.Quantity) {
+                    const OrderID = await OrderModel.create(req.user.UserID, TotalPriceAllItem, 'Failed'); //Tạo hóa đơn
+                    for (let cart of cartOfUser) {
+                        await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
+                    }
+                    res.render('errorPage', {
+                        layout: 'customer',
+                        Username: req.Username,
+
+                        error: `Sản phẩm ${product.ProductName} có số lượng tồn là ${product.StockQuantity}
+                     nên không đủ để thục hiện giao dịch, quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
+                    return;
+                }
             }
-            else if( product.StockQuantity < cart.Quantity)
-            {
+
+            for (let cart of cartOfUser) {
+                product = await ProductModel.getByProductID(cart.ProductID);
+                cart.ProductName = product.ProductName;
+                cart.Price = product.Price;
+                cart.Author = product.Author;
+                cart.TotalPrice = product.Price * cart.Quantity;
+                TotalPriceAllItem += cart.TotalPrice;
+            }
+
+            let Infor = {};
+            const key = process.env.PRIVATE_KEY;
+
+            Infor.UserID = req.user.UserID;
+            const AdminAccount = await UserModel.getAdminUser();
+
+            Infor.AdminID = AdminAccount.UserID;
+
+            Infor.TotalPriceAllItem = TotalPriceAllItem;
+
+            const Info = jwt.sign({ Infor }, key, { expiresIn: '1h' });
+
+            const PAY_PORT = process.env.PAY_SERVER_PORT;
+            const agent = new https.Agent({
+                //ca: process.env.KEY,
+                rejectUnauthorized: false
+            });
+
+            const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
+            const _fetch = await fetch(`https://localhost:${PAY_PORT}/pay`, {
+                agent,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ Info, secret }),
+            });
+
+
+            const resJson = await _fetch.json();
+
+            if (resJson._status == false) {
+
                 const OrderID = await OrderModel.create(req.user.UserID, TotalPriceAllItem, 'Failed'); //Tạo hóa đơn
                 for (let cart of cartOfUser) {
                     await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
                 }
-                res.render('errorPage', {layout: 'customer', 
-                Username: req.Username,
 
-                    error: `Sản phẩm ${product.ProductName} có số lượng tồn là ${product.StockQuantity}
-                     nên không đủ để thục hiện giao dịch, quý khách vui lòng xóa khỏi giỏ hàng để tiếp tục thục hiện giao dịch!` });
-                     return;
+
+                res.render('errorPage', {
+                    layout: 'customer',
+                    Username: req.Username,
+                    error: resJson._errorMsg
+                });
+            }
+            else { // Trường hợp đã thành công
+
+                await CartModel.deleteByUserID(req.user.UserID); // Xóa khỏi cart
+                const OrderID = await OrderModel.create(req.user.UserID, TotalPriceAllItem, 'Success'); //Tạo hóa đơn
+                for (let cart of cartOfUser) {
+                    await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
+                    await ProductModel.updateStockQuantityByProductID(cart.ProductID, -cart.Quantity); // Update số lượng sản phẩm
+
+                }
+
+                res.render('truePage', {
+                    Username: req.Username,
+                    layout: 'customer',
+                    notification: 'Thanh toán thành công'
+                });
             }
         }
-
-        for (let cart of cartOfUser) {
-            product = await ProductModel.getByProductID(cart.ProductID);
-            cart.ProductName = product.ProductName;
-            cart.Price = product.Price;
-            cart.Author = product.Author;
-            cart.TotalPrice = product.Price * cart.Quantity;
-            TotalPriceAllItem += cart.TotalPrice;
+        else
+        {
+            req.session.token = null;
+            res.redirect(req.url);
         }
 
-        let Infor = {};
-        const key = process.env.PRIVATE_KEY;
-
-        Infor.UserID = req.user.UserID;
-        const AdminAccount = await UserModel.getAdminUser();
-        
-        Infor.AdminID = AdminAccount.UserID;
-        
-        Infor.TotalPriceAllItem = TotalPriceAllItem;
-
-        const Info = jwt.sign({ Infor }, key, { expiresIn: '1h' });
-
-        const PAY_PORT = process.env.PAY_SERVER_PORT;
-        const agent = new https.Agent({
-            //ca: process.env.KEY,
-            rejectUnauthorized: false
-        });
-
-        const secret = jwt.sign({ secret: process.env.SERVER_SECRET }, key, { expiresIn: '1h' })
-        const _fetch = await fetch(`https://localhost:${PAY_PORT}/pay`, {
-            agent,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ Info, secret }),
-        });
-
-
-        const resJson = await _fetch.json();
-
-        if (resJson._status == false) {
-
-            const OrderID = await OrderModel.create(req.user.UserID, TotalPriceAllItem, 'Failed'); //Tạo hóa đơn
-            for (let cart of cartOfUser) {
-                await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
-            }
-
-
-            res.render('errorPage', {
-                layout: 'customer',
-                Username: req.Username,
-                error: resJson._errorMsg
-            });
-        }
-        else { // Trường hợp đã thành công
-
-            await CartModel.deleteByUserID(req.user.UserID); // Xóa khỏi cart
-            const OrderID = await OrderModel.create(req.user.UserID, TotalPriceAllItem, 'Success'); //Tạo hóa đơn
-            for (let cart of cartOfUser) {
-                await OrderDetailModel.create(OrderID, cart.ProductID, cart.Quantity, cart.TotalPrice);
-                await ProductModel.updateStockQuantityByProductID(cart.ProductID, -cart.Quantity); // Update số lượng sản phẩm
-
-            }
-
-            res.render('truePage', {
-                Username: req.Username,
-                layout: 'customer',
-                notification: 'Thanh toán thành công'
-            });
-        }
 
     } catch (error) {
-        
+
         next(error);
     }
 
@@ -218,14 +224,13 @@ exports.addCart = async (req, res, next) => {
         const maxCartID = _Cart.reduce((max, obj) => (obj.CartID > max ? obj.CartID : max), _Cart[0].CartID);
         const { BookID } = req.params;
         const product = await ProductModel.getByProductID(BookID);
-        
+
         const quantity = req.query.quantity;
         if (quantity <= product.StockQuantity) {
-            let check = 0; 
+            let check = 0;
             for (let cart of _Cart) {
                 if (BookID == cart.ProductID && UserID == cart.UserID) {
-                    if (cart.Quantity + parseInt(quantity) > product.StockQuantity)
-                    {
+                    if (cart.Quantity + parseInt(quantity) > product.StockQuantity) {
                         res.render("errorPage", {
                             layout: 'customer',
                             Username: req.Username,
@@ -234,12 +239,11 @@ exports.addCart = async (req, res, next) => {
                         });
                         return;
                     }
-                    else
-                    {
+                    else {
                         check = await CartModel.updateQuantityByCartID(cart.CartID, quantity);
                         break;
                     }
-                    
+
                 }
 
             }
@@ -288,8 +292,7 @@ exports.Delete = async (req, res, next) => {
         const affect = await CartModel.deleteByCartID(ID);
         const totalItem = await CartModel.countCartByUserID(req.query.UserID);
         let page = req.query.page;
-        if (totalItem % 5 === 0 && page != 1)
-        {
+        if (totalItem % 5 === 0 && page != 1) {
             page -= 1;
         }
         res.redirect(`/cartBook?page=${page}`);

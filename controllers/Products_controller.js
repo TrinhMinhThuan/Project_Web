@@ -110,7 +110,7 @@ exports.editBook = async (req, res, next) => {
 
     if(newProductID != "" &&  productId != newProductID) {
         const checkID = await Book.checkID(newProductID)
-        console.log(checkID);
+
         if(checkID) {
             res.render("errorPage", {
                 layout: 'admin',
@@ -123,7 +123,6 @@ exports.editBook = async (req, res, next) => {
     if(newImage != "" && newProductID != "" && productName != "" &&
         categoryId != "" && stockquantity != "" && author != "" &&
         publishedyear != "" && price != "") {
-        console.log("Test2");
         const checkEdit = await Book.edit(_product, newProduct)
         if (checkEdit == false) {
             res.render("errorPage", {
